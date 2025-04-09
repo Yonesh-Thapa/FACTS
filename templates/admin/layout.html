@@ -91,6 +91,16 @@
         .sidebar-brand {
             color: var(--white-color);
             text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .sidebar-logo {
+            height: 55px;
+            width: auto;
+            margin-bottom: 10px;
+            display: inline-block;
         }
         
         .sidebar-menu {
@@ -321,6 +331,13 @@
             text-align: center;
         }
         
+        .login-logo {
+            height: 65px;
+            width: auto;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        
         .login-body {
             padding: 30px;
             background-color: var(--white-color);
@@ -380,7 +397,8 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <a href="{{ url_for('admin_dashboard') }}" class="sidebar-brand">
-                <h3>F.A.C.T.S Admin</h3>
+                <img src="{{ url_for('static', filename='images/facts_logo_transparent.png') }}?v=2" alt="Future Accountant Logo" class="sidebar-logo" width="120" height="55">
+                <h3>Admin</h3>
             </a>
         </div>
         <ul class="sidebar-menu">

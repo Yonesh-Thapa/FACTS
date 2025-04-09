@@ -503,6 +503,13 @@ section {
     padding-top: 70px;
 }
 
+.footer-logo {
+    height: 80px;
+    width: auto;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
 .footer h5 {
     color: var(--white-color);
     margin-bottom: 20px;
