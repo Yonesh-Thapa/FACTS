@@ -228,6 +228,10 @@ def admin_dashboard():
     # Count unread contacts
     unread_contacts = Contact.query.filter_by(is_read=False).count()
     
+    # Count contacts by class assignment
+    fall_contacts = Contact.query.filter_by(class_assignment='fall').count()
+    spring_contacts = Contact.query.filter_by(class_assignment='spring').count()
+    
     # Get class sessions counts
     active_sessions = ClassSession.query.filter_by(is_active=True).count()
     fall_sessions = ClassSession.query.filter_by(session_type='fall', is_active=True).count()
@@ -246,6 +250,8 @@ def admin_dashboard():
         interested_contacts=interested_contacts,
         unread_contacts=unread_contacts,
         unread_count=unread_contacts,  # For sidebar badge
+        fall_contacts=fall_contacts,
+        spring_contacts=spring_contacts,
         active_sessions=active_sessions,
         fall_sessions=fall_sessions,
         spring_sessions=spring_sessions,
@@ -287,6 +293,18 @@ def mark_contact_as_read(contact_id):
     flash('Message marked as read', 'success')
     return redirect(url_for('admin_contacts'))
 
+@app.route('/admin/contacts/<int:contact_id>/mark-unread', methods=['POST'])
+@login_required
+def mark_contact_as_unread(contact_id):
+    from models import Contact
+    
+    contact = Contact.query.get_or_404(contact_id)
+    contact.is_read = False
+    db.session.commit()
+    
+    flash('Message marked as unread', 'success')
+    return redirect(request.referrer or url_for('admin_contacts'))
+
 @app.route('/admin/contacts/<int:contact_id>/mark-read-ajax', methods=['POST'])
 @login_required
 def mark_contact_as_read_ajax(contact_id):
@@ -299,6 +317,20 @@ def mark_contact_as_read_ajax(contact_id):
         return jsonify({'success': True, 'message': 'Message marked as read'})
     except Exception as e:
         app.logger.error(f"Error marking contact as read: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+        
+@app.route('/admin/contacts/<int:contact_id>/mark-unread-ajax', methods=['POST'])
+@login_required
+def mark_contact_as_unread_ajax(contact_id):
+    from models import Contact
+    
+    try:
+        contact = Contact.query.get_or_404(contact_id)
+        contact.is_read = False
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Message marked as unread'})
+    except Exception as e:
+        app.logger.error(f"Error marking contact as unread: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/admin/contacts/<int:contact_id>/assign-class', methods=['POST'])
@@ -334,7 +366,7 @@ def delete_contact(contact_id):
 @app.route('/admin/classes')
 @login_required
 def admin_classes():
-    from models import ClassSession
+    from models import ClassSession, Contact
     
     # Get active sessions
     active_sessions = ClassSession.query.filter_by(is_active=True).order_by(ClassSession.start_date).all()
@@ -346,12 +378,18 @@ def admin_classes():
     fall_sessions = ClassSession.query.filter_by(session_type='fall', is_active=True).order_by(ClassSession.start_date).all()
     spring_sessions = ClassSession.query.filter_by(session_type='spring', is_active=True).order_by(ClassSession.start_date).all()
     
+    # Count contacts by class assignment
+    fall_contacts = Contact.query.filter_by(class_assignment='fall').count()
+    spring_contacts = Contact.query.filter_by(class_assignment='spring').count()
+    
     response = make_response(render_template(
         'admin/classes.html',
         active_sessions=active_sessions,
         inactive_sessions=inactive_sessions,
         fall_sessions=fall_sessions,
-        spring_sessions=spring_sessions
+        spring_sessions=spring_sessions,
+        fall_contacts=fall_contacts,
+        spring_contacts=spring_contacts
     ))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response

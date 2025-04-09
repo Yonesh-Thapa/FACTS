@@ -104,7 +104,14 @@
                                         </button>
                                     </form>
                                     {% else %}
-                                    <span class="badge bg-light text-dark">Read</span>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-light text-dark me-2">Read</span>
+                                        <form method="POST" action="{{ url_for('mark_contact_as_unread', contact_id=contact.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Mark as Unread">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                     {% endif %}
                                 </td>
                                 <td>

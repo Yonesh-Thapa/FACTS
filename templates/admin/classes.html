@@ -6,6 +6,67 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-success-light">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stats-data">
+                    <h3 class="stats-number">{{ active_sessions }}</h3>
+                    <p class="stats-label">Active Sessions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-primary-light">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="stats-data">
+                    <h3 class="stats-number">{{ fall_sessions|length }}</h3>
+                    <p class="stats-label">Fall Sessions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-success-light">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <div class="stats-data">
+                    <h3 class="stats-number">{{ spring_sessions|length }}</h3>
+                    <p class="stats-label">Spring Sessions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="stats-card">
+                <div class="stats-icon bg-primary-light">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="stats-data">
+                    <h3 class="stats-number">{{ fall_contacts }}</h3>
+                    <p class="stats-label">Fall Class Interested Contacts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stats-card">
+                <div class="stats-icon bg-success-light">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="stats-data">
+                    <h3 class="stats-number">{{ spring_contacts }}</h3>
+                    <p class="stats-label">Spring Class Interested Contacts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
         <div class="col-12">
             <a href="{{ url_for('add_class') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add New Class Session
