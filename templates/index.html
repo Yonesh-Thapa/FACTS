@@ -11,7 +11,7 @@
                 <h1 class="hero-title">Launch Your Accounting Career with F.A.C.T.S</h1>
                 <h2 class="hero-subtitle">Job-Ready Online Training for Aspiring Accountants Across Australia</h2>
                 <p class="session-info">Next Session Starts May 2025 – Limited Seats Available</p>
-                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg hero-cta">Contact Us</a>
+                <a href="{{ url_for('program') }}#enroll" class="btn btn-primary btn-lg hero-cta">Enroll Now</a>
             </div>
             <div class="col-lg-6">
                 <div class="hero-image">
@@ -51,12 +51,12 @@
     </div>
 </section>
 
-<!-- About Preview Section -->
-<section id="about-preview" class="about-preview-section">
+<!-- About Section -->
+<section id="about" class="about-section">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-4">
-                <h2 class="section-title">Why Choose F.A.C.T.S</h2>
+                <h2 class="section-title">About Our Training Program</h2>
                 <div class="section-divider"></div>
             </div>
         </div>
@@ -64,7 +64,12 @@
             <div class="col-md-6">
                 <div class="trainer-card">
                     <div class="trainer-img">
-                        <img src="{{ url_for('static', filename='images/team/darshan_thapa_profile.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="max-width: 250px;">
+                        <!-- SVG placeholder for trainer profile -->
+                        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="100" cy="70" r="50" fill="#007ACC" />
+                            <circle cx="100" cy="60" r="40" fill="#f5f5f5" />
+                            <path d="M100,120 C155,120 155,200 155,200 L45,200 C45,200 45,120 100,120 Z" fill="#007ACC" />
+                        </svg>
                     </div>
                     <h3 class="trainer-name">Darshan Kumar Thapa</h3>
                     <p class="trainer-credentials">ASA CPA, Xero Advisor Certified</p>
@@ -73,11 +78,12 @@
             <div class="col-md-6">
                 <div class="about-content">
                     <h3>Bridging the Gap from Graduation to Employment</h3>
-                    <p>Future Accountants Coaching and Training Services (F.A.C.T.S) helps accounting graduates gain the practical skills employers are looking for. We combine technical software training with career preparation to help you stand out in the job market.</p>
+                    <p>Future Accountants Coaching and Training Services (F.A.C.T.S) was created to address the critical skills gap that many recent accounting graduates face when entering the job market. Our comprehensive program combines technical accounting skills with essential workplace readiness training.</p>
+                    <p>Our mission is to help recent accounting graduates with no practical experience gain the technical and job-readiness skills needed to secure their first accounting position in Australia's competitive job market.</p>
                     <div class="features-list">
                         <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
-                            <span>Industry expert instructor with real-world experience</span>
+                            <span>Practical software training with industry-standard tools</span>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
@@ -85,13 +91,14 @@
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
-                            <span>100% online, accessible from anywhere in Australia</span>
+                            <span>Career guidance from active industry professionals</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Resume building and interview preparation</span>
                         </div>
                     </div>
-                    <div class="mt-4">
-                        <a href="{{ url_for('about') }}" class="btn btn-secondary me-2">Learn More About Us</a>
-                        <a href="{{ url_for('program') }}" class="btn btn-secondary">See Program Details</a>
-                    </div>
+                    <a href="{{ url_for('program') }}" class="btn btn-secondary">See Program Details</a>
                 </div>
             </div>
         </div>
@@ -138,7 +145,7 @@
         </div>
         <div class="row">
             <div class="col-12 text-center mt-4">
-                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">Contact Us Today</a>
+                <a href="{{ url_for('program') }}#enroll" class="btn btn-primary btn-lg">Secure Your Spot Today</a>
             </div>
         </div>
     </div>
@@ -153,7 +160,7 @@
             <div class="col-12 text-center">
                 <h2>Ready to Launch Your Accounting Career?</h2>
                 <p>Next Session Starts May 2025 – Limited Seats Available</p>
-                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg mt-3">Contact Us Now</a>
+                <a href="{{ url_for('program') }}#enroll" class="btn btn-primary btn-lg mt-3">Enroll Now</a>
             </div>
         </div>
     </div>
