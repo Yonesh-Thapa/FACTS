@@ -287,6 +287,20 @@ def mark_contact_as_read(contact_id):
     flash('Message marked as read', 'success')
     return redirect(url_for('admin_contacts'))
 
+@app.route('/admin/contacts/<int:contact_id>/mark-read-ajax', methods=['POST'])
+@login_required
+def mark_contact_as_read_ajax(contact_id):
+    from models import Contact
+    
+    try:
+        contact = Contact.query.get_or_404(contact_id)
+        contact.is_read = True
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Message marked as read'})
+    except Exception as e:
+        app.logger.error(f"Error marking contact as read: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @app.route('/admin/contacts/<int:contact_id>/delete', methods=['POST'])
 @login_required
 def delete_contact(contact_id):
