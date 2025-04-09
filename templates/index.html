@@ -1,0 +1,168 @@
+{% extends "layout.html" %}
+
+{% block title %}F.A.C.T.S - Launch Your Accounting Career{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title">Launch Your Accounting Career with F.A.C.T.S</h1>
+                <h2 class="hero-subtitle">Job-Ready Online Training for Aspiring Accountants Across Australia</h2>
+                <p class="session-info">Next Session Starts May 2025 – Limited Seats Available</p>
+                <a href="{{ url_for('program') }}#enroll" class="btn btn-primary btn-lg hero-cta">Enroll Now</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image">
+                    <!-- SVG for professional accounting imagery -->
+                    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Professional workspace with accounting elements -->
+                        <rect x="50" y="50" width="500" height="300" rx="10" fill="#f5f5f5" />
+                        <rect x="80" y="80" width="200" height="240" rx="5" fill="#ffffff" stroke="#007ACC" stroke-width="2" />
+                        
+                        <!-- Laptop -->
+                        <rect x="300" y="120" width="180" height="120" rx="5" fill="#007ACC" />
+                        <rect x="310" y="130" width="160" height="100" rx="2" fill="#ffffff" />
+                        <rect x="290" y="240" width="200" height="10" rx="5" fill="#007ACC" />
+                        
+                        <!-- Calculator -->
+                        <rect x="100" y="100" width="80" height="100" rx="5" fill="#2ECC71" />
+                        <circle cx="120" cy="120" r="10" fill="#ffffff" />
+                        <circle cx="150" cy="120" r="10" fill="#ffffff" />
+                        <circle cx="120" cy="150" r="10" fill="#ffffff" />
+                        <circle cx="150" cy="150" r="10" fill="#ffffff" />
+                        <circle cx="120" cy="180" r="10" fill="#ffffff" />
+                        <circle cx="150" cy="180" r="10" fill="#ffffff" />
+                        
+                        <!-- Documents/paperwork -->
+                        <rect x="100" y="220" width="160" height="80" rx="2" fill="#ffffff" stroke="#007ACC" stroke-width="1" />
+                        <line x1="120" y1="240" x2="240" y2="240" stroke="#333333" stroke-width="1" />
+                        <line x1="120" y1="260" x2="240" y2="260" stroke="#333333" stroke-width="1" />
+                        <line x1="120" y1="280" x2="240" y2="280" stroke="#333333" stroke-width="1" />
+                        
+                        <!-- Coffee cup -->
+                        <rect x="400" y="260" width="40" height="50" rx="5" fill="#2ECC71" />
+                        <rect x="395" y="250" width="50" height="10" rx="5" fill="#007ACC" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h2 class="section-title">About Our Training Program</h2>
+                <div class="section-divider"></div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="trainer-card">
+                    <div class="trainer-img">
+                        <!-- SVG placeholder for trainer profile -->
+                        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="100" cy="70" r="50" fill="#007ACC" />
+                            <circle cx="100" cy="60" r="40" fill="#f5f5f5" />
+                            <path d="M100,120 C155,120 155,200 155,200 L45,200 C45,200 45,120 100,120 Z" fill="#007ACC" />
+                        </svg>
+                    </div>
+                    <h3 class="trainer-name">Darshan Kumar Thapa</h3>
+                    <p class="trainer-credentials">ASA CPA, Xero Advisor Certified</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="about-content">
+                    <h3>Bridging the Gap from Graduation to Employment</h3>
+                    <p>F.A.C.T.S was created to address the critical skills gap that many recent accounting graduates face when entering the job market. Our comprehensive program combines technical accounting skills with essential workplace readiness training.</p>
+                    <p>Our mission is to help recent accounting graduates with no practical experience gain the technical and job-readiness skills needed to secure their first accounting position in Australia's competitive job market.</p>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Practical software training with industry-standard tools</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Small class sizes for personalized attention</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Career guidance from active industry professionals</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Resume building and interview preparation</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('program') }}" class="btn btn-secondary">See Program Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Program Highlights -->
+<section class="program-highlights">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h2 class="section-title">Program Highlights</h2>
+                <div class="section-divider"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Practical Software Training</h3>
+                    <p>Hands-on experience with Xero, MYOB, and other industry-standard accounting software used across Australia.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Live Instructor-Led Sessions</h3>
+                    <p>Interactive online classes with real-time feedback, questions, and discussions with our expert instructors.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>Job Placement Support</h3>
+                    <p>Resume workshops, LinkedIn profile optimization, and interview practice sessions to help you land your first accounting role.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center mt-4">
+                <a href="{{ url_for('program') }}#enroll" class="btn btn-primary btn-lg">Secure Your Spot Today</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials (can be added later with actual testimonials) -->
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2>Ready to Launch Your Accounting Career?</h2>
+                <p>Next Session Starts May 2025 – Limited Seats Available</p>
+                <a href="{{ url_for('program') }}#enroll" class="btn btn-primary btn-lg mt-3">Enroll Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
