@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block title %}F.A.C.T.S - Payment Cancelled{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1>Payment Cancelled</h1>
+                <p class="lead">Your enrollment has not been processed</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="payment-cancel-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="cancel-card text-center">
+                    <div class="cancel-icon mb-4">
+                        <i class="fas fa-times-circle fa-5x text-danger"></i>
+                    </div>
+                    
+                    <h2 class="mb-4">Your payment was cancelled</h2>
+                    
+                    <p class="lead mb-4">We noticed that your payment process was interrupted or cancelled. No payment has been processed, and your enrollment is not complete.</p>
+                    
+                    <div class="options-section mb-4">
+                        <h4>What would you like to do?</h4>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6 mb-3">
+                                <div class="option-card h-100 p-4">
+                                    <i class="fas fa-redo-alt fa-2x mb-3 text-primary"></i>
+                                    <h5>Try Again</h5>
+                                    <p>Return to the enrollment page and try the payment process again</p>
+                                    <a href="{{ url_for('enroll') }}" class="btn btn-primary">Try Again</a>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="option-card h-100 p-4">
+                                    <i class="fas fa-comment-alt fa-2x mb-3 text-secondary"></i>
+                                    <h5>Need Help?</h5>
+                                    <p>Contact our team for assistance with your enrollment</p>
+                                    <a href="{{ url_for('contact') }}" class="btn btn-outline-secondary">Contact Us</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="additional-info mt-4">
+                        <h4>Having Trouble?</h4>
+                        <p>If you encountered any issues during the payment process, here are some common solutions:</p>
+                        
+                        <ul class="text-start">
+                            <li>Check that your card details were entered correctly</li>
+                            <li>Ensure your card has sufficient funds available</li>
+                            <li>Some banks require verification for online transactions</li>
+                            <li>Try a different browser or device</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="contact-info mt-4">
+                        <p>If you continue to experience issues, please contact us:</p>
+                        <p><strong>Email:</strong> <a href="mailto:fatrainingservice@gmail.com">fatrainingservice@gmail.com</a></p>
+                        <p><strong>Phone:</strong> <a href="tel:0449547715">0449 547 715</a></p>
+                    </div>
+                    
+                    <div class="mt-5">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
