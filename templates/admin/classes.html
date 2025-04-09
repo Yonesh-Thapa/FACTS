@@ -42,25 +42,47 @@
     </div>
     
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <div class="stats-card">
                 <div class="stats-icon bg-primary-light">
                     <i class="fas fa-user-graduate"></i>
                 </div>
                 <div class="stats-data">
                     <h3 class="stats-number">{{ fall_contacts }}</h3>
-                    <p class="stats-label">Fall Class Interested Contacts</p>
+                    <p class="stats-label">Fall Class Interested</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-primary-light">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stats-data">
+                    <h3 class="stats-number">{{ fall_enrolled_count }}</h3>
+                    <p class="stats-label">Fall Class Enrolled</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="stats-card">
                 <div class="stats-icon bg-success-light">
                     <i class="fas fa-user-graduate"></i>
                 </div>
                 <div class="stats-data">
                     <h3 class="stats-number">{{ spring_contacts }}</h3>
-                    <p class="stats-label">Spring Class Interested Contacts</p>
+                    <p class="stats-label">Spring Class Interested</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon bg-success-light">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stats-data">
+                    <h3 class="stats-number">{{ spring_enrolled_count }}</h3>
+                    <p class="stats-label">Spring Class Enrolled</p>
                 </div>
             </div>
         </div>
@@ -144,6 +166,33 @@
                     {% else %}
                     <p class="text-center py-3">No active fall sessions yet.</p>
                     {% endif %}
+                    
+                    {% if fall_enrolled|length > 0 %}
+                    <hr class="my-4">
+                    <h5><i class="fas fa-user-check"></i> Enrolled Students ({{ fall_enrolled|length }})</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Enrolled Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in fall_enrolled %}
+                                <tr>
+                                    <td>{{ student.name }}</td>
+                                    <td><a href="mailto:{{ student.email }}">{{ student.email }}</a></td>
+                                    <td>{{ student.phone or 'Not provided' }}</td>
+                                    <td>{{ student.created_at.strftime('%d %b %Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -218,6 +267,33 @@
                     </div>
                     {% else %}
                     <p class="text-center py-3">No active spring sessions yet.</p>
+                    {% endif %}
+                    
+                    {% if spring_enrolled|length > 0 %}
+                    <hr class="my-4">
+                    <h5><i class="fas fa-user-check"></i> Enrolled Students ({{ spring_enrolled|length }})</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Enrolled Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in spring_enrolled %}
+                                <tr>
+                                    <td>{{ student.name }}</td>
+                                    <td><a href="mailto:{{ student.email }}">{{ student.email }}</a></td>
+                                    <td>{{ student.phone or 'Not provided' }}</td>
+                                    <td>{{ student.created_at.strftime('%d %b %Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% endif %}
                 </div>
             </div>

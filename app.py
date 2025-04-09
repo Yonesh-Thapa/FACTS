@@ -232,6 +232,12 @@ def admin_dashboard():
     fall_contacts = Contact.query.filter_by(class_assignment='fall').count()
     spring_contacts = Contact.query.filter_by(class_assignment='spring').count()
     
+    # Get enrolled students by class assignment
+    fall_enrolled = Contact.query.filter_by(class_assignment='fall', is_enrolled=True).all()
+    spring_enrolled = Contact.query.filter_by(class_assignment='spring', is_enrolled=True).all()
+    fall_enrolled_count = len(fall_enrolled)
+    spring_enrolled_count = len(spring_enrolled)
+    
     # Get class sessions counts
     active_sessions = ClassSession.query.filter_by(is_active=True).count()
     fall_sessions = ClassSession.query.filter_by(session_type='fall', is_active=True).count()
@@ -252,6 +258,10 @@ def admin_dashboard():
         unread_count=unread_contacts,  # For sidebar badge
         fall_contacts=fall_contacts,
         spring_contacts=spring_contacts,
+        fall_enrolled=fall_enrolled,
+        spring_enrolled=spring_enrolled,
+        fall_enrolled_count=fall_enrolled_count,
+        spring_enrolled_count=spring_enrolled_count,
         active_sessions=active_sessions,
         fall_sessions=fall_sessions,
         spring_sessions=spring_sessions,
@@ -351,6 +361,43 @@ def assign_contact_to_class(contact_id):
     flash('Contact assigned to class successfully', 'success')
     return redirect(request.referrer or url_for('admin_contacts'))
 
+@app.route('/admin/contacts/<int:contact_id>/enroll', methods=['POST'])
+@login_required
+def enroll_contact(contact_id):
+    from models import Contact, ClassSession
+    
+    contact = Contact.query.get_or_404(contact_id)
+    phone = request.form.get('phone', '')
+    
+    # Make sure contact has been assigned to a class
+    if not contact.class_assignment:
+        flash('Please assign contact to a class before enrolling', 'danger')
+        return redirect(request.referrer or url_for('admin_contacts'))
+    
+    # Check if the contact was already enrolled before updating status
+    was_previously_enrolled = contact.is_enrolled
+    
+    # Update phone number if provided
+    if phone:
+        contact.phone = phone
+        
+    # Set as enrolled
+    contact.is_enrolled = True
+    
+    # Update class session enrollment count
+    class_type = contact.class_assignment
+    sessions = ClassSession.query.filter_by(session_type=class_type, is_active=True).all()
+    
+    # Only increment session enrollment count if the contact wasn't already enrolled
+    if not was_previously_enrolled:
+        for session in sessions:
+            session.current_enrollment += 1
+    
+    db.session.commit()
+    
+    flash(f'Contact has been enrolled in {class_type} class successfully', 'success')
+    return redirect(request.referrer or url_for('admin_contacts'))
+
 @app.route('/admin/contacts/<int:contact_id>/delete', methods=['POST'])
 @login_required
 def delete_contact(contact_id):
@@ -378,9 +425,17 @@ def admin_classes():
     fall_sessions = ClassSession.query.filter_by(session_type='fall', is_active=True).order_by(ClassSession.start_date).all()
     spring_sessions = ClassSession.query.filter_by(session_type='spring', is_active=True).order_by(ClassSession.start_date).all()
     
-    # Count contacts by class assignment
+    # Get contacts by class assignment
     fall_contacts = Contact.query.filter_by(class_assignment='fall').count()
     spring_contacts = Contact.query.filter_by(class_assignment='spring').count()
+    
+    # Get enrolled students by class type
+    fall_enrolled = Contact.query.filter_by(class_assignment='fall', is_enrolled=True).all()
+    spring_enrolled = Contact.query.filter_by(class_assignment='spring', is_enrolled=True).all()
+    
+    # Count enrolled students
+    fall_enrolled_count = len(fall_enrolled)
+    spring_enrolled_count = len(spring_enrolled)
     
     response = make_response(render_template(
         'admin/classes.html',
@@ -389,7 +444,11 @@ def admin_classes():
         fall_sessions=fall_sessions,
         spring_sessions=spring_sessions,
         fall_contacts=fall_contacts,
-        spring_contacts=spring_contacts
+        spring_contacts=spring_contacts,
+        fall_enrolled=fall_enrolled,
+        spring_enrolled=spring_enrolled,
+        fall_enrolled_count=fall_enrolled_count,
+        spring_enrolled_count=spring_enrolled_count
     ))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response

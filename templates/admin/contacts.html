@@ -25,6 +25,7 @@
                                 <th>Interested</th>
                                 <th>Status</th>
                                 <th>Class</th>
+                                <th>Enrolled</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -75,6 +76,32 @@
                                                             </div>
                                                         </form>
                                                     </div>
+                                                    
+                                                    {% if contact.class_assignment and not contact.is_enrolled %}
+                                                    <div class="mt-4">
+                                                        <p><strong>Enroll Student:</strong></p>
+                                                        <form method="POST" action="{{ url_for('enroll_contact', contact_id=contact.id) }}" class="row g-3 align-items-end">
+                                                            <div class="col-md-8">
+                                                                <label for="phone" class="form-label">Phone Number (optional)</label>
+                                                                <input type="tel" class="form-control" name="phone" id="phone" value="{{ contact.phone or '' }}" placeholder="e.g. 0449 XXX XXX">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <button type="submit" class="btn btn-success">
+                                                                    <i class="fas fa-user-graduate"></i> Enroll Student
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    {% elif contact.is_enrolled %}
+                                                    <div class="mt-4">
+                                                        <div class="alert alert-success">
+                                                            <i class="fas fa-check-circle"></i> Student is enrolled in {{ contact.class_assignment|title }} class.
+                                                            {% if contact.phone %}
+                                                            <p class="mb-0"><strong>Phone:</strong> {{ contact.phone }}</p>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -119,6 +146,19 @@
                                         <span class="badge bg-primary">{{ contact.class_assignment|title }}</span>
                                     {% else %}
                                         <span class="badge bg-light text-dark">Unassigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contact.is_enrolled %}
+                                        <span class="badge bg-success">Enrolled</span>
+                                    {% elif contact.class_assignment %}
+                                        <form method="POST" action="{{ url_for('enroll_contact', contact_id=contact.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Enroll Student">
+                                                <i class="fas fa-user-graduate"></i> Enroll
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">Not Eligible</span>
                                     {% endif %}
                                 </td>
                                 <td>

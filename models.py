@@ -2,6 +2,7 @@ from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import and_
 
 class Contact(db.Model):
     __tablename__ = 'contacts'
@@ -14,6 +15,8 @@ class Contact(db.Model):
     interested = db.Column(db.Boolean, default=False, index=True)
     is_read = db.Column(db.Boolean, default=False, index=True)
     class_assignment = db.Column(db.String(20), index=True)  # 'fall', 'spring', or None
+    is_enrolled = db.Column(db.Boolean, default=False, index=True)  # Whether the contact is enrolled in a class
+    phone = db.Column(db.String(20))  # Phone number for enrolled students
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
     def __repr__(self):
@@ -87,6 +90,16 @@ class ClassSession(db.Model):
     is_active = db.Column(db.Boolean, default=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Get all enrolled students for this class session
+    @property
+    def enrolled_students(self):
+        return Contact.query.filter(
+            and_(
+                Contact.is_enrolled == True,
+                Contact.class_assignment == self.session_type
+            )
+        ).all()
     
     def __repr__(self):
         return f'<ClassSession {self.name}>'
