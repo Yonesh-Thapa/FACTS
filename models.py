@@ -20,21 +20,10 @@ class Enrollment(db.Model):
     phone = db.Column(db.String(20))
     payment_type = db.Column(db.String(50))  # 'standard' or 'early_bird'
     payment_status = db.Column(db.String(50), default='pending')  # 'pending', 'completed', 'failed'
-    payment_amount = db.Column(db.Integer)  # Amount in cents (e.g., 165000 for $1,650.00 AUD)
-    stripe_session_id = db.Column(db.String(200))  # Stripe checkout session ID
-    stripe_payment_intent_id = db.Column(db.String(200))  # Stripe payment intent ID
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    paid_at = db.Column(db.DateTime)  # When payment was completed
 
     def __repr__(self):
         return f'<Enrollment {self.name}>'
-    
-    @property
-    def amount_display(self):
-        """Return the payment amount formatted as currency"""
-        if self.payment_amount:
-            return f"A${self.payment_amount / 100:.2f}"
-        return "N/A"
 
 class Testimonial(db.Model):
     id = db.Column(db.Integer, primary_key=True)
