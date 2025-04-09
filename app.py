@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 # Configure logging - use INFO level in production for better performance
 log_level = logging.INFO if os.environ.get('FLASK_ENV') == 'production' else logging.DEBUG
@@ -54,6 +55,25 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Reduces overhead
 
 # Initialize the app with the extension
 db.init_app(app)
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'admin_login'
+login_manager.login_message = 'Please log in to access this page.'
+login_manager.login_message_category = 'info'
+
+@login_manager.user_loader
+def load_user(user_id):
+    from models import Admin
+    return Admin.query.get(int(user_id))
+
+# Custom Jinja2 filters
+@app.template_filter('nl2br')
+def nl2br_filter(text):
+    if not text:
+        return ""
+    return text.replace('\n', '<br>')
 
 # Define cache duration for static pages
 STATIC_PAGE_CACHE = 3600  # 1 hour in seconds
@@ -148,6 +168,109 @@ def add_cache_headers(response):
         response.headers['Cache-Control'] = f'public, max-age={max_age}'
     
     return response
+
+# Admin routes
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if current_user.is_authenticated:
+        return redirect(url_for('admin_dashboard'))
+    
+    if request.method == 'POST':
+        from models import Admin
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        
+        user = Admin.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            # Update last login time
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            login_user(user)
+            flash('Login successful!', 'success')
+            
+            # Check if there's a next parameter (for pages that require login)
+            next_page = request.args.get('next')
+            if next_page and next_page.startswith('/'):
+                return redirect(next_page)
+            
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Invalid username or password', 'danger')
+    
+    response = make_response(render_template('admin/login.html'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/logout')
+@login_required
+def admin_logout():
+    logout_user()
+    flash('You have been logged out', 'info')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    # Import models
+    from models import Contact, Testimonial, FAQ
+    
+    # Get recent contacts (last 10)
+    recent_contacts = Contact.query.order_by(Contact.created_at.desc()).limit(10).all()
+    
+    # Count all contacts
+    total_contacts = Contact.query.count()
+    
+    # Count interested contacts
+    interested_contacts = Contact.query.filter_by(interested=True).count()
+    
+    # Get testimonials
+    testimonials = Testimonial.query.order_by(Testimonial.is_featured.desc(), Testimonial.created_at.desc()).all()
+    
+    # Get FAQs
+    faqs = FAQ.query.order_by(FAQ.position).all()
+    
+    response = make_response(render_template(
+        'admin/dashboard.html',
+        recent_contacts=recent_contacts,
+        total_contacts=total_contacts,
+        interested_contacts=interested_contacts,
+        testimonials=testimonials,
+        faqs=faqs
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/contacts')
+@login_required
+def admin_contacts():
+    # Import Contact model
+    from models import Contact
+    
+    # Get all contacts, ordered by most recent first
+    contacts = Contact.query.order_by(Contact.created_at.desc()).all()
+    
+    response = make_response(render_template('admin/contacts.html', contacts=contacts))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+# Create initial admin user if it doesn't exist
+with app.app_context():
+    db.create_all()
+    
+    from models import Admin
+    
+    # Check if any admin users exist
+    if Admin.query.count() == 0:
+        admin = Admin(
+            username='darshan',
+            email='fatrainingservice@gmail.com'
+        )
+        admin.set_password('Kathmandu1')
+        db.session.add(admin)
+        db.session.commit()
+        app.logger.info('Initial admin user created')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

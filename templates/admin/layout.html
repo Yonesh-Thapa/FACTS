@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}F.A.C.T.S Admin Portal{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom admin styles -->
+    <style>
+        :root {
+            --primary-color: #007ACC;
+            --secondary-color: #2ECC71;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --white-color: #ffffff;
+            --gray-color: #6c757d;
+            --light-gray-color: #e9ecef;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+            --box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-gray-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            color: var(--white-color);
+            font-size: 1.5rem;
+        }
+        
+        .sidebar-brand {
+            color: var(--white-color);
+            text-decoration: none;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 15px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white-color);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .content-wrapper {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+            transition: var(--transition);
+        }
+        
+        .top-bar {
+            background-color: var(--white-color);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card {
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: none;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: var(--white-color);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            padding: 15px 20px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #006bb3;
+            border-color: #006bb3;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #28b463;
+            border-color: #28b463;
+        }
+        
+        .badge-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .alert {
+            border-radius: var(--border-radius);
+        }
+        
+        .text-secondary {
+            color: var(--secondary-color) !important;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                width: 0;
+                padding: 0;
+            }
+            
+            .content-wrapper {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .sidebar.active {
+                width: 250px;
+                padding: initial;
+            }
+            
+            .content-wrapper.sidebar-active {
+                margin-left: 250px;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        
+        /* Login page */
+        .login-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-gray-color);
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .login-body {
+            padding: 30px;
+            background-color: var(--white-color);
+        }
+        
+        /* Stats cards */
+        .stats-card {
+            background-color: var(--white-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            margin-right: 15px;
+            color: var(--white-color);
+        }
+        
+        .bg-primary-light {
+            background-color: rgba(0, 122, 204, 0.2);
+            color: var(--primary-color) !important;
+        }
+        
+        .bg-secondary-light {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--secondary-color) !important;
+        }
+        
+        .bg-warning-light {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: var(--warning-color) !important;
+        }
+        
+        .bg-info-light {
+            background-color: rgba(23, 162, 184, 0.2);
+            color: var(--info-color) !important;
+        }
+        
+        .stats-data {
+            flex: 1;
+        }
+        
+        .stats-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            line-height: 1.2;
+        }
+        
+        .stats-label {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            margin-bottom: 0;
+        }
+        
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+    {% block head_extras %}{% endblock %}
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{{ url_for('admin_dashboard') }}" class="sidebar-brand">
+                <h3>F.A.C.T.S Admin</h3>
+            </a>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('admin_dashboard') }}" {% if request.path == url_for('admin_dashboard') %}class="active"{% endif %}>
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_contacts') }}" {% if request.path == url_for('admin_contacts') %}class="active"{% endif %}>
+                    <i class="fas fa-envelope"></i> Contact Submissions
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="content-wrapper">
+        <div class="top-bar">
+            <div class="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <h4 class="mb-0">{% block page_title %}Admin Dashboard{% endblock %}</h4>
+            <div>
+                <span>Welcome, {{ current_user.username }}</span>
+            </div>
+        </div>
+        
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    {% else %}
+        {% block login_content %}{% endblock %}
+    {% endif %}
+    
+    <!-- Bootstrap JS with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery for AJAX calls if needed -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom admin script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile sidebar toggle
+            const mobileToggle = document.querySelector('.mobile-toggle');
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    document.querySelector('.sidebar').classList.toggle('active');
+                    document.querySelector('.content-wrapper').classList.toggle('sidebar-active');
+                });
+            }
+            
+            // Auto-dismiss alerts
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

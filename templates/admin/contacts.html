@@ -1,0 +1,98 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}F.A.C.T.S - Contact Submissions{% endblock %}
+
+{% block page_title %}Contact Submissions{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <span>All Contact Form Submissions</span>
+            </div>
+            <div class="card-body">
+                {% if contacts %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Interested</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contact in contacts %}
+                            <tr>
+                                <td>{{ contact.name }}</td>
+                                <td><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></td>
+                                <td>{{ contact.subject or "N/A" }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#messageModal{{ contact.id }}">
+                                        View Message
+                                    </button>
+                                    
+                                    <!-- Modal for displaying the message -->
+                                    <div class="modal fade" id="messageModal{{ contact.id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ contact.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="messageModalLabel{{ contact.id }}">Message from {{ contact.name }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><strong>Subject:</strong> {{ contact.subject or "N/A" }}</p>
+                                                    <p><strong>Message:</strong></p>
+                                                    <div class="p-3 bg-light rounded">
+                                                        {{ contact.message|nl2br }}
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ contact.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+                                <td>
+                                    {% if contact.interested %}
+                                    <span class="badge bg-success">Yes</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center py-3">No contact submissions yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head_extras %}
+<style>
+    .modal-body {
+        white-space: pre-line; /* Preserve line breaks */
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Custom filter for new line to <br>
+    document.addEventListener('DOMContentLoaded', function() {
+        // No additional scripts needed, modal is handled by Bootstrap
+    });
+</script>
+{% endblock %}

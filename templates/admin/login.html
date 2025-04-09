@@ -1,43 +1,46 @@
-{% extends "layout.html" %}
+{% extends "admin/layout.html" %}
 
 {% block title %}F.A.C.T.S - Admin Login{% endblock %}
 
-{% block content %}
-<section class="page-header admin-header">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center">
-                <h1>Admin Login</h1>
-                <p class="lead">Access the administration dashboard</p>
-            </div>
+{% block login_content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>F.A.C.T.S Admin</h2>
+            <p>Login to access the admin portal</p>
         </div>
-    </div>
-</section>
-
-<section class="admin-login-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-8">
-                <div class="login-form-card">
-                    <h2>Login</h2>
-                    <p>Please enter your credentials to access the admin dashboard.</p>
-                    
-                    <form action="{{ url_for('admin_login') }}" method="POST" class="login-form">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-block">Login</button>
-                    </form>
+        <div class="login-body">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages mb-4">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
                 </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('index') }}" class="text-decoration-none">Back to Website</a>
             </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
