@@ -2,6 +2,17 @@
 
 {% block title %}F.A.C.T.S - Contact Us{% endblock %}
 
+{% block head_extra %}
+<!-- EmailJS SDK for email notifications -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+    // Initialize EmailJS with public key
+    (function() {
+        emailjs.init("YGp-k-DkCxfL0UAbL"); // This is a public key, safe to expose
+    })();
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- Contact Header -->
 <section class="page-header contact-header">
@@ -81,7 +92,7 @@
                     <h2>Send Us a Message</h2>
                     <p>Fill out the form below and we'll get back to you within 24 hours.</p>
                     
-                    <form action="{{ url_for('contact') }}" method="POST" class="contact-form">
+                    <form action="{{ url_for('contact') }}" method="POST" class="contact-form" id="contactForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="name" class="form-label">Your Name <span class="text-danger">*</span></label>
@@ -116,6 +127,14 @@
                         </div>
                         
                         <button type="submit" class="btn btn-primary">Send Message</button>
+                        
+                        <!-- Hidden loading spinner -->
+                        <div id="form-loading" class="d-none text-center mt-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Sending your message...</p>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -198,4 +217,55 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the contact form
+    const contactForm = document.getElementById('contactForm');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            // Prevent the default form submission
+            e.preventDefault();
+            
+            // Show loading spinner
+            document.getElementById('form-loading').classList.remove('d-none');
+            
+            // Get form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value || 'Not provided';
+            const subject = document.getElementById('subject').value || 'Contact form submission';
+            const message = document.getElementById('message').value;
+            const interested = document.getElementById('interested').checked ? 'Yes' : 'No';
+            
+            // Prepare template parameters for EmailJS
+            const templateParams = {
+                to_email: 'fatrainingservice@gmail.com',
+                from_name: name,
+                from_email: email,
+                phone: phone,
+                subject: subject,
+                message: message,
+                interested: interested,
+                reply_to: email
+            };
+            
+            // Send the email using EmailJS
+            emailjs.send('default_service', 'contact_form', templateParams)
+                .then(function(response) {
+                    // Submit the form to server for database storage
+                    contactForm.submit();
+                })
+                .catch(function(error) {
+                    // If email sending fails, still submit the form but log the error
+                    console.error('Email sending failed:', error);
+                    contactForm.submit();
+                });
+        });
+    }
+});
+</script>
 {% endblock %}
