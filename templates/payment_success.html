@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block title %}F.A.C.T.S - Payment Successful{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1>Payment Successful</h1>
+                <p class="lead">Thank you for enrolling in our program</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="payment-success-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="success-card text-center">
+                    <div class="success-icon mb-4">
+                        <i class="fas fa-check-circle fa-5x text-success"></i>
+                    </div>
+                    
+                    <h2 class="mb-4">Your enrollment is confirmed!</h2>
+                    
+                    <p class="lead mb-4">Thank you for enrolling in our 5-Week Accounting Program. Your payment has been successfully processed.</p>
+                    
+                    <div class="enrollment-details mb-4">
+                        <h4>Enrollment Details</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Name:</strong></span>
+                                <span>{{ enrollment.name }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Email:</strong></span>
+                                <span>{{ enrollment.email }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Program Type:</strong></span>
+                                <span>{{ "Early Bird Enrollment" if enrollment.payment_type == "early_bird" else "Standard Enrollment" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Amount Paid:</strong></span>
+                                <span>{{ enrollment.amount_display }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><strong>Date:</strong></span>
+                                <span>{{ enrollment.paid_at.strftime('%d %B %Y') if enrollment.paid_at else enrollment.created_at.strftime('%d %B %Y') }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="next-steps mb-4">
+                        <h4>Next Steps</h4>
+                        <p>You will receive a confirmation email shortly with all the details of your enrollment. Here's what happens next:</p>
+                        
+                        <ol class="text-start">
+                            <li>Check your email for the welcome package including the program schedule</li>
+                            <li>Complete the pre-program assessment to help us tailor the training to your needs</li>
+                            <li>Join our exclusive online community for students</li>
+                            <li>Prepare for your first session, which begins soon!</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="contact-info mt-4">
+                        <p>If you have any questions, please contact us at:</p>
+                        <p><strong>Email:</strong> <a href="mailto:fatrainingservice@gmail.com">fatrainingservice@gmail.com</a></p>
+                        <p><strong>Phone:</strong> <a href="tel:0449547715">0449 547 715</a></p>
+                    </div>
+                    
+                    <div class="mt-5">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Optional: Add confetti effect for a celebratory feel
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any success page animations or scripts here
+    });
+</script>
+{% endblock %}

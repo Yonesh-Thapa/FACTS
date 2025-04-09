@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+
+{% block title %}F.A.C.T.S - Enroll Now{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1>Enroll in Our Program</h1>
+                <p class="lead">Start your journey to becoming a Future Accountant today</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="enrollment-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="enrollment-card">
+                    <h2 class="text-center mb-4">Program Enrollment</h2>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form id="enrollmentForm" action="{{ url_for('process_enrollment') }}" method="POST">
+                        <div class="mb-4">
+                            <h3>Personal Information</h3>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="e.g. 0412 345 678">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h3>Select Payment Option</h3>
+                            <p>Choose your preferred payment option:</p>
+                            
+                            <div class="row payment-options">
+                                <div class="col-md-6 mb-3">
+                                    <div class="payment-option-card" onclick="selectPaymentOption('standard')">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="payment_type" id="standardPayment" value="standard" checked>
+                                            <label class="form-check-label" for="standardPayment">
+                                                <h4>Standard Payment</h4>
+                                                <p class="price">A$1,650</p>
+                                                <p class="mb-0">Full program access</p>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="payment-option-card" onclick="selectPaymentOption('early_bird')">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="payment_type" id="earlyBirdPayment" value="early_bird">
+                                            <label class="form-check-label" for="earlyBirdPayment">
+                                                <h4>Early Bird Special</h4>
+                                                <p class="price">A$1,500</p>
+                                                <p class="mb-0">A$150 savings!</p>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h3>Payment Method</h3>
+                            <p>Secure payment via credit card:</p>
+                            
+                            <div class="d-grid gap-2">
+                                <button id="payButton" type="submit" class="btn btn-primary btn-lg">Continue to Payment</button>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-lock me-1"></i> Your payment information is secured with SSL encryption.
+                                </small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="enrollment-info py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="info-card h-100">
+                    <div class="card-icon mb-3">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h4>Program Schedule</h4>
+                    <p>Our 5-week program runs on flexible schedules to accommodate your needs. Classes are held twice a week in the evenings.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="info-card h-100">
+                    <div class="card-icon mb-3">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4>What You'll Learn</h4>
+                    <p>From Xero and MYOB basics to resume building and interview preparation, our comprehensive curriculum prepares you for success.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="info-card h-100">
+                    <div class="card-icon mb-3">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h4>Have Questions?</h4>
+                    <p>Contact us at fatrainingservice@gmail.com or call 0449 547 715 for any questions about the enrollment process.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function selectPaymentOption(type) {
+        if (type === 'standard') {
+            document.getElementById('standardPayment').checked = true;
+            document.getElementById('earlyBirdPayment').checked = false;
+        } else {
+            document.getElementById('standardPayment').checked = false;
+            document.getElementById('earlyBirdPayment').checked = true;
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentCards = document.querySelectorAll('.payment-option-card');
+        
+        paymentCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove active class from all cards
+                paymentCards.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked card
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}
