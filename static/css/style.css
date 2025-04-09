@@ -119,10 +119,11 @@ section {
 }
 
 .logo-img {
-    height: 60px;
+    height: 55px;
     width: auto;
     margin-right: 10px;
     transition: transform 0.3s ease;
+    padding: 0;
 }
 
 .navbar-brand:hover .logo-img {
