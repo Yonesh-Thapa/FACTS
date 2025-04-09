@@ -108,6 +108,7 @@ def contact():
             # Extract form data
             name = request.form.get('name', '').strip()
             email = request.form.get('email', '').strip()
+            phone = request.form.get('phone', '').strip()
             subject = request.form.get('subject', '').strip()
             message = request.form.get('message', '').strip()
             interested = bool(request.form.get('interested'))
@@ -121,6 +122,7 @@ def contact():
             new_contact = Contact(
                 name=name,
                 email=email,
+                phone=phone,
                 subject=subject,
                 message=message,
                 interested=interested

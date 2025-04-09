@@ -270,6 +270,8 @@
                                 <th>Status</th>
                                 <th>Interested</th>
                                 <th>Class</th>
+                                <th>Enrolled</th>
+                                <th>Phone</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -306,6 +308,14 @@
                                         <span class="badge bg-light text-dark">Unassigned</span>
                                     {% endif %}
                                 </td>
+                                <td>
+                                    {% if contact.is_enrolled %}
+                                    <span class="badge bg-success">Enrolled</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Not Enrolled</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ contact.phone or "Not provided" }}</td>
                                 
                                 <!-- Modal for displaying the message -->
                                 <div class="modal fade" id="messageModal{{ contact.id }}" tabindex="-1" aria-labelledby="messageModalLabel{{ contact.id }}" aria-hidden="true">
@@ -317,6 +327,7 @@
                                             </div>
                                             <div class="modal-body">
                                                 <p><strong>Subject:</strong> {{ contact.subject or "N/A" }}</p>
+                                                <p><strong>Phone:</strong> {{ contact.phone or "Not provided" }}</p>
                                                 <p><strong>Message:</strong></p>
                                                 <div class="p-3 bg-light rounded">
                                                     {{ contact.message|nl2br }}
