@@ -139,7 +139,7 @@ section {
     background-color: rgba(0, 122, 204, 0.1);
 }
 
-.enroll-btn {
+.contact-btn {
     margin-left: 10px;
     padding: 8px 20px;
     font-weight: 500;
@@ -158,7 +158,7 @@ section {
         margin: 5px 0;
     }
     
-    .enroll-btn {
+    .contact-btn {
         margin: 10px 0 0;
         display: inline-block;
     }
@@ -650,11 +650,11 @@ hr {
     font-size: 0.9rem;
 }
 
-.pricing-section {
+.program-info-section {
     background-color: var(--light-color);
 }
 
-.pricing-card {
+.info-card {
     background-color: var(--white-color);
     border-radius: var(--border-radius);
     overflow: hidden;
@@ -662,76 +662,45 @@ hr {
     padding: 40px;
 }
 
-.pricing-option {
-    padding: 30px;
+.info-content {
+    padding: 20px;
     border-radius: var(--border-radius);
-    background-color: var(--light-gray-color);
-    position: relative;
-    height: 100%;
+    background-color: rgba(0, 122, 204, 0.05);
+    border-left: 4px solid var(--primary-color);
 }
 
-.pricing-option.featured {
-    background-color: rgba(0, 122, 204, 0.1);
-    border: 2px solid var(--primary-color);
-}
-
-.pricing-badge {
-    position: absolute;
-    top: -12px;
-    right: 20px;
-    background-color: var(--secondary-color);
-    color: var(--white-color);
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.pricing-option h3 {
-    color: var(--dark-color);
+.info-content h3 {
+    color: var(--primary-color);
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
 
-.price {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 10px;
+.next-cohort-info {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid var(--secondary-color);
+    padding: 12px 15px;
+    margin-top: 20px;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
-.price span {
-    font-size: 1rem;
-    font-weight: 400;
-    color: var(--gray-color);
-}
-
-.pricing-deadline {
-    color: var(--gray-color);
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-    padding: 5px 0;
-    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
-}
-
-.pricing-features {
+.program-highlights {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px;
+    margin: 20px 0;
 }
 
-.pricing-features li {
-    margin-bottom: 10px;
+.program-highlights li {
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
 }
 
-.pricing-features i {
+.program-highlights i {
     color: var(--secondary-color);
     margin-right: 10px;
 }
 
-.enrollment-note {
+.contact-note {
     font-style: italic;
     color: var(--gray-color);
     margin-bottom: 20px;
