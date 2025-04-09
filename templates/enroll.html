@@ -63,10 +63,15 @@
                                     <div class="payment-option-card" onclick="selectPaymentOption('standard')">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="payment_type" id="standardPayment" value="standard" checked>
-                                            <label class="form-check-label" for="standardPayment">
+                                            <label class="form-check-label w-100" for="standardPayment">
                                                 <h4>Standard Payment</h4>
                                                 <p class="price">A$1,650</p>
                                                 <p class="mb-0">Full program access</p>
+                                                <ul class="mt-3 text-muted">
+                                                    <li>All 15 live sessions</li>
+                                                    <li>Practice exercises & materials</li>
+                                                    <li>Certificate of completion</li>
+                                                </ul>
                                             </label>
                                         </div>
                                     </div>
@@ -76,10 +81,16 @@
                                     <div class="payment-option-card" onclick="selectPaymentOption('early_bird')">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="payment_type" id="earlyBirdPayment" value="early_bird">
-                                            <label class="form-check-label" for="earlyBirdPayment">
+                                            <label class="form-check-label w-100" for="earlyBirdPayment">
+                                                <div class="ribbon">Save A$150</div>
                                                 <h4>Early Bird Special</h4>
                                                 <p class="price">A$1,500</p>
-                                                <p class="mb-0">A$150 savings!</p>
+                                                <p class="mb-0">Limited time offer!</p>
+                                                <ul class="mt-3 text-muted">
+                                                    <li>All standard benefits</li>
+                                                    <li>Priority instructor access</li>
+                                                    <li>Additional career coaching session</li>
+                                                </ul>
                                             </label>
                                         </div>
                                     </div>
@@ -155,13 +166,38 @@
             document.getElementById('standardPayment').checked = false;
             document.getElementById('earlyBirdPayment').checked = true;
         }
+        
+        // Update active class on cards
+        const cards = document.querySelectorAll('.payment-option-card');
+        const standardCard = cards[0];
+        const earlyBirdCard = cards[1];
+        
+        if (type === 'standard') {
+            standardCard.classList.add('active');
+            earlyBirdCard.classList.remove('active');
+        } else {
+            standardCard.classList.remove('active');
+            earlyBirdCard.classList.add('active');
+        }
     }
     
     document.addEventListener('DOMContentLoaded', function() {
+        // Set standard payment as default by activating it on page load
+        document.querySelector('.payment-option-card:first-child').classList.add('active');
+        
         const paymentCards = document.querySelectorAll('.payment-option-card');
         
         paymentCards.forEach(card => {
             card.addEventListener('click', function() {
+                // Get the radio input within this card
+                const radioInput = this.querySelector('input[type="radio"]');
+                
+                // Get the payment type from the radio input value
+                const paymentType = radioInput.value;
+                
+                // Call selectPaymentOption to update radio buttons and classes
+                selectPaymentOption(paymentType);
+                
                 // Remove active class from all cards
                 paymentCards.forEach(c => c.classList.remove('active'));
                 
