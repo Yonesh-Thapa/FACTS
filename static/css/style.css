@@ -317,6 +317,33 @@ section {
     margin-bottom: 0;
 }
 
+.trainer-details {
+    text-align: left;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.trainer-qualifications {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+.trainer-qualifications li {
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed var(--light-gray-color);
+    display: flex;
+    align-items: center;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.trainer-qualifications li i {
+    margin-right: 10px;
+    color: var(--secondary-color);
+}
+
 .about-content {
     padding: 0 20px;
 }
@@ -1116,6 +1143,33 @@ hr {
 .why-choose-us {
     background-color: var(--white-color);
     padding: 80px 0;
+}
+
+.trainer-details {
+    text-align: left;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.trainer-qualifications {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+.trainer-qualifications li {
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed var(--light-gray-color);
+    display: flex;
+    align-items: center;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.trainer-qualifications li i {
+    margin-right: 10px;
+    color: var(--secondary-color);
 }
 
 /* ==================== 
