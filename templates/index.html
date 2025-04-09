@@ -62,17 +62,16 @@
         </div>
         <div class="row align-items-center">
             <div class="col-md-6">
-                <div class="trainer-card">
-                    <div class="trainer-img">
-                        <!-- SVG placeholder for trainer profile -->
-                        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="100" cy="70" r="50" fill="#007ACC" />
-                            <circle cx="100" cy="60" r="40" fill="#f5f5f5" />
-                            <path d="M100,120 C155,120 155,200 155,200 L45,200 C45,200 45,120 100,120 Z" fill="#007ACC" />
-                        </svg>
+                <div class="trainer-card text-center p-4 bg-white rounded shadow">
+                    <div class="trainer-img mx-auto mb-3">
+                        <img src="{{ url_for('static', filename='images/darshan-thapa.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #007ACC;">
                     </div>
                     <h3 class="trainer-name">Darshan Kumar Thapa</h3>
                     <p class="trainer-credentials">ASA CPA, Xero Advisor Certified</p>
+                    <div class="mt-2">
+                        <span class="badge bg-primary me-2">Lead Instructor</span>
+                        <span class="badge bg-success">Program Director</span>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
