@@ -61,20 +61,28 @@ STATIC_PAGE_CACHE = 3600  # 1 hour in seconds
 @app.route('/')
 def index():
     response = make_response(render_template('index.html'))
-    # Set cache control headers
-    response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
+    # No caching to ensure fresh content
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
 
 @app.route('/about')
 def about():
     response = make_response(render_template('about.html'))
-    response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
+    # No caching to ensure fresh content
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
     
 @app.route('/program')
 def program():
     response = make_response(render_template('program.html'))
-    response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
+    # No caching to ensure fresh content
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
 
 @app.route('/contact', methods=['GET', 'POST'])
