@@ -118,31 +118,21 @@ section {
     align-items: center;
 }
 
-.logo-img {
-    height: 90px;  /* Increased from 65px to make it larger */
-    width: auto;
-    margin-right: 10px;
-    transition: transform 0.3s ease;
-    padding: 0;
-    /* Ensure the logo has a clean transparent background */
-    background: transparent;
-    object-fit: contain;
-}
-
-.navbar-brand:hover .logo-img {
-    transform: scale(1.05);
-}
-
-/* Adjust navbar height to accommodate larger logo */
+/* Adjust navbar height (reduced since we don't have a logo) */
 .navbar {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
-    min-height: 110px;
+    min-height: 70px;
 }
 
 .brand-text {
     color: var(--primary-color);
     position: relative;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .brand-text {
+    transform: scale(1.05);
 }
 
 .brand-text::after {
@@ -199,7 +189,7 @@ section {
    ==================== */
 .hero-section {
     position: relative;
-    padding: 180px 0 100px;  /* Increased top padding from 160px to 180px to accommodate larger navbar */
+    padding: 140px 0 100px;  /* Decreased top padding from 180px to 140px for smaller navbar */
     background-color: #f9f9f9;
     background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(0, 122, 204, 0.1) 100%);
     overflow: hidden;
@@ -247,7 +237,7 @@ section {
 
 @media (max-width: 767.98px) {
     .hero-section {
-        padding: 150px 0 70px;  /* Increased from 130px to 150px to match other changes */
+        padding: 120px 0 70px;  /* Decreased to match the smaller navbar */
         text-align: center;
     }
     
@@ -460,13 +450,7 @@ section {
     font-size: 1.3rem;
 }
 
-.footer-logo {
-    height: 100px;  /* Increased size for the footer logo */
-    width: auto;
-    background: transparent;
-    object-fit: contain;
-    margin-bottom: 15px;
-}
+/* Footer logo removed */
 
 .contact-info {
     list-style: none;
@@ -534,7 +518,7 @@ hr {
    ==================== */
 .page-header {
     background-color: var(--primary-color);
-    padding: 150px 0 60px;  /* Increased top padding from 120px to 150px to accommodate larger navbar */
+    padding: 120px 0 60px;  /* Adjusted padding for smaller navbar */
     text-align: center;
     color: var(--white-color);
 }
@@ -1141,7 +1125,7 @@ hr {
    ==================== */
 .flash-messages {
     position: fixed;
-    top: 80px;
+    top: 75px; /* Slightly adjusted for the smaller navbar */
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -1188,7 +1172,7 @@ hr {
     }
     
     .page-header {
-        padding: 100px 0 40px;
+        padding: 90px 0 40px;  /* Further reduced for smaller screens */
     }
     
     .page-header h1 {
