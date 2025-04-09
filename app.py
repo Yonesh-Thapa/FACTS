@@ -135,17 +135,35 @@ def enroll():
 @app.after_request
 def add_cache_headers(response):
     """Add cache headers to static files"""
+    # Set no-cache for HTML pages - force the browser to always get the latest version
+    if request.path.endswith('.html') or not request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    
     # Check if the request is for a static file
-    if request.path.startswith('/static/'):
-        # Determine file type and set appropriate cache time
-        if any(request.path.endswith(ext) for ext in ['.css', '.js']):
-            max_age = 2592000  # 30 days for CSS and JS
-        elif any(request.path.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif', '.ico', '.svg']):
-            max_age = 7776000  # 90 days for images
+    elif request.path.startswith('/static/'):
+        # Special no-caching for logo files or favicon (just in case they exist somewhere)
+        if 'logo' in request.path.lower() or 'favicon' in request.path.lower():
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
         else:
-            max_age = 86400  # 1 day for other static files
-            
-        response.headers['Cache-Control'] = f'public, max-age={max_age}'
+            # Determine file type and set appropriate cache time
+            if any(request.path.endswith(ext) for ext in ['.css', '.js']):
+                # Short cache for CSS and JS during development
+                max_age = 60  # 1 minute for CSS and JS - quick refresh during development
+                response.headers['Cache-Control'] = f'public, max-age={max_age}'
+            elif any(request.path.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif', '.ico', '.svg']):
+                # Also short cache for images
+                max_age = 60  # 1 minute for images
+                response.headers['Cache-Control'] = f'public, max-age={max_age}'
+            else:
+                # No cache for other static files
+                response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    
+    # Add version headers to force refreshes
+    response.headers['X-Content-Version'] = str(int(datetime.now().timestamp()))
     
     return response
 

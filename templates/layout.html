@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>{% block title %}F.A.C.T.S - Future Accountant Coaching and Training Services{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
@@ -14,8 +17,8 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=1">
+    <!-- Custom CSS with timestamp for cache busting -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ range(1, 100000) | random }}">
     
     {% block head_extra %}{% endblock %}
 </head>
@@ -104,8 +107,16 @@
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JavaScript -->
-    <script src="{{ url_for('static', filename='js/script.js') }}?v=1"></script>
+    <!-- Cache buster script -->
+    <script src="{{ url_for('static', filename='js/clear-cache.js') }}?v={{ range(1, 100000) | random }}"></script>
+    
+    <!-- Custom JavaScript with timestamp for cache busting -->
+    <script src="{{ url_for('static', filename='js/script.js') }}?v={{ range(1, 100000) | random }}"></script>
+
+    <script>
+    // Set current year in the copyright text
+    document.getElementById('current-year').innerText = new Date().getFullYear();
+    </script>
 
     {% block scripts %}{% endblock %}
 </body>

@@ -1,6 +1,6 @@
 /* 
 * F.A.C.T.S - Future Accountant Coaching and Training Services 
-* Main Stylesheet
+* Main Stylesheet - Updated April 2025
 */
 
 /* ==================== 
@@ -109,6 +109,9 @@ section {
     background-color: rgba(255, 255, 255, 0.95);
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
     transition: var(--transition);
+    min-height: 70px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
 }
 
 .navbar-brand {
@@ -116,13 +119,6 @@ section {
     font-size: 1.8rem;
     display: flex;
     align-items: center;
-}
-
-/* Adjust navbar height (reduced since we don't have a logo) */
-.navbar {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    min-height: 70px;
 }
 
 .brand-text {
@@ -450,7 +446,7 @@ section {
     font-size: 1.3rem;
 }
 
-/* Footer logo removed */
+/* No logo in footer */
 
 .contact-info {
     list-style: none;
