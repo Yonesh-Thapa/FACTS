@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="500" height="150" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background - transparent -->
+  <rect width="500" height="150" fill="transparent" />
+
+  <g transform="translate(10, 10)">
+    <!-- Blue diagonal element (letter F/A part) -->
+    <path d="M30,100 L65,65 L80,65 L45,100 Z" fill="#007ACC" />
+
+    <!-- Green arrow element pointing up -->
+    <path d="M65,40 L90,65 L80,65 L95,45 L110,65 L100,65 L125,40" fill="#2ECC71" />
+
+    <!-- F.A.C text - blend with the graphical elements -->
+    <text x="70" y="80" font-family="Arial, sans-serif" font-weight="bold" font-size="25" fill="#2ECC71">F.A.C</text>
+    
+    <!-- FUTURE text -->
+    <text x="140" y="50" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#007ACC">FUTURE</text>
+    
+    <!-- ACCOUNTANT text -->
+    <text x="140" y="82" font-family="Arial, sans-serif" font-weight="bold" font-size="30" fill="#2ECC71">ACCOUNTANT</text>
+    
+    <!-- COACHING AND TRAINING SERVICES text -->
+    <text x="140" y="110" font-family="Arial, sans-serif" font-size="16" fill="#555555">COACHING AND TRAINING SERVICES</text>
+  </g>
+</svg>
