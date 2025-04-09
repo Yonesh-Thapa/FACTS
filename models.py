@@ -13,6 +13,7 @@ class Contact(db.Model):
     message = db.Column(db.Text, nullable=False)
     interested = db.Column(db.Boolean, default=False, index=True)
     is_read = db.Column(db.Boolean, default=False, index=True)
+    class_assignment = db.Column(db.String(20), index=True)  # 'fall', 'spring', or None
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
     def __repr__(self):

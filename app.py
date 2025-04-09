@@ -301,6 +301,24 @@ def mark_contact_as_read_ajax(contact_id):
         app.logger.error(f"Error marking contact as read: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/admin/contacts/<int:contact_id>/assign-class', methods=['POST'])
+@login_required
+def assign_contact_to_class(contact_id):
+    from models import Contact
+    
+    contact = Contact.query.get_or_404(contact_id)
+    class_assignment = request.form.get('class_assignment', '')
+    
+    # If empty string, set to None (unassigned)
+    if class_assignment == '':
+        class_assignment = None
+        
+    contact.class_assignment = class_assignment
+    db.session.commit()
+    
+    flash('Contact assigned to class successfully', 'success')
+    return redirect(request.referrer or url_for('admin_contacts'))
+
 @app.route('/admin/contacts/<int:contact_id>/delete', methods=['POST'])
 @login_required
 def delete_contact(contact_id):
