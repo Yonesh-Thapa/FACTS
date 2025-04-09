@@ -119,15 +119,25 @@ section {
 }
 
 .logo-img {
-    height: 65px;
+    height: 90px;  /* Increased from 65px to make it larger */
     width: auto;
     margin-right: 10px;
     transition: transform 0.3s ease;
     padding: 0;
+    /* Ensure the logo has a clean transparent background */
+    background: transparent;
+    object-fit: contain;
 }
 
 .navbar-brand:hover .logo-img {
     transform: scale(1.05);
+}
+
+/* Adjust navbar height to accommodate larger logo */
+.navbar {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    min-height: 110px;
 }
 
 .brand-text {
@@ -448,6 +458,14 @@ section {
     color: var(--white-color);
     margin-bottom: 20px;
     font-size: 1.3rem;
+}
+
+.footer-logo {
+    height: 100px;  /* Increased size for the footer logo */
+    width: auto;
+    background: transparent;
+    object-fit: contain;
+    margin-bottom: 15px;
 }
 
 .contact-info {
