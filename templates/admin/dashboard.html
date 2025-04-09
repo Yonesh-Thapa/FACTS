@@ -5,8 +5,11 @@
 {% block page_title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-4">
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="section-title">Contact Statistics</h5>
+    </div>
+    <div class="col-md-3">
         <div class="stats-card">
             <div class="stats-icon bg-primary-light">
                 <i class="fas fa-envelope"></i>
@@ -17,7 +20,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="stats-card">
             <div class="stats-icon bg-secondary-light">
                 <i class="fas fa-user-check"></i>
@@ -28,14 +31,64 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-danger-light">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <div class="stats-data">
+                <h3 class="stats-number">{{ unread_contacts }}</h3>
+                <p class="stats-label">Unread Messages</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="stats-card">
             <div class="stats-icon bg-info-light">
-                <i class="fas fa-calendar-alt"></i>
+                <i class="fas fa-calendar-check"></i>
             </div>
             <div class="stats-data">
                 <h3 class="stats-number">{{ recent_contacts|length }}</h3>
                 <p class="stats-label">Recent Contacts</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="section-title">Class Session Statistics</h5>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="stats-icon bg-success-light">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stats-data">
+                <h3 class="stats-number">{{ active_sessions }}</h3>
+                <p class="stats-label">Active Sessions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="stats-icon bg-primary-light">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <div class="stats-data">
+                <h3 class="stats-number">{{ fall_sessions }}</h3>
+                <p class="stats-label">Fall Sessions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="stats-icon bg-success-light">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="stats-data">
+                <h3 class="stats-number">{{ spring_sessions }}</h3>
+                <p class="stats-label">Spring Sessions</p>
             </div>
         </div>
     </div>
@@ -46,7 +99,14 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Recent Contact Submissions</span>
-                <a href="{{ url_for('admin_contacts') }}" class="btn btn-sm btn-primary">View All</a>
+                <div>
+                    <a href="{{ url_for('admin_classes') }}" class="btn btn-sm btn-success me-2">
+                        <i class="fas fa-calendar-alt"></i> Manage Classes
+                    </a>
+                    <a href="{{ url_for('admin_contacts') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-envelope"></i> View All Contacts
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 {% if recent_contacts %}
@@ -58,16 +118,24 @@
                                 <th>Email</th>
                                 <th>Subject</th>
                                 <th>Date</th>
+                                <th>Status</th>
                                 <th>Interested</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for contact in recent_contacts %}
-                            <tr>
+                            <tr {% if not contact.is_read %}class="table-primary"{% endif %}>
                                 <td>{{ contact.name }}</td>
                                 <td><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></td>
                                 <td>{{ contact.subject or "N/A" }}</td>
                                 <td>{{ contact.created_at.strftime('%d %b %Y') }}</td>
+                                <td>
+                                    {% if not contact.is_read %}
+                                    <span class="badge bg-danger">Unread</span>
+                                    {% else %}
+                                    <span class="badge bg-light text-dark">Read</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if contact.interested %}
                                     <span class="badge bg-success">Yes</span>

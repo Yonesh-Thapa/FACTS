@@ -214,7 +214,7 @@ def admin_logout():
 @login_required
 def admin_dashboard():
     # Import models
-    from models import Contact, Testimonial, FAQ
+    from models import Contact, Testimonial, FAQ, ClassSession
     
     # Get recent contacts (last 10)
     recent_contacts = Contact.query.order_by(Contact.created_at.desc()).limit(10).all()
@@ -224,6 +224,14 @@ def admin_dashboard():
     
     # Count interested contacts
     interested_contacts = Contact.query.filter_by(interested=True).count()
+    
+    # Count unread contacts
+    unread_contacts = Contact.query.filter_by(is_read=False).count()
+    
+    # Get class sessions counts
+    active_sessions = ClassSession.query.filter_by(is_active=True).count()
+    fall_sessions = ClassSession.query.filter_by(session_type='fall', is_active=True).count()
+    spring_sessions = ClassSession.query.filter_by(session_type='spring', is_active=True).count()
     
     # Get testimonials
     testimonials = Testimonial.query.order_by(Testimonial.is_featured.desc(), Testimonial.created_at.desc()).all()
@@ -236,6 +244,11 @@ def admin_dashboard():
         recent_contacts=recent_contacts,
         total_contacts=total_contacts,
         interested_contacts=interested_contacts,
+        unread_contacts=unread_contacts,
+        unread_count=unread_contacts,  # For sidebar badge
+        active_sessions=active_sessions,
+        fall_sessions=fall_sessions,
+        spring_sessions=spring_sessions,
         testimonials=testimonials,
         faqs=faqs
     ))
@@ -248,12 +261,176 @@ def admin_contacts():
     # Import Contact model
     from models import Contact
     
-    # Get all contacts, ordered by most recent first
-    contacts = Contact.query.order_by(Contact.created_at.desc()).all()
+    # Get all contacts, ordered by most recent first, with unread first
+    contacts = Contact.query.order_by(Contact.is_read, Contact.created_at.desc()).all()
     
-    response = make_response(render_template('admin/contacts.html', contacts=contacts))
+    # Count unread messages
+    unread_count = Contact.query.filter_by(is_read=False).count()
+    
+    response = make_response(render_template(
+        'admin/contacts.html', 
+        contacts=contacts,
+        unread_count=unread_count
+    ))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
+
+@app.route('/admin/contacts/<int:contact_id>/mark-read', methods=['POST'])
+@login_required
+def mark_contact_as_read(contact_id):
+    from models import Contact
+    
+    contact = Contact.query.get_or_404(contact_id)
+    contact.is_read = True
+    db.session.commit()
+    
+    flash('Message marked as read', 'success')
+    return redirect(url_for('admin_contacts'))
+
+@app.route('/admin/contacts/<int:contact_id>/delete', methods=['POST'])
+@login_required
+def delete_contact(contact_id):
+    from models import Contact
+    
+    contact = Contact.query.get_or_404(contact_id)
+    db.session.delete(contact)
+    db.session.commit()
+    
+    flash('Message deleted successfully', 'success')
+    return redirect(url_for('admin_contacts'))
+
+@app.route('/admin/classes')
+@login_required
+def admin_classes():
+    from models import ClassSession
+    
+    # Get active sessions
+    active_sessions = ClassSession.query.filter_by(is_active=True).order_by(ClassSession.start_date).all()
+    
+    # Get inactive sessions
+    inactive_sessions = ClassSession.query.filter_by(is_active=False).order_by(ClassSession.start_date.desc()).all()
+    
+    # Get sessions by type
+    fall_sessions = ClassSession.query.filter_by(session_type='fall', is_active=True).order_by(ClassSession.start_date).all()
+    spring_sessions = ClassSession.query.filter_by(session_type='spring', is_active=True).order_by(ClassSession.start_date).all()
+    
+    response = make_response(render_template(
+        'admin/classes.html',
+        active_sessions=active_sessions,
+        inactive_sessions=inactive_sessions,
+        fall_sessions=fall_sessions,
+        spring_sessions=spring_sessions
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/classes/add', methods=['GET', 'POST'])
+@login_required
+def add_class():
+    from models import ClassSession
+    
+    if request.method == 'POST':
+        try:
+            # Convert dates from string to Date objects
+            start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+            end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
+            
+            # Handle early bird deadline (optional)
+            early_bird_deadline = None
+            if request.form.get('early_bird_deadline'):
+                early_bird_deadline = datetime.strptime(request.form.get('early_bird_deadline'), '%Y-%m-%d').date()
+            
+            # Convert prices to cents
+            price_regular = int(float(request.form.get('price_regular', 0)) * 100)
+            price_early_bird = int(float(request.form.get('price_early_bird', 0)) * 100)
+            
+            new_session = ClassSession(
+                name=request.form.get('name'),
+                description=request.form.get('description'),
+                session_type=request.form.get('session_type'),
+                start_date=start_date,
+                end_date=end_date,
+                enrollment_limit=int(request.form.get('enrollment_limit', 15)),
+                price_regular=price_regular,
+                price_early_bird=price_early_bird,
+                early_bird_deadline=early_bird_deadline,
+                is_active=bool(request.form.get('is_active'))
+            )
+            
+            db.session.add(new_session)
+            db.session.commit()
+            
+            flash('Class session added successfully', 'success')
+            return redirect(url_for('admin_classes'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error adding class session: {str(e)}")
+            flash(f'Error adding class session: {str(e)}', 'danger')
+    
+    response = make_response(render_template('admin/class_form.html', session=None))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/classes/<int:class_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_class(class_id):
+    from models import ClassSession
+    
+    session = ClassSession.query.get_or_404(class_id)
+    
+    if request.method == 'POST':
+        try:
+            # Convert dates from string to Date objects
+            start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+            end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
+            
+            # Handle early bird deadline (optional)
+            early_bird_deadline = None
+            if request.form.get('early_bird_deadline'):
+                early_bird_deadline = datetime.strptime(request.form.get('early_bird_deadline'), '%Y-%m-%d').date()
+            
+            # Convert prices to cents
+            price_regular = int(float(request.form.get('price_regular', 0)) * 100)
+            price_early_bird = int(float(request.form.get('price_early_bird', 0)) * 100)
+            
+            session.name = request.form.get('name')
+            session.description = request.form.get('description')
+            session.session_type = request.form.get('session_type')
+            session.start_date = start_date
+            session.end_date = end_date
+            session.enrollment_limit = int(request.form.get('enrollment_limit', 15))
+            session.price_regular = price_regular
+            session.price_early_bird = price_early_bird
+            session.early_bird_deadline = early_bird_deadline
+            session.is_active = bool(request.form.get('is_active'))
+            
+            db.session.commit()
+            
+            flash('Class session updated successfully', 'success')
+            return redirect(url_for('admin_classes'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating class session: {str(e)}")
+            flash(f'Error updating class session: {str(e)}', 'danger')
+    
+    response = make_response(render_template('admin/class_form.html', session=session))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/classes/<int:class_id>/delete', methods=['POST'])
+@login_required
+def delete_class(class_id):
+    from models import ClassSession
+    
+    session = ClassSession.query.get_or_404(class_id)
+    
+    db.session.delete(session)
+    db.session.commit()
+    
+    flash('Class session deleted successfully', 'success')
+    return redirect(url_for('admin_classes'))
 
 # Create initial admin user if it doesn't exist
 with app.app_context():

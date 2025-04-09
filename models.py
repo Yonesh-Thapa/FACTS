@@ -12,6 +12,7 @@ class Contact(db.Model):
     subject = db.Column(db.String(200))
     message = db.Column(db.Text, nullable=False)
     interested = db.Column(db.Boolean, default=False, index=True)
+    is_read = db.Column(db.Boolean, default=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
     def __repr__(self):
@@ -68,6 +69,47 @@ class FAQ(db.Model):
     def __repr__(self):
         return f'<FAQ {self.id}: {self.question[:30]}...>'
         
+class ClassSession(db.Model):
+    __tablename__ = 'class_sessions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, index=True)
+    description = db.Column(db.Text)
+    session_type = db.Column(db.String(50), index=True)  # 'fall' or 'spring'
+    start_date = db.Column(db.Date, nullable=False, index=True)
+    end_date = db.Column(db.Date, nullable=False)
+    enrollment_limit = db.Column(db.Integer, default=15)
+    current_enrollment = db.Column(db.Integer, default=0)
+    price_regular = db.Column(db.Integer)  # Amount in cents
+    price_early_bird = db.Column(db.Integer)  # Amount in cents
+    early_bird_deadline = db.Column(db.Date)
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<ClassSession {self.name}>'
+    
+    @property
+    def is_full(self):
+        return self.current_enrollment >= self.enrollment_limit
+    
+    @property
+    def spots_remaining(self):
+        return max(0, self.enrollment_limit - self.current_enrollment)
+    
+    @property
+    def regular_price_display(self):
+        if self.price_regular:
+            return f"A${self.price_regular / 100:.2f}"
+        return "N/A"
+    
+    @property
+    def early_bird_price_display(self):
+        if self.price_early_bird:
+            return f"A${self.price_early_bird / 100:.2f}"
+        return "N/A"
+
 class Admin(UserMixin, db.Model):
     __tablename__ = 'admins'
     

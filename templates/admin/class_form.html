@@ -1,0 +1,127 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}{% if session %}Edit{% else %}Add{% endif %} Class Session{% endblock %}
+{% block page_title %}{% if session %}Edit{% else %}Add{% endif %} Class Session{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% if session %}Edit "{{ session.name }}"{% else %}Add New Class Session{% endif %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% if session %}{{ url_for('edit_class', class_id=session.id) }}{% else %}{{ url_for('add_class') }}{% endif %}">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="name" class="form-label">Session Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ session.name if session else '' }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="session_type" class="form-label">Session Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="session_type" name="session_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="fall" {% if session and session.session_type == 'fall' %}selected{% endif %}>Fall</option>
+                                    <option value="spring" {% if session and session.session_type == 'spring' %}selected{% endif %}>Spring</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4">{{ session.description if session else '' }}</textarea>
+                            <div class="form-text">Provide a brief description of this class session.</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       value="{{ session.start_date.strftime('%Y-%m-%d') if session and session.start_date else '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">End Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       value="{{ session.end_date.strftime('%Y-%m-%d') if session and session.end_date else '' }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="enrollment_limit" class="form-label">Enrollment Limit</label>
+                                <input type="number" class="form-control" id="enrollment_limit" name="enrollment_limit" 
+                                       min="1" value="{{ session.enrollment_limit if session else '15' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="price_regular" class="form-label">Regular Price (A$)</label>
+                                <input type="number" class="form-control" id="price_regular" name="price_regular" 
+                                       step="0.01" min="0" value="{{ session.price_regular / 100 if session and session.price_regular else '1650' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="price_early_bird" class="form-label">Early Bird Price (A$)</label>
+                                <input type="number" class="form-control" id="price_early_bird" name="price_early_bird" 
+                                       step="0.01" min="0" value="{{ session.price_early_bird / 100 if session and session.price_early_bird else '1500' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="early_bird_deadline" class="form-label">Early Bird Deadline</label>
+                            <input type="date" class="form-control" id="early_bird_deadline" name="early_bird_deadline" 
+                                   value="{{ session.early_bird_deadline.strftime('%Y-%m-%d') if session and session.early_bird_deadline else '' }}">
+                            <div class="form-text">Last day for early bird pricing.</div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
+                                   {% if session is none or session.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">Active Session</label>
+                            <div class="form-text">Uncheck to archive this session.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('admin_classes') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if session %}Update{% else %}Create{% endif %} Session
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Date validation
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const earlyBirdInput = document.getElementById('early_bird_deadline');
+        
+        // Ensure end date is after start date
+        startDateInput.addEventListener('change', function() {
+            if (endDateInput.value && startDateInput.value > endDateInput.value) {
+                endDateInput.value = startDateInput.value;
+            }
+        });
+        
+        endDateInput.addEventListener('change', function() {
+            if (startDateInput.value && endDateInput.value < startDateInput.value) {
+                alert('End date must be on or after start date');
+                endDateInput.value = startDateInput.value;
+            }
+        });
+        
+        // Ensure early bird deadline is before or on start date
+        earlyBirdInput.addEventListener('change', function() {
+            if (startDateInput.value && earlyBirdInput.value > startDateInput.value) {
+                alert('Early bird deadline must be before class start date');
+                earlyBirdInput.value = startDateInput.value;
+            }
+        });
+    });
+</script>
+{% endblock %}
