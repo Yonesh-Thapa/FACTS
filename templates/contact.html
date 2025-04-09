@@ -1,123 +1,191 @@
 {% extends "layout.html" %}
 
-{% block title %}Contact - My Website{% endblock %}
+{% block title %}F.A.C.T.S - Contact Us{% endblock %}
 
 {% block content %}
-<section class="page-header bg-light py-5">
+<!-- Contact Header -->
+<section class="page-header contact-header">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center">
-                <h1 class="display-4">Contact Us</h1>
-                <p class="lead">Get in touch with our team for any inquiries</p>
+                <h1>Contact Us</h1>
+                <p class="lead">Get in touch with our team to learn more about our program</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="contact-section py-5">
+<!-- Contact Information & Form -->
+<section class="contact-section">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8">
-                <div class="card shadow-sm mb-4 mb-lg-0">
-                    <div class="card-body p-4">
-                        <h2 class="mb-4">Send us a message</h2>
-                        <form action="{{ url_for('contact') }}" method="POST">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="name" class="form-label">Your Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="subject" class="form-label">Subject</label>
-                                    <input type="text" class="form-control" id="subject" name="subject">
-                                </div>
-                                <div class="col-12">
-                                    <label for="message" class="form-label">Message</label>
-                                    <textarea class="form-control" id="message" name="message" rows="6" required></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">Send Message</button>
-                                </div>
+            <!-- Contact Information -->
+            <div class="col-lg-5 mb-4 mb-lg-0">
+                <div class="contact-info-card">
+                    <h2>Get In Touch</h2>
+                    <p>Have questions about our program or need more information? We're here to help you take the next step in your accounting career.</p>
+                    
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="icon-box">
+                                <i class="fas fa-envelope"></i>
                             </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card shadow-sm">
-                    <div class="card-body p-4">
-                        <h2 class="mb-4">Contact Information</h2>
-                        <div class="d-flex mb-4">
-                            <div class="icon-container me-3">
-                                <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
-                            </div>
-                            <div>
-                                <h5>Address</h5>
-                                <p class="mb-0">123 Main Street<br>City, State 12345<br>United States</p>
-                            </div>
-                        </div>
-                        <div class="d-flex mb-4">
-                            <div class="icon-container me-3">
-                                <i class="fas fa-phone fa-2x text-primary"></i>
-                            </div>
-                            <div>
-                                <h5>Phone</h5>
-                                <p class="mb-0">
-                                    <a href="tel:+1234567890" class="text-decoration-none">(123) 456-7890</a>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="d-flex mb-4">
-                            <div class="icon-container me-3">
-                                <i class="fas fa-envelope fa-2x text-primary"></i>
-                            </div>
-                            <div>
-                                <h5>Email</h5>
-                                <p class="mb-0">
-                                    <a href="mailto:info@example.com" class="text-decoration-none">info@example.com</a>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="d-flex">
-                            <div class="icon-container me-3">
-                                <i class="fas fa-clock fa-2x text-primary"></i>
-                            </div>
-                            <div>
-                                <h5>Business Hours</h5>
-                                <p class="mb-1">Monday - Friday: 9:00 AM - 5:00 PM</p>
-                                <p class="mb-0">Saturday - Sunday: Closed</p>
+                            <div class="contact-text">
+                                <h4>Email</h4>
+                                <a href="mailto:fatrainingservice@gmail.com">fatrainingservice@gmail.com</a>
                             </div>
                         </div>
                         
-                        <div class="mt-4">
-                            <h5>Follow Us</h5>
-                            <div class="social-icons d-flex gap-2 mt-3">
-                                <a href="#" class="btn btn-outline-primary"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" class="btn btn-outline-primary"><i class="fab fa-twitter"></i></a>
-                                <a href="#" class="btn btn-outline-primary"><i class="fab fa-instagram"></i></a>
-                                <a href="#" class="btn btn-outline-primary"><i class="fab fa-linkedin-in"></i></a>
+                        <div class="contact-item">
+                            <div class="icon-box">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-text">
+                                <h4>Phone</h4>
+                                <a href="tel:0449547715">0449 547 715</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="icon-box">
+                                <i class="fab fa-instagram"></i>
+                            </div>
+                            <div class="contact-text">
+                                <h4>Instagram</h4>
+                                <a href="https://www.instagram.com/future_accountants_tcs/" target="_blank">@future_accountants_tcs</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="icon-box">
+                                <i class="fab fa-facebook"></i>
+                            </div>
+                            <div class="contact-text">
+                                <h4>Facebook</h4>
+                                <a href="https://www.facebook.com/Future-Accountants-Coaching-and-Training-Services" target="_blank">Future Accountants Coaching and Training Services</a>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="business-hours mt-4">
+                        <h4>Business Hours</h4>
+                        <p>Monday to Friday: 9:00 AM - 5:00 PM AEST</p>
+                        <p>Weekend: By appointment only</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Form -->
+            <div class="col-lg-7">
+                <div class="contact-form-card">
+                    <h2>Send Us a Message</h2>
+                    <p>Fill out the form below and we'll get back to you within 24 hours.</p>
+                    
+                    <form action="{{ url_for('contact') }}" method="POST" class="contact-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Your Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="interested" name="interested">
+                            <label class="form-check-label" for="interested">
+                                I'm interested in enrolling in the upcoming session
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="map-section my-5">
+<!-- Google Maps or Location Information can be added here if needed -->
+
+<!-- FAQ Section -->
+<section class="faq-section">
     <div class="container">
         <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <!-- Replace with actual Google Maps embed code -->
-                        <div class="ratio ratio-16x9">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.215651499675!2d-73.98784732352913!3d40.758985971383266!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25855c6480299%3A0x55194ec5a1ae072e!2sTimes%20Square!5e0!3m2!1sen!2sus!4v1696542346079!5m2!1sen!2sus" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="col-12 text-center mb-4">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <div class="section-divider"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    <!-- FAQ Item 1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                How is the course delivered?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                The entire program is delivered online via live Zoom sessions. Each session is interactive, allowing you to ask questions and receive real-time feedback from our instructors. We also provide access to recordings of each session for review purposes.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                What if I miss a session?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                All sessions are recorded and made available to enrolled students. While we recommend attending live for the best interactive experience, you can catch up with any missed content through the recordings and follow-up with questions during the next session.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Do I need to have accounting software installed?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                No, we provide temporary access to cloud-based versions of Xero and MYOB for the duration of the course. This means you don't need to purchase any software licenses to participate in the training program.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 4 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                Is payment available in installments?
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, we offer flexible payment plans. Please contact us directly to discuss your specific needs and we can arrange a payment schedule that works for you.
+                            </div>
                         </div>
                     </div>
                 </div>

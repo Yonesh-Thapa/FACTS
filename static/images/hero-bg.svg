@@ -1,0 +1,64 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background elements -->
+  <rect width="1200" height="600" fill="#f9f9f9"/>
+  
+  <!-- Abstract waves -->
+  <path d="M0,100 C300,150 400,50 600,100 C800,150 900,50 1200,100 L1200,0 L0,0 Z" fill="#007ACC" fill-opacity="0.05"/>
+  <path d="M0,200 C300,250 400,150 600,200 C800,250 900,150 1200,200 L1200,0 L0,0 Z" fill="#2ECC71" fill-opacity="0.05"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="200" cy="350" r="80" fill="#007ACC" fill-opacity="0.03"/>
+  <circle cx="1000" cy="250" r="120" fill="#2ECC71" fill-opacity="0.03"/>
+  <circle cx="600" cy="450" r="150" fill="#007ACC" fill-opacity="0.02"/>
+  
+  <!-- Small dot pattern -->
+  <g fill="#007ACC" fill-opacity="0.1">
+    <circle cx="100" cy="100" r="3"/>
+    <circle cx="150" cy="150" r="3"/>
+    <circle cx="200" cy="100" r="3"/>
+    <circle cx="250" cy="150" r="3"/>
+    <circle cx="300" cy="100" r="3"/>
+    <circle cx="350" cy="150" r="3"/>
+    <circle cx="400" cy="100" r="3"/>
+    <circle cx="450" cy="150" r="3"/>
+    <circle cx="500" cy="100" r="3"/>
+    <circle cx="550" cy="150" r="3"/>
+    <circle cx="600" cy="100" r="3"/>
+    <circle cx="650" cy="150" r="3"/>
+    <circle cx="700" cy="100" r="3"/>
+    <circle cx="750" cy="150" r="3"/>
+    <circle cx="800" cy="100" r="3"/>
+    <circle cx="850" cy="150" r="3"/>
+    <circle cx="900" cy="100" r="3"/>
+    <circle cx="950" cy="150" r="3"/>
+    <circle cx="1000" cy="100" r="3"/>
+    <circle cx="1050" cy="150" r="3"/>
+    <circle cx="1100" cy="100" r="3"/>
+    <circle cx="1150" cy="150" r="3"/>
+  </g>
+  
+  <g fill="#2ECC71" fill-opacity="0.1">
+    <circle cx="125" cy="125" r="3"/>
+    <circle cx="175" cy="175" r="3"/>
+    <circle cx="225" cy="125" r="3"/>
+    <circle cx="275" cy="175" r="3"/>
+    <circle cx="325" cy="125" r="3"/>
+    <circle cx="375" cy="175" r="3"/>
+    <circle cx="425" cy="125" r="3"/>
+    <circle cx="475" cy="175" r="3"/>
+    <circle cx="525" cy="125" r="3"/>
+    <circle cx="575" cy="175" r="3"/>
+    <circle cx="625" cy="125" r="3"/>
+    <circle cx="675" cy="175" r="3"/>
+    <circle cx="725" cy="125" r="3"/>
+    <circle cx="775" cy="175" r="3"/>
+    <circle cx="825" cy="125" r="3"/>
+    <circle cx="875" cy="175" r="3"/>
+    <circle cx="925" cy="125" r="3"/>
+    <circle cx="975" cy="175" r="3"/>
+    <circle cx="1025" cy="125" r="3"/>
+    <circle cx="1075" cy="175" r="3"/>
+    <circle cx="1125" cy="125" r="3"/>
+    <circle cx="1175" cy="175" r="3"/>
+  </g>
+</svg>
