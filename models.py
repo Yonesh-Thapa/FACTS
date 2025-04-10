@@ -82,7 +82,7 @@ class ClassSession(db.Model):
     session_type = db.Column(db.String(50), index=True)  # 'fall' or 'spring'
     start_date = db.Column(db.Date, nullable=False, index=True)
     end_date = db.Column(db.Date, nullable=False)
-    enrollment_limit = db.Column(db.Integer, default=15)
+    enrollment_limit = db.Column(db.Integer, default=10)
     current_enrollment = db.Column(db.Integer, default=0)
     price_regular = db.Column(db.Integer)  # Amount in cents
     price_early_bird = db.Column(db.Integer)  # Amount in cents
