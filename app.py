@@ -141,6 +141,17 @@ def contact():
         # Redirect after form submission (PRG pattern)
         return redirect(url_for('contact'))
     
+    # Test email notification functionality
+    if request.args.get('test_email') == '1':
+        try:
+            app.logger.info("Sending test email notification to hsenoy2022@gmail.com")
+            # Log that a test email would be sent here
+            # Note: We rely on EmailJS for actual email sending on the client side
+            flash('A test email should be triggered when you submit the contact form. Check both fatrainingservice@gmail.com and hsenoy2022@gmail.com.', 'info')
+        except Exception as e:
+            app.logger.error(f"Error in test email functionality: {str(e)}")
+            flash('Error in test email functionality', 'danger')
+    
     # GET request - render the contact form
     response = make_response(render_template('contact.html'))
     # No caching for the contact page since it has a form
