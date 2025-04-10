@@ -1,0 +1,55 @@
+Please update my website with the following changes:
+
+---
+
+**Homepage Updates:**
+
+1. **Hero Section Image:**
+   - Replace the current computer image with a professional, royalty-free photo depicting a teaching or classroom environment relevant to accounting education. Ensure the image is free from copyright issues (sources like Pexels or Unsplash are acceptable).
+
+2. **Under Darshan Kumar Thapa's Photo:**
+   - Update the title to: **ASA CPA, MPAS, Xero Certified Consultant**
+
+3. **Practical Software Training Section:**
+   - Update the subtitle to: **Hands-on experience with Xero & MYOB**
+
+4. **Add New Section - Value-Added Path:**
+   - Title: **Value-Added Path**
+   - Content: *Introduction to AI and Cybersecurity*
+
+5. **Program Duration Update:**
+   - Replace any mention of "5 weeks / 15 sessions" with: **8 weeks program — 16 classes**
+
+6. **Class Size Note:**
+   - Add: **Only 10 students per session for personalized attention.**
+
+---
+
+**About Page Updates:**
+
+1. **Experience Section:**
+   - Remove: "Over 10 years of accounting industry experience"
+   - Remove: "Expert in client advisory services and financial reporting"
+   - Add: **Australian Accounting Experience Tutor**
+
+2. **Our Story Section:**
+   - **First Paragraph:** Append: "We also focus on developing essential soft skills like communication, professionalism, and collaboration."
+   - **Second Paragraph:** Remove any mention of certifications.
+   - **Fifth Paragraph:** Add: "FACTS is committed to helping accounting graduates succeed not just with technical skills, but also with vital soft skills that enhance career readiness."
+
+3. **Program Structure Update:**
+   - Ensure all mentions reflect: **8 weeks program — 16 classes**
+
+---
+
+**Why Choose F.A.C.T.S Section:**
+
+1. **Industry Expert Instructor:**
+   - Update content to: "Learn directly from Darshan Kumar Thapa, an ASA CPA and Xero Advisor Certified professional with experience across various sectors of the Australian accounting industry. His expertise spans public practice accounting, cloud accounting systems, tax compliance, financial reporting, and client advisory services."
+
+2. **Practical, Hands-on Training:**
+   - Update content to: "Our program focuses on real-world skills that employers are looking for, including Xero, MYOB, Accounts Receivable Cycle, Accounts Payable, Bank Reconciliation (including credit card reconciliation), Payroll Processing, GST, and BAS preparation."
+
+---
+
+Please ensure all changes are reflected across the website, maintaining consistency and responsiveness across all devices.

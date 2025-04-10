@@ -11,40 +11,12 @@
                 <h1 class="hero-title">Launch Your Accounting Career with F.A.C.T.S</h1>
                 <h2 class="hero-subtitle">Job-Ready Online Training for Aspiring Accountants Across Australia</h2>
                 <p class="session-info">Next Session Starts May 2025 – Limited Seats Available</p>
+                <p class="class-size-note"><i class="fas fa-users"></i> Only 10 students per session for personalized attention.</p>
                 <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg hero-cta">Contact Us</a>
             </div>
             <div class="col-lg-6">
                 <div class="hero-image">
-                    <!-- SVG for professional accounting imagery -->
-                    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Professional workspace with accounting elements -->
-                        <rect x="50" y="50" width="500" height="300" rx="10" fill="#f5f5f5" />
-                        <rect x="80" y="80" width="200" height="240" rx="5" fill="#ffffff" stroke="#007ACC" stroke-width="2" />
-                        
-                        <!-- Laptop -->
-                        <rect x="300" y="120" width="180" height="120" rx="5" fill="#007ACC" />
-                        <rect x="310" y="130" width="160" height="100" rx="2" fill="#ffffff" />
-                        <rect x="290" y="240" width="200" height="10" rx="5" fill="#007ACC" />
-                        
-                        <!-- Calculator -->
-                        <rect x="100" y="100" width="80" height="100" rx="5" fill="#2ECC71" />
-                        <circle cx="120" cy="120" r="10" fill="#ffffff" />
-                        <circle cx="150" cy="120" r="10" fill="#ffffff" />
-                        <circle cx="120" cy="150" r="10" fill="#ffffff" />
-                        <circle cx="150" cy="150" r="10" fill="#ffffff" />
-                        <circle cx="120" cy="180" r="10" fill="#ffffff" />
-                        <circle cx="150" cy="180" r="10" fill="#ffffff" />
-                        
-                        <!-- Documents/paperwork -->
-                        <rect x="100" y="220" width="160" height="80" rx="2" fill="#ffffff" stroke="#007ACC" stroke-width="1" />
-                        <line x1="120" y1="240" x2="240" y2="240" stroke="#333333" stroke-width="1" />
-                        <line x1="120" y1="260" x2="240" y2="260" stroke="#333333" stroke-width="1" />
-                        <line x1="120" y1="280" x2="240" y2="280" stroke="#333333" stroke-width="1" />
-                        
-                        <!-- Coffee cup -->
-                        <rect x="400" y="260" width="40" height="50" rx="5" fill="#2ECC71" />
-                        <rect x="395" y="250" width="50" height="10" rx="5" fill="#007ACC" />
-                    </svg>
+                    <img src="{{ url_for('static', filename='images/classroom_accounting.svg') }}" alt="Accounting Education Classroom" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -67,7 +39,7 @@
                         <img src="{{ url_for('static', filename='images/team/darshan_thapa_profile.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="max-width: 250px;">
                     </div>
                     <h3 class="trainer-name">Darshan Kumar Thapa</h3>
-                    <p class="trainer-credentials">ASA CPA, Xero Advisor Certified</p>
+                    <p class="trainer-credentials">ASA CPA, MPAS, Xero Certified Consultant</p>
                 </div>
             </div>
             <div class="col-md-6">
@@ -114,7 +86,7 @@
                         <i class="fas fa-laptop-code"></i>
                     </div>
                     <h3>Practical Software Training</h3>
-                    <p>Hands-on experience with Xero, MYOB, and other industry-standard accounting software used across Australia.</p>
+                    <p>Hands-on experience with Xero & MYOB</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
@@ -133,6 +105,17 @@
                     </div>
                     <h3>Job Placement Support</h3>
                     <p>Resume workshops, LinkedIn profile optimization, and interview practice sessions to help you land your first accounting role.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4 mx-auto">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Value-Added Path</h3>
+                    <p>Introduction to AI and Cybersecurity</p>
                 </div>
             </div>
         </div>
