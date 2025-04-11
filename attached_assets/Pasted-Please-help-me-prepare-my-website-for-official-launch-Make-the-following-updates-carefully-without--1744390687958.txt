@@ -1,0 +1,28 @@
+Please help me prepare my website for official launch. Make the following updates carefully without deleting any important logic or breaking structure:
+
+✅ FUNCTIONALITY & UI FIXES
+1. Fix the countdown timer so it accurately counts down to April 30, 2025. If the script is broken or missing, write a new working version in vanilla JavaScript.
+2. After a user submits the contact form, show an inline message saying "Thanks! We'll contact you shortly." Don't redirect or reload the page.
+3. Convert the desktop navigation menu into a hamburger-style collapsible menu on smaller screens (mobile responsive).
+4. Highlight the currently active page in the top navigation bar using an `active` class (based on current route or URL).
+5. Temporarily hide the Blog menu item from the navbar, or if easier, make the blog page show a simple “Coming Soon” message.
+
+✅ ADMIN DASHBOARD CHANGES
+6. Clear all previously stored analytics and chart data. This is a fresh launch — do not use any mock data. Set the system to begin tracking real user activity and charting that moving forward.
+7. Make the "Daily", "Weekly", and "Monthly" chart filter buttons functional — when clicked, reload real analytics data based on that time frame.
+8. Reinstate the admin login system: reactivate `@login_required` decorators and ensure users must log in to access any `/admin` routes.
+9. Add client-side search functionality to any long tables in the admin portal (e.g., visitor logs, button clicks, page views).
+10. Make sure admin dashboard charts (labels and tooltips) are readable and responsive on mobile and small screen sizes.
+
+✅ SEO & PERFORMANCE OPTIMIZATION
+11. Add a `<meta name="description">` and appropriate Open Graph meta tags to the `<head>` of the homepage and the About page (title, description, image, etc.).
+12. Create a `robots.txt` file that disallows `/admin` and allows all public-facing pages to be crawled by search engines.
+13. Add `loading="lazy"` to all `<img>` tags across the site. Compress any large images if file sizes are unnecessarily large.
+14. Confirm the website is fully responsive: test key pages on mobile and tablet sizes using CSS media queries. Fix layout issues where needed.
+
+❗IMPORTANT:
+- Do not use placeholder or mock data — set up real data tracking starting now.
+- Leave clear comments in the code next to every change you make so I can review them later.
+- DO NOT delete or permanently disable the authentication system. Simply reinstate it for admin access as it was before.
+
+This is a production prep task, so all changes must be stable, scalable, and clean.

@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="F.A.C.T.S offers job-ready accounting training in Australia, including Xero training and accounting coaching in Hobart. Our professional accounting courses prepare graduates for real-world accounting careers.">
+    <meta name="description" content="{% block meta_description %}F.A.C.T.S offers job-ready accounting training in Australia, including Xero training and accounting coaching in Hobart. Our professional accounting courses prepare graduates for real-world accounting careers.{% endblock %}">
     <meta name="keywords" content="accounting training australia, job-ready accounting course, xero training, accounting coaching Hobart, myob training, accounting software training">
+    
+    <!-- Open Graph Meta Tags for social sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:title" content="{% block og_title %}F.A.C.T.S - Accounting Training Australia & Xero Training{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}F.A.C.T.S offers job-ready accounting training in Australia, including Xero training and accounting coaching in Hobart. Our professional accounting courses prepare graduates for real-world accounting careers.{% endblock %}">
+    <meta property="og:image" content="{{ url_for('static', filename='img/facts-og-image.jpg', _external=True) }}">
+    
+    <!-- Twitter Card data (falls back to Open Graph) -->
+    <meta name="twitter:card" content="summary_large_image">
+    
     <title>{% block title %}F.A.C.T.S - Accounting Training Australia & Xero Training{% endblock %}</title>
     
     <!-- Core CSS resources - preloaded for performance -->
@@ -49,9 +60,10 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.path == url_for('pricing') %}active{% endif %}" href="{{ url_for('pricing') }}">Pricing</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- Blog menu item temporarily hidden for launch -->
+                    <!-- <li class="nav-item">
                         <a class="nav-link {% if request.path == url_for('blog') or request.path.startswith('/blog/') %}active{% endif %}" href="{{ url_for('blog') }}">Blog</a>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <a class="btn btn-primary contact-btn {% if request.path == url_for('contact') %}active{% endif %}" href="{{ url_for('contact') }}">Apply Now – Secure Your Spot</a>
                     </li>

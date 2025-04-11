@@ -1,0 +1,15 @@
+# robots.txt for Future Accountants website
+# Created on April 11, 2025
+
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /program
+Allow: /pricing
+Allow: /contact
+Allow: /blog
+Allow: /static/
+
+# Disallow admin area
+Disallow: /admin/
+Disallow: /admin

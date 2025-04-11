@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block title %}Blog - Coming Soon | F.A.C.T.S{% endblock %}
+
+{% block meta_description %}Stay tuned for our upcoming blog with accounting tips, tutorials, and industry insights for aspiring accountants.{% endblock %}
+
+{% block og_title %}F.A.C.T.S Blog - Coming Soon{% endblock %}
+{% block og_description %}Stay tuned for our upcoming blog with accounting tips, tutorials, and industry insights for aspiring accountants.{% endblock %}
+
+{% block content %}
+<section class="blog-coming-soon py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="display-4 mb-4">Our Blog is Coming Soon!</h1>
+                <div class="mb-5">
+                    <div class="icon-container mb-4">
+                        <i class="fas fa-edit fa-4x text-primary"></i>
+                    </div>
+                    <p class="lead">We're working on creating valuable content to help you in your accounting career journey.</p>
+                    <p>Soon you'll find articles about:</p>
+                    <div class="row text-start mt-4">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Accounting software tutorials</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Career advancement tips</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Industry trends and insights</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Technical accounting skills</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Interview preparation advice</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Success stories from our graduates</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-light shadow-sm p-4 mt-5">
+                    <h3>Want to be notified when our blog launches?</h3>
+                    <p>Register for an info session below to stay updated on all F.A.C.T.S announcements.</p>
+                    <div class="mt-3">
+                        <a href="{{ url_for('index') }}#info-session" class="btn btn-primary btn-lg">Register for Info Session</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -184,10 +184,12 @@ function initBootstrapTooltips() {
 
 /**
  * Initialize countdown timer for early bird offer
+ * Updated on April 11, 2025 to ensure accurate countdown to April 30, 2025
  */
 function initCountdownTimer() {
     console.log('Initializing countdown timer...');
     
+    // Find all countdown timer elements on the page
     const countdownElements = [
         document.getElementById('countdown-timer'),
         document.getElementById('program-countdown-timer'),
@@ -205,9 +207,10 @@ function initCountdownTimer() {
         return;
     }
     
-    // Set the deadline date to April 30, 2025
-    const deadline = new Date('April 30, 2025 23:59:59').getTime();
-    console.log('Deadline set to:', new Date('April 30, 2025 23:59:59').toLocaleString());
+    // Set the deadline date to April 30, 2025 - using explicit date format to avoid any confusion
+    const earlyBirdDeadline = new Date('2025-04-30T23:59:59');
+    const deadline = earlyBirdDeadline.getTime();
+    console.log('Deadline set to:', earlyBirdDeadline.toLocaleString());
     
     // Immediately update countdown once before interval starts
     updateCountdown();
@@ -216,35 +219,40 @@ function initCountdownTimer() {
     const countdown = setInterval(updateCountdown, 1000);
     
     function updateCountdown() {
-        // Get current date and time
-        const now = new Date().getTime();
-        
-        // Calculate the time remaining
-        const timeRemaining = deadline - now;
-        
-        // If the countdown is finished, clear the interval and display a message
-        if (timeRemaining < 0) {
-            console.log('Countdown finished, offer expired');
-            clearInterval(countdown);
+        try {
+            // Get current date and time
+            const now = new Date().getTime();
+            
+            // Calculate the time remaining
+            const timeRemaining = deadline - now;
+            
+            // If the countdown is finished, clear the interval and display a message
+            if (timeRemaining < 0) {
+                console.log('Countdown finished, offer expired');
+                clearInterval(countdown);
+                validElements.forEach(element => {
+                    element.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
+                });
+                return;
+            }
+            
+            // Calculate days, hours, minutes, and seconds
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Format the result with leading zeros for better formatting
+            const formattedTime = `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            
+            // Update all countdown elements
             validElements.forEach(element => {
-                element.innerHTML = 'Offer has expired';
+                element.innerHTML = formattedTime;
             });
-            return;
+        } catch (error) {
+            console.error('Error in countdown timer:', error);
+            clearInterval(countdown);
         }
-        
-        // Calculate days, hours, minutes, and seconds
-        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-        
-        // Format the result
-        const formattedTime = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-        
-        // Update all countdown elements
-        validElements.forEach(element => {
-            element.innerHTML = formattedTime;
-        });
     }
 }
 

@@ -13,7 +13,7 @@ import re
 from urllib.parse import urlparse
 
 # DEBUG MODE FLAG - Set to False to re-enable authentication
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 # Create a bypass for the login_required decorator when DEBUG_MODE is True
 if DEBUG_MODE:
@@ -24,6 +24,7 @@ if DEBUG_MODE:
     def login_required(func):
         # This is a bypass decorator that simply returns the original function
         return func
+# Note: Authentication is now reinstated - all @login_required decorators will function normally
 
 # Configure logging - use INFO level in production for better performance
 log_level = logging.INFO if os.environ.get('FLASK_ENV') == 'production' else logging.DEBUG
@@ -539,6 +540,9 @@ def add_cache_headers(response):
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
+    # Normal authentication flow (auth reinstated per client request)
+    # Authentication bypassing code has been commented out but preserved
+    '''
     # If DEBUG_MODE is enabled, automatically log in as admin
     if DEBUG_MODE:
         from models import Admin
@@ -567,8 +571,8 @@ def admin_login():
             return redirect(next_page)
         
         return redirect(url_for('admin_dashboard'))
+    '''
     
-    # Normal authentication flow (when DEBUG_MODE is False)
     if current_user.is_authenticated:
         return redirect(url_for('admin_dashboard'))
     
@@ -667,6 +671,17 @@ def collect_info_session_email():
 # Blog routes
 @app.route('/blog')
 def blog():
+    # TEMPORARILY MODIFIED: Show "Coming Soon" message instead of blog posts for official launch
+    # The original blog functionality is commented out but preserved
+    
+    response = make_response(render_template(
+        'blog/coming-soon.html'
+    ))
+    response.headers['Cache-Control'] = 'max-age=300'  # Cache for 5 minutes
+    return response
+    
+    '''
+    # Original code - temporarily disabled for launch
     from models import BlogPost
     
     page = request.args.get('page', 1, type=int)
@@ -697,6 +712,7 @@ def blog():
     ))
     response.headers['Cache-Control'] = 'max-age=300'  # Cache for 5 minutes
     return response
+    '''
 
 @app.route('/blog/<slug>')
 def blog_post(slug):
