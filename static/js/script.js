@@ -5,6 +5,8 @@
 
 // Use a single DOMContentLoaded event listener to improve performance
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    
     /**
      * Initialize multiple site functions
      * Grouped to reduce DOM ready event listeners
@@ -44,7 +46,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initBootstrapTooltips();
     
     // Initialize countdown timer for early bird offer
-    initCountdownTimer();
+    console.log('About to initialize countdown timer');
+    setTimeout(function() {
+        // Delay initialization slightly to ensure DOM is fully processed
+        initCountdownTimer();
+    }, 100);
 });
 
 /**
@@ -177,21 +183,36 @@ function initBootstrapTooltips() {
  * Initialize countdown timer for early bird offer
  */
 function initCountdownTimer() {
+    console.log('Initializing countdown timer...');
+    
     const countdownElements = [
         document.getElementById('countdown-timer'),
         document.getElementById('program-countdown-timer'),
         document.getElementById('pricing-countdown-timer')
     ];
     
+    console.log('Found countdown elements:', countdownElements);
+    
     // Filter out null elements
     const validElements = countdownElements.filter(element => element !== null);
-    if (validElements.length === 0) return;
+    console.log('Valid countdown elements:', validElements.length);
+    
+    if (validElements.length === 0) {
+        console.log('No valid countdown elements found, exiting function.');
+        return;
+    }
     
     // Set the deadline date to April 30, 2025
     const deadline = new Date('April 30, 2025 23:59:59').getTime();
+    console.log('Deadline set to:', new Date('April 30, 2025 23:59:59').toLocaleString());
+    
+    // Immediately update countdown once before interval starts
+    updateCountdown();
     
     // Update the countdown every second
-    const countdown = setInterval(function() {
+    const countdown = setInterval(updateCountdown, 1000);
+    
+    function updateCountdown() {
         // Get current date and time
         const now = new Date().getTime();
         
@@ -200,6 +221,7 @@ function initCountdownTimer() {
         
         // If the countdown is finished, clear the interval and display a message
         if (timeRemaining < 0) {
+            console.log('Countdown finished, offer expired');
             clearInterval(countdown);
             validElements.forEach(element => {
                 element.innerHTML = 'Offer has expired';
@@ -220,5 +242,5 @@ function initCountdownTimer() {
         validElements.forEach(element => {
             element.innerHTML = formattedTime;
         });
-    }, 1000);
+    }
 }
