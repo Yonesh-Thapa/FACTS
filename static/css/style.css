@@ -1377,6 +1377,120 @@ hr {
 #countdown-timer {
     font-weight: 700;
     letter-spacing: 0.5px;
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+}
+
+/* Early Bird Offer Styles */
+.early-bird-section {
+    position: relative;
+}
+
+.early-bird-card {
+    background-color: var(--white-color);
+    border-radius: var(--border-radius);
+    padding: 2.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.countdown-container {
+    padding: 1.5rem;
+    background-color: var(--primary-lighter);
+    border-radius: var(--border-radius);
+    margin: 1.5rem 0;
+}
+
+.price-comparison .price-card {
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    background-color: var(--light-color);
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.price-comparison .price-special {
+    background-color: var(--primary-light);
+    border: 2px solid var(--primary-color);
+    transform: scale(1.05);
+}
+
+.price-card h5 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.price-card .price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.price-card .price-period {
+    font-size: 0.9rem;
+    color: var(--gray-color);
+}
+
+.ribbon {
+    position: absolute;
+    z-index: 1;
+    overflow: hidden;
+    width: 150px;
+    height: 150px;
+    text-align: center;
+}
+
+.ribbon::before,
+.ribbon::after {
+    position: absolute;
+    z-index: -1;
+    content: '';
+    display: block;
+    border: 5px solid var(--secondary-dark);
+}
+
+.ribbon span {
+    position: absolute;
+    display: block;
+    width: 225px;
+    padding: 10px 0;
+    background-color: var(--secondary-color);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    color: var(--white-color);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.ribbon-top-right {
+    top: -10px;
+    right: -10px;
+}
+
+.ribbon-top-right::before,
+.ribbon-top-right::after {
+    border-top-color: transparent;
+    border-right-color: transparent;
+}
+
+.ribbon-top-right::before {
+    top: 0;
+    left: 30px;
+}
+
+.ribbon-top-right::after {
+    bottom: 30px;
+    right: 0;
+}
+
+.ribbon-top-right span {
+    transform: rotate(45deg);
+    right: -25px;
+    top: 30px;
 }
 
 @keyframes pulse {
