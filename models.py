@@ -165,7 +165,22 @@ class BlogPost(db.Model):
     def __init__(self, *args, **kwargs):
         # If slug isn't provided, generate it from title
         if 'slug' not in kwargs and 'title' in kwargs:
-            kwargs['slug'] = slugify(kwargs['title'])
+            base_slug = slugify(kwargs['title'])
+            # Slug is unique, so we need to ensure it's not already taken
+            from sqlalchemy.sql import exists
+            from app import db
+            import random
+            import string
+            
+            # Check if the slug already exists
+            query = exists().where(BlogPost.slug == base_slug)
+            if db.session.query(query).scalar():
+                # If it exists, add a random suffix to make it unique
+                random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
+                kwargs['slug'] = f"{base_slug}-{random_suffix}"
+            else:
+                kwargs['slug'] = base_slug
+                
         super().__init__(*args, **kwargs)
     
     def __repr__(self):
