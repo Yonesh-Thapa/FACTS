@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize Bootstrap tooltips - only if any exist
     initBootstrapTooltips();
+    
+    // Initialize countdown timer for early bird offer
+    initCountdownTimer();
 });
 
 /**
@@ -168,4 +171,40 @@ function initBootstrapTooltips() {
     if (tooltipTriggers.length > 0 && typeof bootstrap !== 'undefined') {
         tooltipTriggers.forEach(el => new bootstrap.Tooltip(el));
     }
+}
+
+/**
+ * Initialize countdown timer for early bird offer
+ */
+function initCountdownTimer() {
+    const countdownElement = document.getElementById('countdown-timer');
+    if (!countdownElement) return;
+    
+    // Set the deadline date to April 30, 2025
+    const deadline = new Date('April 30, 2025 23:59:59').getTime();
+    
+    // Update the countdown every second
+    const countdown = setInterval(function() {
+        // Get current date and time
+        const now = new Date().getTime();
+        
+        // Calculate the time remaining
+        const timeRemaining = deadline - now;
+        
+        // If the countdown is finished, clear the interval and display a message
+        if (timeRemaining < 0) {
+            clearInterval(countdown);
+            countdownElement.innerHTML = 'Offer has expired';
+            return;
+        }
+        
+        // Calculate days, hours, minutes, and seconds
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+        
+        // Display the result
+        countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }, 1000);
 }

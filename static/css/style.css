@@ -1353,3 +1353,40 @@ hr {
         padding: 15px;
     }
 }
+
+/* Early Bird Banner and Countdown Timer */
+.early-bird-banner {
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+.countdown-timer {
+    background-color: var(--primary-dark);
+    color: var(--white-color);
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    text-align: center;
+}
+
+#countdown-timer {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+    }
+}
