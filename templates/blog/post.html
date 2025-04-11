@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ post.title }} - F.A.C.T.S Blog{% endblock %}
+
+{% block content %}
+<!-- Blog Post Header -->
+<header class="blog-post-header py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-3">
+                        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('blog') }}">Blog</a></li>
+                        {% if post.category %}
+                        <li class="breadcrumb-item"><a href="{{ url_for('blog', category=post.category) }}">{{ post.category }}</a></li>
+                        {% endif %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ post.title|truncate(30) }}</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="post-title mb-3">{{ post.title }}</h1>
+                
+                <div class="post-meta mb-4">
+                    <span class="post-date me-3">
+                        <i class="far fa-calendar-alt me-1"></i> {{ post.created_at.strftime('%B %d, %Y') }}
+                    </span>
+                    <span class="reading-time">
+                        <i class="far fa-clock me-1"></i> {{ post.reading_time }} min read
+                    </span>
+                    {% if post.category %}
+                    <span class="post-category ms-3">
+                        <i class="fas fa-tag me-1"></i> 
+                        <a href="{{ url_for('blog', category=post.category) }}">{{ post.category }}</a>
+                    </span>
+                    {% endif %}
+                </div>
+                
+                {% if post.featured_image %}
+                <div class="featured-image-container mb-4">
+                    <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="img-fluid rounded">
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Blog Post Content -->
+<section class="blog-post-content py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="post-content">
+                    {{ post.content|safe|nl2br }}
+                </div>
+                
+                <div class="post-footer mt-5 pt-5 border-top">
+                    <div class="author-box d-flex align-items-center mb-4">
+                        <div class="author-info">
+                            <h5 class="mb-1">About the Author</h5>
+                            <p class="mb-0">{{ post.author.username }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Social sharing -->
+                    <div class="social-share mb-5">
+                        <h5 class="mb-3">Share this post</h5>
+                        <div class="share-buttons">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" class="btn btn-outline-primary me-2">
+                                <i class="fab fa-facebook-f"></i> Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ post.title }}" target="_blank" class="btn btn-outline-info me-2">
+                                <i class="fab fa-twitter"></i> Twitter
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.url }}&title={{ post.title }}" target="_blank" class="btn btn-outline-secondary">
+                                <i class="fab fa-linkedin-in"></i> LinkedIn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Posts -->
+{% if related_posts %}
+<section class="related-posts bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="section-title mb-4">Related Posts</h3>
+            </div>
+        </div>
+        <div class="row">
+            {% for related in related_posts %}
+            <div class="col-md-4 mb-4">
+                <div class="card blog-card h-100">
+                    {% if related.featured_image %}
+                    <div class="blog-card-image">
+                        <img src="{{ related.featured_image }}" alt="{{ related.title }}" class="card-img-top">
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h3 class="card-title h5"><a href="{{ url_for('blog_post', slug=related.slug) }}">{{ related.title }}</a></h3>
+                        <div class="post-meta mb-2">
+                            <small class="text-muted">
+                                {{ related.created_at.strftime('%B %d, %Y') }} • {{ related.reading_time }} min read
+                            </small>
+                        </div>
+                        <p class="card-text">{{ related.content|striptags|truncate(100) }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <a href="{{ url_for('blog_post', slug=related.slug) }}" class="btn btn-link p-0">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="blog-cta-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h2>Ready to Start Your Accounting Career?</h2>
+                <p class="lead mb-4">Join our 8-week program designed specifically for accounting graduates.</p>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">Apply Now – Secure Your Spot</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

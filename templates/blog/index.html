@@ -1,0 +1,145 @@
+{% extends "layout.html" %}
+
+{% block title %}Blog - Future Accountants Coaching and Training Services{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="page-title">F.A.C.T.S Blog</h1>
+                <div class="section-divider"></div>
+                <p class="lead">Insights and resources for accounting graduates and professionals</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Blog Posts Section -->
+<section class="blog-section py-5">
+    <div class="container">
+        <!-- Category filter -->
+        {% if categories %}
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="category-filter text-center">
+                    <a href="{{ url_for('blog') }}" class="btn btn-sm {% if not current_category %}btn-primary{% else %}btn-outline-primary{% endif %} m-1">All Posts</a>
+                    {% for category in categories %}
+                    <a href="{{ url_for('blog', category=category) }}" class="btn btn-sm {% if current_category == category %}btn-primary{% else %}btn-outline-primary{% endif %} m-1">{{ category }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Blog posts grid -->
+        <div class="row">
+            {% if posts.items %}
+                {% for post in posts.items %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card blog-card h-100">
+                        {% if post.featured_image %}
+                        <div class="blog-card-image">
+                            <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="card-img-top">
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            {% if post.category %}
+                            <div class="post-category mb-2">
+                                <span class="badge bg-secondary">{{ post.category }}</span>
+                            </div>
+                            {% endif %}
+                            <h3 class="card-title h5"><a href="{{ url_for('blog_post', slug=post.slug) }}">{{ post.title }}</a></h3>
+                            <div class="post-meta mb-2">
+                                <small class="text-muted">
+                                    {{ post.created_at.strftime('%B %d, %Y') }} • {{ post.reading_time }} min read
+                                </small>
+                            </div>
+                            <p class="card-text">{{ post.content|striptags|truncate(150) }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <a href="{{ url_for('blog_post', slug=post.slug) }}" class="btn btn-link p-0">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-newspaper fa-3x mb-3 text-muted"></i>
+                        <h3>No Blog Posts Yet</h3>
+                        <p>Check back soon for new content!</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if posts.pages > 1 %}
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if posts.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('blog', page=posts.prev_num, category=current_category) }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                {% if page_num == posts.page %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('blog', page=page_num, category=current_category) }}">{{ page_num }}</a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if posts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('blog', page=posts.next_num, category=current_category) }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="blog-cta-section bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h2>Ready to Start Your Accounting Career?</h2>
+                <p class="lead mb-4">Join our 8-week program designed specifically for accounting graduates.</p>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">Apply Now – Secure Your Spot</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

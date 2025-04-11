@@ -1,0 +1,101 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Info Session Emails | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Info Session Email Registrations</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{{ url_for('admin_export_info_session_emails') }}" class="btn btn-sm btn-success">
+                <i class="fas fa-file-export me-1"></i> Export to CSV
+            </a>
+        </div>
+    </div>
+    
+    {% if emails %}
+    <div class="table-responsive mb-4">
+        <table class="table table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Date Registered</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email in emails %}
+                <tr>
+                    <td>{{ email.email }}</td>
+                    <td>{{ email.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ email.notes or 'No notes' }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ email.id }}" title="Delete email">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal-{{ email.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ email.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel-{{ email.id }}">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete the email "<strong>{{ email.email }}</strong>"?</p>
+                                        <p class="text-danger">This action cannot be undone.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{{ url_for('admin_delete_info_session_email', email_id=email.id) }}" method="POST">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h4 class="alert-heading">No Info Session Email Registrations Yet</h4>
+        <p>There are no email registrations for info sessions yet.</p>
+    </div>
+    {% endif %}
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Info Session Email Management Tips</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>How to Use This Data</h6>
+                    <ul>
+                        <li>These emails represent potential students interested in attending an info session</li>
+                        <li>Export the list to CSV to import into your email marketing system</li>
+                        <li>Send Zoom links, reminders, and follow-ups for info sessions</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Best Practices</h6>
+                    <ul>
+                        <li>Schedule info sessions at least 1-2 weeks after collecting emails</li>
+                        <li>Send a reminder email 24 hours before the session</li>
+                        <li>Follow up with attendees after the session</li>
+                        <li>Offer a special discount for info session attendees who enroll</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

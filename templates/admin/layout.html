@@ -405,6 +405,16 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_blog') }}" {% if request.path == url_for('admin_blog') or request.path.startswith('/admin/blog/') %}class="active"{% endif %}>
+                    <i class="fas fa-blog" aria-hidden="true"></i> Blog Posts
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_info_sessions') }}" {% if request.path == url_for('admin_info_sessions') %}class="active"{% endif %}>
+                    <i class="fas fa-info-circle" aria-hidden="true"></i> Info Session Emails
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_logout') }}">
                     <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
                 </a>
