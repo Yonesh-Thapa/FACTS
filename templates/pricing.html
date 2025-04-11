@@ -1,0 +1,202 @@
+{% extends "layout.html" %}
+
+{% block title %}F.A.C.T.S - Program Pricing & Early Bird Special{% endblock %}
+
+{% block content %}
+<!-- Pricing Header -->
+<section class="page-header pricing-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1>Program Pricing</h1>
+                <p class="lead">Investment in your accounting career with our 8-week program</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Early Bird Countdown Section -->
+<section class="early-bird-countdown py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="early-bird-card">
+                    <div class="ribbon ribbon-top-right"><span>Save A$150</span></div>
+                    <h2 class="section-title">Limited Time Early Bird Offer</h2>
+                    <div class="section-divider"></div>
+                    <p class="lead mb-4">Enroll before April 30, 2025 and save A$150 on your program fee.</p>
+                    
+                    <div class="countdown-container mb-4">
+                        <h4>Offer Ends In:</h4>
+                        <div id="pricing-countdown-timer" class="countdown-timer">
+                            Loading countdown...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Options Section -->
+<section class="pricing-options py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="pricing-card">
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            <div class="pricing-option">
+                                <h3>Standard Enrollment</h3>
+                                <div class="price">A$1,650</div>
+                                <ul class="pricing-features">
+                                    <li><i class="fas fa-check-circle"></i> Full 8-week program access</li>
+                                    <li><i class="fas fa-check-circle"></i> 16 live sessions (2 per week)</li>
+                                    <li><i class="fas fa-check-circle"></i> Xero & MYOB software training</li>
+                                    <li><i class="fas fa-check-circle"></i> AI & cybersecurity module</li>
+                                    <li><i class="fas fa-check-circle"></i> Resume & interview preparation</li>
+                                    <li><i class="fas fa-check-circle"></i> Certificate of completion</li>
+                                </ul>
+                                <a href="{{ url_for('contact') }}" class="btn btn-outline-primary mt-3">Apply Now</a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="pricing-option featured">
+                                <div class="pricing-badge">Save A$150</div>
+                                <h3>Early Bird Special</h3>
+                                <div class="price">A$1,500</div>
+                                <p class="pricing-deadline">If enrolled before April 30, 2025</p>
+                                <ul class="pricing-features">
+                                    <li><i class="fas fa-check-circle"></i> Everything in Standard Enrollment</li>
+                                    <li><i class="fas fa-check-circle"></i> Personal career mentoring</li>
+                                    <li><i class="fas fa-check-circle"></i> LinkedIn profile optimization</li>
+                                    <li><i class="fas fa-check-circle"></i> Priority email & phone support</li>
+                                    <li><i class="fas fa-check-circle"></i> Post-program support (2 weeks)</li>
+                                </ul>
+                                <a href="{{ url_for('contact') }}" class="btn btn-primary mt-3">Apply Now – Save A$150</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Payment Information -->
+<section class="payment-info py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title">Class & Payment Information</h2>
+                <div class="section-divider"></div>
+                
+                <div class="info-blocks mt-5">
+                    <div class="row">
+                        <div class="col-md-4 mb-4 mb-md-0">
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h4>Limited Class Size</h4>
+                                <p>Each session limited to 10 students for personalized attention</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4 mb-md-0">
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <h4>Payment Options</h4>
+                                <p>Secure direct bank transfer or credit card payment available</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-card">
+                                <div class="info-icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <h4>Flexible Scheduling</h4>
+                                <p>Evening and weekend sessions to accommodate your schedule</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <div class="section-divider"></div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-lg-10 mx-auto">
+                <div class="accordion" id="pricingFaq">
+                    <!-- Question 1 -->
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqOne" aria-expanded="true" aria-controls="faqOne">
+                                Are there any additional costs beyond the program fee?
+                            </button>
+                        </h3>
+                        <div id="faqOne" class="accordion-collapse collapse show" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                No, the program fee is all-inclusive. It covers all 16 live sessions, software training, career preparation, and materials needed for the course. There are no hidden fees or additional costs.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 2 -->
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqTwo" aria-expanded="false" aria-controls="faqTwo">
+                                What happens if I need to withdraw from the program?
+                            </button>
+                        </h3>
+                        <div id="faqTwo" class="accordion-collapse collapse" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                We understand that circumstances can change. A full refund is available if you withdraw more than 14 days before the program starts. A 50% refund is available for withdrawals 7-14 days before the program starts. No refunds are available for withdrawals less than 7 days before the program starts.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 3 -->
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqThree" aria-expanded="false" aria-controls="faqThree">
+                                Do you offer payment plans?
+                            </button>
+                        </h3>
+                        <div id="faqThree" class="accordion-collapse collapse" data-bs-parent="#pricingFaq">
+                            <div class="accordion-body">
+                                Yes, we offer a flexible payment plan option. You can pay 50% of the fee to secure your spot, and the remaining 50% is due by the third week of the program. Please note that the Early Bird discount requires full payment to qualify.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2>Ready to Invest in Your Accounting Career?</h2>
+                <p>Join our 8-week program and develop the practical skills employers are looking for</p>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg mt-3">Apply Now – Secure Your Spot</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

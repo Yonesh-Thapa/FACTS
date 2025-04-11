@@ -177,8 +177,14 @@ function initBootstrapTooltips() {
  * Initialize countdown timer for early bird offer
  */
 function initCountdownTimer() {
-    const countdownElement = document.getElementById('countdown-timer');
-    if (!countdownElement) return;
+    const countdownElements = [
+        document.getElementById('countdown-timer'),
+        document.getElementById('program-countdown-timer')
+    ];
+    
+    // Filter out null elements
+    const validElements = countdownElements.filter(element => element !== null);
+    if (validElements.length === 0) return;
     
     // Set the deadline date to April 30, 2025
     const deadline = new Date('April 30, 2025 23:59:59').getTime();
@@ -194,7 +200,9 @@ function initCountdownTimer() {
         // If the countdown is finished, clear the interval and display a message
         if (timeRemaining < 0) {
             clearInterval(countdown);
-            countdownElement.innerHTML = 'Offer has expired';
+            validElements.forEach(element => {
+                element.innerHTML = 'Offer has expired';
+            });
             return;
         }
         
@@ -204,7 +212,12 @@ function initCountdownTimer() {
         const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
         
-        // Display the result
-        countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        // Format the result
+        const formattedTime = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        
+        // Update all countdown elements
+        validElements.forEach(element => {
+            element.innerHTML = formattedTime;
+        });
     }, 1000);
 }
