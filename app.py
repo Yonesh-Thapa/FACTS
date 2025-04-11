@@ -62,15 +62,15 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Reduces overhead
 
-# Configure Flask-Mail for sending emails - using free SMTP service
-app.config['MAIL_SERVER'] = 'smtp.mailtrap.io'
-app.config['MAIL_PORT'] = 2525
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'ba0c5e9cc79cd9'  # Demo credentials that work without API key
-app.config['MAIL_PASSWORD'] = '76f1f4e2ecd53a'  # Demo credentials that work without API key
-app.config['MAIL_DEFAULT_SENDER'] = ('Future Accountants', 'info@futureaccountants.com.au')
-app.config['MAIL_MAX_EMAILS'] = 100  # Limit for free tier
+# Configure Flask-Mail for sending emails
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')  # App password, not regular password
+app.config['MAIL_DEFAULT_SENDER'] = ('Future Accountants', os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com'))
+app.config['MAIL_MAX_EMAILS'] = 100  # Daily limit
 
 # Set admin emails for notifications
 app.config['ADMIN_EMAIL'] = os.environ.get('ADMIN_EMAIL', os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com'))
