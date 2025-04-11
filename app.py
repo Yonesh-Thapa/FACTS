@@ -223,6 +223,91 @@ def admin_logout():
     flash('You have been logged out', 'info')
     return redirect(url_for('admin_login'))
 
+# Route for info session email collection
+@app.route('/info-session-register', methods=['POST'])
+def collect_info_session_email():
+    from models import InfoSessionEmail
+    
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        
+        if not email:
+            flash('Please provide your email address', 'danger')
+            return redirect(url_for('index'))
+        
+        # Check if email already exists
+        existing_email = InfoSessionEmail.query.filter_by(email=email).first()
+        if existing_email:
+            flash('Thank you! You\'re already registered for our info session.', 'info')
+            return redirect(url_for('index'))
+        
+        # Create new info session email record
+        new_email = InfoSessionEmail(email=email)
+        db.session.add(new_email)
+        db.session.commit()
+        
+        flash('Thank you! You\'ll receive details for our next info session soon.', 'success')
+        return redirect(url_for('index'))
+    
+    return redirect(url_for('index'))
+
+# Blog routes
+@app.route('/blog')
+def blog():
+    from models import BlogPost
+    
+    page = request.args.get('page', 1, type=int)
+    category = request.args.get('category')
+    
+    # Get published blog posts
+    query = BlogPost.query.filter_by(is_published=True)
+    
+    # Apply category filter if provided
+    if category:
+        query = query.filter_by(category=category)
+    
+    # Order by most recent first
+    query = query.order_by(BlogPost.created_at.desc())
+    
+    # Paginate results
+    posts = query.paginate(page=page, per_page=6)
+    
+    # Get all categories for the filter dropdown
+    categories = db.session.query(BlogPost.category).filter_by(is_published=True).distinct().all()
+    categories = [cat[0] for cat in categories if cat[0]]
+    
+    response = make_response(render_template(
+        'blog/index.html',
+        posts=posts,
+        categories=categories,
+        current_category=category
+    ))
+    response.headers['Cache-Control'] = 'max-age=300'  # Cache for 5 minutes
+    return response
+
+@app.route('/blog/<slug>')
+def blog_post(slug):
+    from models import BlogPost
+    
+    post = BlogPost.query.filter_by(slug=slug, is_published=True).first_or_404()
+    
+    # Get related posts (same category, excluding current post)
+    related_posts = []
+    if post.category:
+        related_posts = BlogPost.query.filter(
+            BlogPost.category == post.category,
+            BlogPost.id != post.id,
+            BlogPost.is_published == True
+        ).order_by(BlogPost.created_at.desc()).limit(3).all()
+    
+    response = make_response(render_template(
+        'blog/post.html',
+        post=post,
+        related_posts=related_posts
+    ))
+    response.headers['Cache-Control'] = 'max-age=600'  # Cache for 10 minutes
+    return response
+
 @app.route('/admin')
 @login_required
 def admin_dashboard():
@@ -573,6 +658,169 @@ def delete_class(class_id):
     
     flash('Class session deleted successfully', 'success')
     return redirect(url_for('admin_classes'))
+
+# Blog Admin routes
+@app.route('/admin/blog')
+@login_required
+def admin_blog():
+    from models import BlogPost
+    
+    # Get all blog posts
+    posts = BlogPost.query.order_by(BlogPost.created_at.desc()).all()
+    
+    response = make_response(render_template(
+        'admin/blog/index.html',
+        posts=posts
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/blog/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_blog_post():
+    from models import BlogPost
+    
+    if request.method == 'POST':
+        try:
+            title = request.form.get('title')
+            content = request.form.get('content')
+            category = request.form.get('category')
+            featured_image = request.form.get('featured_image')
+            is_published = 'is_published' in request.form
+            
+            # Validate required fields
+            if not title or not content:
+                flash('Title and content are required', 'danger')
+                return redirect(url_for('admin_add_blog_post'))
+            
+            # Create new blog post
+            new_post = BlogPost(
+                title=title,
+                content=content,
+                category=category,
+                featured_image=featured_image,
+                is_published=is_published,
+                author_id=current_user.id
+            )
+            
+            db.session.add(new_post)
+            db.session.commit()
+            
+            flash('Blog post created successfully', 'success')
+            return redirect(url_for('admin_blog'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error adding blog post: {str(e)}")
+            flash(f'Error adding blog post: {str(e)}', 'danger')
+    
+    response = make_response(render_template('admin/blog/form.html', post=None))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/blog/<int:post_id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_blog_post(post_id):
+    from models import BlogPost
+    
+    post = BlogPost.query.get_or_404(post_id)
+    
+    if request.method == 'POST':
+        try:
+            post.title = request.form.get('title')
+            post.content = request.form.get('content')
+            post.category = request.form.get('category')
+            post.featured_image = request.form.get('featured_image')
+            post.is_published = 'is_published' in request.form
+            
+            # Generate new slug if title changed
+            if post.title != request.form.get('title'):
+                post.slug = slugify(post.title)
+            
+            db.session.commit()
+            
+            flash('Blog post updated successfully', 'success')
+            return redirect(url_for('admin_blog'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating blog post: {str(e)}")
+            flash(f'Error updating blog post: {str(e)}', 'danger')
+    
+    response = make_response(render_template('admin/blog/form.html', post=post))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/blog/<int:post_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_blog_post(post_id):
+    from models import BlogPost
+    
+    post = BlogPost.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    
+    flash('Blog post deleted successfully', 'success')
+    return redirect(url_for('admin_blog'))
+
+# Info Session Emails Admin
+@app.route('/admin/info-sessions')
+@login_required
+def admin_info_sessions():
+    from models import InfoSessionEmail
+    
+    # Get all info session emails
+    emails = InfoSessionEmail.query.order_by(InfoSessionEmail.created_at.desc()).all()
+    
+    response = make_response(render_template(
+        'admin/info_sessions.html',
+        emails=emails
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/info-sessions/<int:email_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_info_session_email(email_id):
+    from models import InfoSessionEmail
+    
+    email = InfoSessionEmail.query.get_or_404(email_id)
+    db.session.delete(email)
+    db.session.commit()
+    
+    flash('Email deleted successfully', 'success')
+    return redirect(url_for('admin_info_sessions'))
+
+@app.route('/admin/info-sessions/export', methods=['GET'])
+@login_required
+def admin_export_info_session_emails():
+    from models import InfoSessionEmail
+    import csv
+    from io import StringIO
+    
+    emails = InfoSessionEmail.query.order_by(InfoSessionEmail.created_at.desc()).all()
+    
+    # Create CSV in memory
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header row
+    writer.writerow(['Email', 'Date Registered', 'Notes'])
+    
+    # Write data rows
+    for email in emails:
+        writer.writerow([
+            email.email,
+            email.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            email.notes or ''
+        ])
+    
+    # Create response with CSV data
+    response = make_response(output.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=info_session_emails.csv'
+    response.headers['Content-type'] = 'text/csv'
+    
+    return response
 
 # Create initial admin user if it doesn't exist
 with app.app_context():

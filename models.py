@@ -3,6 +3,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import and_
+from slugify import slugify
 
 class Contact(db.Model):
     __tablename__ = 'contacts'
@@ -142,3 +143,48 @@ class Admin(UserMixin, db.Model):
     
     def __repr__(self):
         return f'<Admin {self.username}>'
+
+class BlogPost(db.Model):
+    __tablename__ = 'blog_posts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False, index=True)
+    slug = db.Column(db.String(255), nullable=False, unique=True, index=True)
+    content = db.Column(db.Text, nullable=False)
+    featured_image = db.Column(db.String(255))  # URL or path to image
+    category = db.Column(db.String(100), index=True)  # Career Tips, Software, Resume, etc.
+    is_published = db.Column(db.Boolean, default=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('admins.id'))
+    
+    # Define relationship with Admin
+    author = db.relationship('Admin', backref=db.backref('blog_posts', lazy=True))
+    
+    def __init__(self, *args, **kwargs):
+        # If slug isn't provided, generate it from title
+        if 'slug' not in kwargs and 'title' in kwargs:
+            kwargs['slug'] = slugify(kwargs['title'])
+        super().__init__(*args, **kwargs)
+    
+    def __repr__(self):
+        return f'<BlogPost {self.title}>'
+        
+    @property
+    def reading_time(self):
+        """Calculate approximate reading time in minutes"""
+        words_per_minute = 200
+        word_count = len(self.content.split())
+        minutes = max(1, word_count // words_per_minute)
+        return minutes
+
+class InfoSessionEmail(db.Model):
+    __tablename__ = 'info_session_emails'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), nullable=False, unique=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    notes = db.Column(db.Text)
+    
+    def __repr__(self):
+        return f'<InfoSessionEmail {self.email}>'
