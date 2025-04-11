@@ -2,8 +2,9 @@ from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from slugify import slugify
+import json
 
 class Contact(db.Model):
     __tablename__ = 'contacts'
@@ -188,3 +189,77 @@ class InfoSessionEmail(db.Model):
     
     def __repr__(self):
         return f'<InfoSessionEmail {self.email}>'
+
+# Analytics Models
+class PageView(db.Model):
+    __tablename__ = 'page_views'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    path = db.Column(db.String(255), nullable=False, index=True)
+    ip_address = db.Column(db.String(45), index=True)  # IPv6 can be up to 45 chars
+    user_agent = db.Column(db.String(255))
+    referrer = db.Column(db.String(255), index=True)
+    visitor_id = db.Column(db.String(64), index=True)  # Anonymous ID to track unique visitors
+    browser = db.Column(db.String(50))
+    os = db.Column(db.String(50))
+    device_type = db.Column(db.String(20))  # mobile, tablet, desktop
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    
+    def __repr__(self):
+        return f'<PageView {self.path}>'
+    
+class ButtonClick(db.Model):
+    __tablename__ = 'button_clicks'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    button_id = db.Column(db.String(100), nullable=False, index=True)
+    button_text = db.Column(db.String(100))
+    page_path = db.Column(db.String(255), nullable=False, index=True)
+    visitor_id = db.Column(db.String(64), index=True)
+    ip_address = db.Column(db.String(45), index=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    
+    def __repr__(self):
+        return f'<ButtonClick {self.button_id} on {self.page_path}>'
+    
+class VisitorLocation(db.Model):
+    __tablename__ = 'visitor_locations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    visitor_id = db.Column(db.String(64), index=True)
+    ip_address = db.Column(db.String(45), unique=True, index=True)
+    country = db.Column(db.String(100), index=True)
+    region = db.Column(db.String(100))
+    city = db.Column(db.String(100))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<VisitorLocation {self.country}: {self.city}>'
+    
+class ReferralSource(db.Model):
+    __tablename__ = 'referral_sources'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    source = db.Column(db.String(100), nullable=False, index=True)
+    medium = db.Column(db.String(100), index=True)
+    campaign = db.Column(db.String(100), index=True)
+    visitor_id = db.Column(db.String(64), index=True)
+    landing_page = db.Column(db.String(255), index=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    
+    def __repr__(self):
+        return f'<ReferralSource {self.source}>'
+    
+class SessionDuration(db.Model):
+    __tablename__ = 'session_durations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    visitor_id = db.Column(db.String(64), nullable=False, index=True)
+    session_id = db.Column(db.String(64), nullable=False, unique=True, index=True)
+    start_time = db.Column(db.DateTime, nullable=False, index=True)
+    end_time = db.Column(db.DateTime, index=True)
+    duration_seconds = db.Column(db.Integer)  # Calculated when session ends
+    pages_viewed = db.Column(db.Integer, default=1)
+    
+    def __repr__(self):
+        return f'<SessionDuration {self.visitor_id} - {self.duration_seconds}s>'

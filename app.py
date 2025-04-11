@@ -1,11 +1,15 @@
 import os
 import logging
 from datetime import datetime
-from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, make_response
+from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, make_response, g
 from slugify import slugify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+import uuid
+import hashlib
+import re
+from urllib.parse import urlparse
 
 # Configure logging - use INFO level in production for better performance
 log_level = logging.INFO if os.environ.get('FLASK_ENV') == 'production' else logging.DEBUG
@@ -171,6 +175,217 @@ def enroll():
     """Redirect to contact page with 301 (permanent) status code"""
     return redirect(url_for('contact'), code=301)
 
+# Analytics helper functions
+def get_visitor_id():
+    """Generate or retrieve a unique visitor ID for analytics tracking"""
+    if 'visitor_id' not in session:
+        # Create a new visitor ID if one doesn't exist
+        visitor_id = str(uuid.uuid4())
+        session['visitor_id'] = visitor_id
+    return session.get('visitor_id')
+
+def parse_user_agent(user_agent_string):
+    """Parse the User-Agent string to extract browser, OS, and device type"""
+    browser = "Unknown"
+    os_name = "Unknown"
+    device_type = "desktop"
+    
+    # Simple parsing for browser detection
+    if "MSIE" in user_agent_string or "Trident" in user_agent_string:
+        browser = "Internet Explorer"
+    elif "Edge" in user_agent_string:
+        browser = "Edge"
+    elif "Chrome" in user_agent_string and "Safari" in user_agent_string and "Edge" not in user_agent_string:
+        browser = "Chrome"
+    elif "Firefox" in user_agent_string:
+        browser = "Firefox"
+    elif "Safari" in user_agent_string and "Chrome" not in user_agent_string:
+        browser = "Safari"
+    elif "Opera" in user_agent_string or "OPR" in user_agent_string:
+        browser = "Opera"
+    
+    # Simple parsing for OS detection
+    if "Windows" in user_agent_string:
+        os_name = "Windows"
+    elif "Mac OS" in user_agent_string:
+        os_name = "macOS"
+    elif "Android" in user_agent_string:
+        os_name = "Android"
+        device_type = "mobile" if "Mobile" in user_agent_string else "tablet"
+    elif "Linux" in user_agent_string:
+        os_name = "Linux"
+    elif "iPhone" in user_agent_string:
+        os_name = "iOS"
+        device_type = "mobile"
+    elif "iPad" in user_agent_string:
+        os_name = "iOS"
+        device_type = "tablet"
+    
+    # Mobile detection
+    if "Mobile" in user_agent_string or "Android" in user_agent_string:
+        device_type = "mobile"
+    
+    return browser, os_name, device_type
+
+def parse_referrer(referrer):
+    """Parse the referrer URL to determine the source"""
+    if not referrer:
+        return "direct", None, None
+    
+    # Extract the domain from the referrer
+    try:
+        parsed_url = urlparse(referrer)
+        domain = parsed_url.netloc
+        
+        # Check for search engines
+        if "google" in domain:
+            return "google", "organic", None
+        elif "bing" in domain:
+            return "bing", "organic", None
+        elif "yahoo" in domain:
+            return "yahoo", "organic", None
+        # Check for social media
+        elif "facebook" in domain or "fb.com" in domain:
+            return "facebook", "social", None
+        elif "instagram" in domain:
+            return "instagram", "social", None
+        elif "twitter" in domain or "t.co" in domain:
+            return "twitter", "social", None
+        elif "linkedin" in domain:
+            return "linkedin", "social", None
+        else:
+            # External referral
+            return domain, "referral", None
+    except:
+        return "unknown", None, None
+
+# Track page views before each request
+@app.before_request
+def track_page_view():
+    """Track page views for analytics"""
+    # Only track GET requests
+    if request.method != 'GET':
+        return
+    
+    # Skip tracking for static files, favicon, and admin pages
+    if (request.path.startswith('/static/') or 
+        request.path == '/favicon.ico' or
+        request.path.startswith('/admin/')):
+        return
+    
+    # Get visitor ID
+    visitor_id = get_visitor_id()
+    
+    # Store the request start time for duration calculation
+    g.request_start_time = datetime.utcnow()
+    
+    try:
+        # Extract useful information
+        user_agent_string = request.headers.get('User-Agent', '')
+        browser, os_name, device_type = parse_user_agent(user_agent_string)
+        
+        # Get the referrer
+        referrer = request.referrer or ''
+        
+        # Import the models
+        from models import PageView, ReferralSource, VisitorLocation, SessionDuration
+        
+        # Check if this is a new session
+        create_new_session = False
+        
+        session_id = session.get('session_id')
+        if not session_id:
+            session_id = str(uuid.uuid4())
+            session['session_id'] = session_id
+            create_new_session = True
+            
+            # Store the referrer for new sessions
+            source, medium, campaign = parse_referrer(referrer)
+            
+            # Add referral source if it exists
+            if referrer and source != "direct":
+                referral = ReferralSource(
+                    source=source,
+                    medium=medium,
+                    campaign=campaign,
+                    visitor_id=visitor_id,
+                    landing_page=request.path
+                )
+                db.session.add(referral)
+        
+        # Create a new page view record
+        page_view = PageView(
+            path=request.path,
+            ip_address=request.remote_addr,
+            user_agent=user_agent_string,
+            referrer=referrer,
+            visitor_id=visitor_id,
+            browser=browser,
+            os=os_name,
+            device_type=device_type
+        )
+        db.session.add(page_view)
+        
+        # If it's a new session, create a session record
+        if create_new_session:
+            session_duration = SessionDuration(
+                visitor_id=visitor_id,
+                session_id=session_id,
+                start_time=datetime.utcnow()
+            )
+            db.session.add(session_duration)
+        else:
+            # Update existing session with new page view
+            session_duration = SessionDuration.query.filter_by(session_id=session_id).first()
+            if session_duration:
+                session_duration.pages_viewed = session_duration.pages_viewed + 1
+        
+        # Commit the changes
+        db.session.commit()
+        
+    except Exception as e:
+        # Don't break the site if analytics tracking fails
+        db.session.rollback()
+        app.logger.error(f"Error tracking page view: {str(e)}")
+
+# Track button clicks (this will be called from JavaScript)
+@app.route('/api/track-click', methods=['POST'])
+def track_button_click():
+    """Track button clicks for analytics"""
+    try:
+        # Get data from request
+        data = request.get_json()
+        button_id = data.get('button_id')
+        button_text = data.get('button_text')
+        page_path = data.get('page_path')
+        
+        if not button_id or not page_path:
+            return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+        
+        # Get visitor ID
+        visitor_id = get_visitor_id()
+        
+        # Import the model
+        from models import ButtonClick
+        
+        # Create a new button click record
+        button_click = ButtonClick(
+            button_id=button_id,
+            button_text=button_text,
+            page_path=page_path,
+            visitor_id=visitor_id,
+            ip_address=request.remote_addr
+        )
+        db.session.add(button_click)
+        db.session.commit()
+        
+        return jsonify({'status': 'success'})
+        
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error tracking button click: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 # Configure static files with long cache time
 @app.after_request
 def add_cache_headers(response):
@@ -186,6 +401,23 @@ def add_cache_headers(response):
             max_age = 86400  # 1 day for other static files
             
         response.headers['Cache-Control'] = f'public, max-age={max_age}'
+    
+    # Update session duration if applicable
+    try:
+        if hasattr(g, 'request_start_time') and request.method == 'GET':
+            session_id = session.get('session_id')
+            if session_id:
+                from models import SessionDuration
+                session_duration = SessionDuration.query.filter_by(session_id=session_id).first()
+                if session_duration:
+                    session_duration.end_time = datetime.utcnow()
+                    if session_duration.start_time:
+                        duration = session_duration.end_time - session_duration.start_time
+                        session_duration.duration_seconds = int(duration.total_seconds())
+                    db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error updating session duration: {str(e)}")
     
     return response
 
