@@ -67,14 +67,14 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'hsenoy2022@gmail.com')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')  # App password, not regular password
-app.config['MAIL_DEFAULT_SENDER'] = ('Future Accountants', os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com'))
+app.config['MAIL_DEFAULT_SENDER'] = ('Future Accountants', os.environ.get('MAIL_USERNAME', 'hsenoy2022@gmail.com'))
 app.config['MAIL_MAX_EMAILS'] = 100  # Daily limit
 
 # Set admin emails for notifications
-app.config['ADMIN_EMAIL'] = os.environ.get('ADMIN_EMAIL', os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com'))
-app.config['SECONDARY_ADMIN_EMAIL'] = os.environ.get('SECONDARY_ADMIN_EMAIL')
+app.config['ADMIN_EMAIL'] = os.environ.get('ADMIN_EMAIL', os.environ.get('MAIL_USERNAME', 'hsenoy2022@gmail.com'))
+app.config['SECONDARY_ADMIN_EMAIL'] = os.environ.get('SECONDARY_ADMIN_EMAIL', '')
 
 # For testing email functionality
 app.config['TESTING_EMAIL_ENABLED'] = (os.environ.get('FLASK_ENV') != 'production')
