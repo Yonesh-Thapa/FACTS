@@ -86,17 +86,10 @@
                 <div class="card-body">
                     <div class="filter-controls">
                         <div class="btn-group" role="group" aria-label="Time range">
-                            <button type="button" class="btn btn-outline-primary active">Today</button>
-                            <button type="button" class="btn btn-outline-primary">Last 7 Days</button>
-                            <button type="button" class="btn btn-outline-primary">Last 30 Days</button>
-                            <button type="button" class="btn btn-outline-primary">This Year</button>
-                        </div>
-                        
-                        <div class="input-group" style="max-width: 400px;">
-                            <span class="input-group-text">Custom Range</span>
-                            <input type="date" class="form-control" placeholder="Start Date">
-                            <input type="date" class="form-control" placeholder="End Date">
-                            <button class="btn btn-primary">Apply</button>
+                            <a href="{{ url_for('admin_analytics', time='today') }}" class="btn btn-outline-primary {{ 'active' if time_filter == 'today' else '' }}">Today</a>
+                            <a href="{{ url_for('admin_analytics', time='week') }}" class="btn btn-outline-primary {{ 'active' if time_filter == 'week' else '' }}">Last 7 Days</a>
+                            <a href="{{ url_for('admin_analytics', time='month') }}" class="btn btn-outline-primary {{ 'active' if time_filter == 'month' else '' }}">Last 30 Days</a>
+                            <a href="{{ url_for('admin_analytics', time='all') }}" class="btn btn-outline-primary {{ 'active' if time_filter == 'all' or not time_filter else '' }}">All Time</a>
                         </div>
                     </div>
                 </div>
@@ -109,28 +102,28 @@
         <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
             <div class="metric-card">
                 <div class="metric-icon"><i class="fas fa-users" aria-hidden="true"></i></div>
-                <div class="metric-value">5,247</div>
+                <div class="metric-value">{{ total_visitors }}</div>
                 <div class="metric-label">Total Visitors</div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
             <div class="metric-card">
                 <div class="metric-icon"><i class="fas fa-file" aria-hidden="true"></i></div>
-                <div class="metric-value">12,893</div>
+                <div class="metric-value">{{ total_page_views }}</div>
                 <div class="metric-label">Page Views</div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
             <div class="metric-card">
                 <div class="metric-icon"><i class="fas fa-clock" aria-hidden="true"></i></div>
-                <div class="metric-value">2:35</div>
+                <div class="metric-value">{{ avg_duration_minutes }}m</div>
                 <div class="metric-label">Avg. Session Duration</div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
             <div class="metric-card">
                 <div class="metric-icon"><i class="fas fa-percentage" aria-hidden="true"></i></div>
-                <div class="metric-value">65.3%</div>
+                <div class="metric-value">{{ bounce_rate }}%</div>
                 <div class="metric-label">Bounce Rate</div>
             </div>
         </div>
@@ -175,41 +168,17 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for page in popular_pages %}
                                 <tr>
-                                    <td>Home Page</td>
-                                    <td>3,542</td>
-                                    <td>1:25</td>
+                                    <td>{{ page.page }}</td>
+                                    <td>{{ page.views }}</td>
+                                    <td>{{ page.avg_time }}</td>
                                 </tr>
+                                {% else %}
                                 <tr>
-                                    <td>Program Details</td>
-                                    <td>2,871</td>
-                                    <td>3:10</td>
+                                    <td colspan="3" class="text-center">No page view data available yet</td>
                                 </tr>
-                                <tr>
-                                    <td>Contact Page</td>
-                                    <td>1,936</td>
-                                    <td>1:45</td>
-                                </tr>
-                                <tr>
-                                    <td>About Page</td>
-                                    <td>1,758</td>
-                                    <td>2:15</td>
-                                </tr>
-                                <tr>
-                                    <td>Pricing Page</td>
-                                    <td>1,452</td>
-                                    <td>2:30</td>
-                                </tr>
-                                <tr>
-                                    <td>Blog - "Top Accounting Skills for 2025"</td>
-                                    <td>834</td>
-                                    <td>4:25</td>
-                                </tr>
-                                <tr>
-                                    <td>Blog - "Xero vs MYOB Comparison"</td>
-                                    <td>722</td>
-                                    <td>3:55</td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -235,36 +204,17 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for location in locations %}
                                 <tr>
-                                    <td>Australia</td>
-                                    <td>3,852</td>
-                                    <td>73.4%</td>
+                                    <td>{{ location.country }}</td>
+                                    <td>{{ location.visitors }}</td>
+                                    <td>{{ location.percentage }}%</td>
                                 </tr>
+                                {% else %}
                                 <tr>
-                                    <td>New Zealand</td>
-                                    <td>487</td>
-                                    <td>9.3%</td>
+                                    <td colspan="3" class="text-center">No location data available yet</td>
                                 </tr>
-                                <tr>
-                                    <td>India</td>
-                                    <td>312</td>
-                                    <td>5.9%</td>
-                                </tr>
-                                <tr>
-                                    <td>United States</td>
-                                    <td>265</td>
-                                    <td>5.1%</td>
-                                </tr>
-                                <tr>
-                                    <td>United Kingdom</td>
-                                    <td>176</td>
-                                    <td>3.4%</td>
-                                </tr>
-                                <tr>
-                                    <td>Others</td>
-                                    <td>155</td>
-                                    <td>2.9%</td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -294,36 +244,17 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for referral in referrals %}
                                 <tr>
-                                    <td>Google Search</td>
-                                    <td>2,341</td>
-                                    <td>5.2%</td>
+                                    <td>{{ referral.source }} ({{ referral.medium }})</td>
+                                    <td>{{ referral.visitors }}</td>
+                                    <td>{{ referral.conversion_rate }}%</td>
                                 </tr>
+                                {% else %}
                                 <tr>
-                                    <td>Direct Traffic</td>
-                                    <td>1,258</td>
-                                    <td>7.8%</td>
+                                    <td colspan="3" class="text-center">No referral data available yet</td>
                                 </tr>
-                                <tr>
-                                    <td>Instagram</td>
-                                    <td>854</td>
-                                    <td>4.7%</td>
-                                </tr>
-                                <tr>
-                                    <td>Facebook</td>
-                                    <td>435</td>
-                                    <td>3.9%</td>
-                                </tr>
-                                <tr>
-                                    <td>Email Campaigns</td>
-                                    <td>328</td>
-                                    <td>12.4%</td>
-                                </tr>
-                                <tr>
-                                    <td>LinkedIn</td>
-                                    <td>214</td>
-                                    <td>6.3%</td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -349,36 +280,17 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for button in button_clicks %}
                                 <tr>
-                                    <td>"Apply Now" (Homepage)</td>
-                                    <td>765</td>
-                                    <td>8.3%</td>
+                                    <td>{{ button.button }}</td>
+                                    <td>{{ button.clicks }}</td>
+                                    <td>{{ button.conversion_rate }}%</td>
                                 </tr>
+                                {% else %}
                                 <tr>
-                                    <td>"Join the Next Session" (Homepage)</td>
-                                    <td>654</td>
-                                    <td>7.2%</td>
+                                    <td colspan="3" class="text-center">No button click data available yet</td>
                                 </tr>
-                                <tr>
-                                    <td>"Contact Us" (Program Page)</td>
-                                    <td>542</td>
-                                    <td>9.4%</td>
-                                </tr>
-                                <tr>
-                                    <td>"Find Out More" (Value-Added Path)</td>
-                                    <td>487</td>
-                                    <td>6.8%</td>
-                                </tr>
-                                <tr>
-                                    <td>"Learn More About Software Training"</td>
-                                    <td>432</td>
-                                    <td>5.7%</td>
-                                </tr>
-                                <tr>
-                                    <td>"Submit" (Contact Form)</td>
-                                    <td>376</td>
-                                    <td>25.3%</td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -387,12 +299,12 @@
         </div>
     </div>
     
-    <!-- Integration Notice -->
+    <!-- Real-time Analytics Notice -->
     <div class="row">
         <div class="col-12">
-            <div class="alert alert-info">
-                <h5><i class="fas fa-info-circle" aria-hidden="true"></i> Analytics Integration</h5>
-                <p class="mb-0">This dashboard is displaying sample data for visualization purposes. To connect with real-time analytics, you can integrate with Google Analytics, Plausible Analytics, or Umami. Contact your web administrator to set up the integration.</p>
+            <div class="alert alert-success">
+                <h5><i class="fas fa-check-circle" aria-hidden="true"></i> Real-time Analytics Active</h5>
+                <p class="mb-0">This dashboard is displaying real-time analytics data tracked directly from user interactions with the website. The data shown here reflects actual user behavior and is automatically updated as visitors interact with the site.</p>
             </div>
         </div>
     </div>
@@ -409,15 +321,15 @@ document.addEventListener('DOMContentLoaded', function() {
     Chart.defaults.color = '#6c757d';
     Chart.defaults.plugins.legend.position = 'bottom';
     
-    // Visitors Chart
+    // Visitors Chart with real data
     const visitorsCtx = document.getElementById('visitorsChart').getContext('2d');
     const visitorsChart = new Chart(visitorsCtx, {
         type: 'line',
         data: {
-            labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11'],
+            labels: {{ chart_labels|tojson }},
             datasets: [{
                 label: 'Visitors',
-                data: [150, 220, 180, 200, 250, 280, 220, 190, 270, 310, 240],
+                data: {{ chart_visitors|tojson }},
                 backgroundColor: 'rgba(0, 122, 204, 0.1)',
                 borderColor: '#007ACC',
                 borderWidth: 2,
@@ -425,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 fill: true
             }, {
                 label: 'Page Views',
-                data: [320, 480, 410, 430, 570, 600, 500, 450, 590, 700, 520],
+                data: {{ chart_pageviews|tojson }},
                 backgroundColor: 'rgba(46, 204, 113, 0.1)',
                 borderColor: '#2ECC71',
                 borderWidth: 2,

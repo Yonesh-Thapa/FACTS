@@ -1022,12 +1022,231 @@ def admin_info_sessions():
 @app.route('/admin/analytics')
 @login_required
 def admin_analytics():
-    # In a production environment, this would integrate with a real analytics provider
-    # like Google Analytics, Plausible Analytics, or Umami
+    from models import PageView, ButtonClick, VisitorLocation, ReferralSource, SessionDuration
+    from sqlalchemy import func, extract, distinct
+    
+    # Time filtering
+    time_filter = request.args.get('time', 'all')
+    date_filter = None
+    if time_filter == 'today':
+        date_filter = func.date(PageView.timestamp) == func.current_date()
+    elif time_filter == 'week':
+        # Last 7 days
+        date_filter = PageView.timestamp >= func.now() - func.interval('7 days')
+    elif time_filter == 'month':
+        # Last 30 days
+        date_filter = PageView.timestamp >= func.now() - func.interval('30 days')
+    
+    # Key metrics
+    page_view_query = db.session.query(PageView.id)
+    visitor_query = db.session.query(distinct(PageView.visitor_id))
+    
+    if date_filter:
+        page_view_query = page_view_query.filter(date_filter)
+        visitor_query = visitor_query.filter(date_filter)
+    
+    total_page_views = page_view_query.count()
+    total_visitors = visitor_query.count()
+    
+    # Session duration metrics
+    avg_duration = db.session.query(func.avg(SessionDuration.duration_seconds))\
+        .filter(SessionDuration.duration_seconds != None).scalar() or 0
+    avg_duration_minutes = round(avg_duration / 60, 2)
+    
+    # Bounce rate (sessions with only 1 page view)
+    total_sessions = db.session.query(SessionDuration.id).count()
+    bounce_sessions = db.session.query(SessionDuration.id)\
+        .filter(SessionDuration.pages_viewed == 1).count()
+    bounce_rate = round((bounce_sessions / total_sessions * 100) if total_sessions > 0 else 0, 1)
+    
+    # Most visited pages
+    popular_pages = db.session.query(
+        PageView.path, 
+        func.count(PageView.id).label('views'),
+        func.avg(SessionDuration.duration_seconds).label('avg_time')
+    ).outerjoin(
+        SessionDuration, PageView.visitor_id == SessionDuration.visitor_id
+    ).group_by(
+        PageView.path
+    ).order_by(
+        func.count(PageView.id).desc()
+    ).limit(10).all()
+    
+    # Format the popular pages data
+    formatted_popular_pages = []
+    for page in popular_pages:
+        path_name = page.path
+        if path_name == '/':
+            page_name = 'Home Page'
+        elif path_name == '/about':
+            page_name = 'About Page'
+        elif path_name == '/program':
+            page_name = 'Program Details'
+        elif path_name == '/contact':
+            page_name = 'Contact Page'
+        elif path_name == '/pricing':
+            page_name = 'Pricing Page'
+        elif path_name.startswith('/blog/'):
+            page_name = f'Blog - "{path_name[6:].title()}"'
+        elif path_name == '/blog':
+            page_name = 'Blog Index'
+        else:
+            page_name = path_name
+            
+        # Calculate average time in minutes and seconds
+        avg_time_seconds = page.avg_time or 0
+        minutes = int(avg_time_seconds // 60)
+        seconds = int(avg_time_seconds % 60)
+        avg_time_display = f"{minutes}:{seconds:02d}"
+        
+        formatted_popular_pages.append({
+            'page': page_name,
+            'views': page.views,
+            'avg_time': avg_time_display
+        })
+    
+    # Locations data
+    locations = db.session.query(
+        VisitorLocation.country,
+        func.count(distinct(VisitorLocation.visitor_id)).label('visitors')
+    ).group_by(
+        VisitorLocation.country
+    ).order_by(
+        func.count(distinct(VisitorLocation.visitor_id)).desc()
+    ).limit(10).all()
+    
+    # Format location data
+    formatted_locations = []
+    total_located_visitors = sum(loc.visitors for loc in locations)
+    for loc in locations:
+        if loc.country:
+            percentage = round((loc.visitors / total_located_visitors * 100) if total_located_visitors > 0 else 0, 1)
+            formatted_locations.append({
+                'country': loc.country,
+                'visitors': loc.visitors,
+                'percentage': percentage
+            })
+    
+    # Referral sources
+    referrals = db.session.query(
+        ReferralSource.source,
+        ReferralSource.medium,
+        func.count(distinct(ReferralSource.visitor_id)).label('visitors')
+    ).group_by(
+        ReferralSource.source,
+        ReferralSource.medium
+    ).order_by(
+        func.count(distinct(ReferralSource.visitor_id)).desc()
+    ).limit(10).all()
+    
+    # Calculate conversion rate (button clicks / visitors)
+    button_clicks = db.session.query(
+        ButtonClick.button_id,
+        ButtonClick.button_text,
+        func.count(ButtonClick.id).label('clicks')
+    ).group_by(
+        ButtonClick.button_id,
+        ButtonClick.button_text
+    ).order_by(
+        func.count(ButtonClick.id).desc()
+    ).limit(10).all()
+    
+    # Daily visitor trend data for chart
+    days_data = 14  # Last 14 days
+    daily_visitors = db.session.query(
+        func.date(PageView.timestamp).label('date'),
+        func.count(distinct(PageView.visitor_id)).label('visitors'),
+        func.count(PageView.id).label('pageviews')
+    ).group_by(
+        func.date(PageView.timestamp)
+    ).order_by(
+        func.date(PageView.timestamp).desc()
+    ).limit(days_data).all()
+    
+    # Format the dates for the chart
+    chart_labels = []
+    chart_visitors = []
+    chart_pageviews = []
+    
+    for day in reversed(daily_visitors):  # Reverse to show oldest to newest
+        chart_labels.append(day.date.strftime('%b %d'))
+        chart_visitors.append(day.visitors)
+        chart_pageviews.append(day.pageviews)
+    
+    # Button click data
+    button_click_data = []
+    for button in button_clicks:
+        button_name = button.button_text or button.button_id
+        if button_name:
+            click_count = button.clicks
+            # Calculate conversion rate based on total visitors
+            conversion_rate = round((click_count / total_visitors * 100) if total_visitors > 0 else 0, 1)
+            
+            button_click_data.append({
+                'button': button_name[:40] + ('...' if len(button_name) > 40 else ''),
+                'clicks': click_count,
+                'conversion_rate': conversion_rate
+            })
+    
+    # Referral sources data
+    referral_data = []
+    for ref in referrals:
+        source = ref.source.capitalize() if ref.source else 'Unknown'
+        medium = ref.medium.capitalize() if ref.medium else 'Direct'
+        visitors = ref.visitors
+        conversion_rate = round((visitors / total_visitors * 100) if total_visitors > 0 else 0, 1)
+        
+        referral_data.append({
+            'source': source,
+            'medium': medium,
+            'visitors': visitors,
+            'conversion_rate': conversion_rate
+        })
+    
+    # Device type breakdown
+    devices = db.session.query(
+        PageView.device_type,
+        func.count(distinct(PageView.visitor_id)).label('visitors')
+    ).group_by(
+        PageView.device_type
+    ).all()
+    
+    device_data = {}
+    for device in devices:
+        device_type = device.device_type or 'unknown'
+        device_data[device_type] = device.visitors
+    
+    # Browser breakdown
+    browsers = db.session.query(
+        PageView.browser,
+        func.count(distinct(PageView.visitor_id)).label('visitors')
+    ).group_by(
+        PageView.browser
+    ).order_by(
+        func.count(distinct(PageView.visitor_id)).desc()
+    ).limit(5).all()
+    
+    browser_data = {}
+    for browser in browsers:
+        browser_name = browser.browser or 'Unknown'
+        browser_data[browser_name] = browser.visitors
     
     response = make_response(render_template(
         'admin/analytics.html',
-        # Sample data is provided directly in the template for demonstration
+        total_page_views=total_page_views,
+        total_visitors=total_visitors,
+        avg_duration_minutes=avg_duration_minutes,
+        bounce_rate=bounce_rate,
+        popular_pages=formatted_popular_pages,
+        locations=formatted_locations,
+        referrals=referral_data,
+        button_clicks=button_click_data,
+        chart_labels=chart_labels,
+        chart_visitors=chart_visitors,
+        chart_pageviews=chart_pageviews,
+        device_data=device_data,
+        browser_data=browser_data,
+        time_filter=time_filter
     ))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
