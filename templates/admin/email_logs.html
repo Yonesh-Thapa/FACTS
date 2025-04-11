@@ -1,0 +1,168 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Email Logs - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Email Logs</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Email Activity Log</h6>
+            <div>
+                <a href="{{ url_for('admin_email_logs', status='success') }}" class="btn btn-sm {% if status == 'success' %}btn-success{% else %}btn-outline-success{% endif %} me-2">
+                    <i class="bi bi-check-circle"></i> Successful ({{ success_count }})
+                </a>
+                <a href="{{ url_for('admin_email_logs', status='failed') }}" class="btn btn-sm {% if status == 'failed' %}btn-danger{% else %}btn-outline-danger{% endif %} me-2">
+                    <i class="bi bi-exclamation-triangle"></i> Failed ({{ failed_count }})
+                </a>
+                <a href="{{ url_for('admin_email_logs') }}" class="btn btn-sm {% if not status %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    <i class="bi bi-envelope"></i> All ({{ total_count }})
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if logs %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Email Type</th>
+                            <th>Recipient</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Date/Time</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr {% if log.status == 'failed' %}class="table-danger"{% endif %}>
+                            <td>
+                                {% if log.email_type == 'info_session_confirmation' %}
+                                <span class="badge bg-info text-white">Info Session Confirmation</span>
+                                {% elif log.email_type == 'info_session_admin_notification' %}
+                                <span class="badge bg-primary text-white">Info Session Admin Notification</span>
+                                {% elif log.email_type == 'contact_notification' %}
+                                <span class="badge bg-success text-white">Contact Form Notification</span>
+                                {% elif log.email_type == 'test_email' %}
+                                <span class="badge bg-secondary text-white">Test Email</span>
+                                {% else %}
+                                <span class="badge bg-dark text-white">{{ log.email_type }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.recipient }}</td>
+                            <td>{{ log.subject }}</td>
+                            <td>
+                                {% if log.status == 'success' %}
+                                <span class="badge bg-success text-white">Success</span>
+                                {% else %}
+                                <span class="badge bg-danger text-white">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.sent_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                {% if log.status == 'failed' and log.error_message %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#errorModal{{ log.id }}">
+                                    <i class="bi bi-exclamation-circle"></i> View Error
+                                </button>
+                                
+                                <!-- Error Modal -->
+                                <div class="modal fade" id="errorModal{{ log.id }}" tabindex="-1" aria-labelledby="errorModalLabel{{ log.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="errorModalLabel{{ log.id }}">Error Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="alert alert-danger">
+                                                    {{ log.error_message }}
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if logs.pages > 1 %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <!-- Previous Page -->
+                        {% if logs.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin_email_logs', page=logs.prev_num, status=status) }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Page Numbers -->
+                        {% for page_num in logs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                {% if page_num == logs.page %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="{{ url_for('admin_email_logs', page=page_num, status=status) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin_email_logs', page=page_num, status=status) }}">{{ page_num }}</a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">...</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Next Page -->
+                        {% if logs.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin_email_logs', page=logs.next_num, status=status) }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No email logs found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

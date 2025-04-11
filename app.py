@@ -264,7 +264,8 @@ This test email was sent to all configured admin email addresses.
             sender=('Future Accountants Website', mail_username),
             recipients=recipients,
             text_body=text_body,
-            html_body=html_body
+            html_body=html_body,
+            email_type='test_email'
         )
         
         recipients_str = ", ".join(recipients)
@@ -1422,6 +1423,45 @@ def admin_delete_info_session_email(email_id):
     
     flash('Email deleted successfully', 'success')
     return redirect(url_for('admin_info_sessions'))
+
+@app.route('/admin/email-logs')
+@login_required
+def admin_email_logs():
+    # Import EmailLog model
+    from models import EmailLog
+    
+    # Get parameters
+    page = request.args.get('page', 1, type=int)
+    status = request.args.get('status')
+    
+    # Create base query
+    query = EmailLog.query
+    
+    # Apply status filter if provided
+    if status:
+        query = query.filter(EmailLog.status == status)
+    
+    # Order by most recent first
+    query = query.order_by(EmailLog.sent_at.desc())
+    
+    # Paginate results
+    logs = query.paginate(page=page, per_page=20)
+    
+    # Get counts for the status buttons
+    success_count = EmailLog.query.filter_by(status='success').count()
+    failed_count = EmailLog.query.filter_by(status='failed').count()
+    total_count = EmailLog.query.count()
+    
+    response = make_response(render_template(
+        'admin/email_logs.html',
+        logs=logs,
+        status=status,
+        success_count=success_count,
+        failed_count=failed_count,
+        total_count=total_count
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 @app.route('/admin/info-sessions/export', methods=['GET'])
 @login_required
