@@ -71,6 +71,12 @@ app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = ('Future Accountants', os.environ.get('MAIL_USERNAME'))
 app.config['MAIL_MAX_EMAILS'] = 25  # Limit to avoid hitting Gmail's sending limits
 
+# Set default admin email for notifications (same as mail username if not specified)
+app.config['ADMIN_EMAIL'] = os.environ.get('ADMIN_EMAIL', os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com'))
+
+# For testing email functionality
+app.config['TESTING_EMAIL_ENABLED'] = (os.environ.get('FLASK_ENV') != 'production')
+
 # Initialize the app with the extensions
 db.init_app(app)
 mail.init_app(app)
@@ -207,6 +213,55 @@ def contact():
 def enroll():
     """Redirect to contact page with 301 (permanent) status code"""
     return redirect(url_for('contact'), code=301)
+
+# Test route for email functionality (only available in non-production environments)
+@app.route('/test-email', methods=['GET'])
+def test_email():
+    """Test email sending functionality"""
+    if not app.config.get('TESTING_EMAIL_ENABLED', False):
+        return "Email testing is disabled in production environment", 403
+    
+    from utils.email import send_email
+    
+    try:
+        # Send a test email
+        admin_email = app.config.get('ADMIN_EMAIL')
+        mail_username = app.config.get('MAIL_USERNAME')
+        
+        subject = "Test Email from Future Accountants Website"
+        text_body = f"""
+This is a test email from the Future Accountants website.
+Sent at: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}
+
+If you're seeing this, the email functionality is working correctly!
+        """
+        
+        html_body = f"""
+<h2>Test Email</h2>
+<p>This is a test email from the Future Accountants website.</p>
+<p>Sent at: <strong>{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}</strong></p>
+<p>If you're seeing this, the email functionality is working correctly!</p>
+<p>Email configuration:</p>
+<ul>
+    <li>Admin Email: {admin_email}</li>
+    <li>Sender: {mail_username}</li>
+</ul>
+        """
+        
+        send_email(
+            subject=subject,
+            sender=('Future Accountants Website', mail_username),
+            recipients=admin_email,
+            text_body=text_body,
+            html_body=html_body
+        )
+        
+        app.logger.info(f"Test email sent to {admin_email}")
+        return f"Test email sent to {admin_email}. Check the inbox to verify it was received."
+    
+    except Exception as e:
+        app.logger.error(f"Error sending test email: {str(e)}")
+        return f"Error sending test email: {str(e)}", 500
 
 # Analytics helper functions
 def get_visitor_id():
@@ -499,6 +554,7 @@ def admin_logout():
 @app.route('/info-session-register', methods=['POST'])
 def collect_info_session_email():
     from models import InfoSessionEmail
+    from utils.email import send_info_session_confirmation
     
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
@@ -517,6 +573,14 @@ def collect_info_session_email():
         new_email = InfoSessionEmail(email=email)
         db.session.add(new_email)
         db.session.commit()
+        
+        # Send confirmation email
+        try:
+            send_info_session_confirmation(email)
+            app.logger.info(f"Info session confirmation email sent to {email}")
+        except Exception as email_error:
+            # Log the error but don't fail the form submission
+            app.logger.error(f"Error sending info session confirmation email: {str(email_error)}")
         
         flash('Thank you! You\'ll receive details for our next info session soon.', 'success')
         return redirect(url_for('index'))
