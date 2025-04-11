@@ -372,7 +372,7 @@ Based in Hobart, Tasmania</p>
     
     return send_email(
         subject=subject,
-        sender=('Future Accountants', 'noreply@futureaccountants.com.au'),
+        sender=('Future Accountants', 'hsenoy2022@gmail.com'),
         recipients=info_session_email.email,
         text_body=text_body,
         html_body=html_body,
