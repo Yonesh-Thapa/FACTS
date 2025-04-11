@@ -589,8 +589,11 @@ def collect_info_session_email():
         
         # Send confirmation email
         try:
-            send_info_session_confirmation(email)
-            app.logger.info(f"Info session confirmation email sent to {email}")
+            email_sent = send_info_session_confirmation(email)
+            if email_sent:
+                app.logger.info(f"Info session confirmation email sent to {email}")
+            else:
+                app.logger.warning(f"Failed to send info session confirmation email to {email}")
         except Exception as email_error:
             # Log the error but don't fail the form submission
             app.logger.error(f"Error sending info session confirmation email: {str(email_error)}")

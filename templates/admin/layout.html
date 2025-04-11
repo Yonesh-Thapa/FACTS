@@ -420,6 +420,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_email_logs') }}" {% if request.path == url_for('admin_email_logs') %}class="active"{% endif %}>
+                    <i class="fas fa-envelope-open-text" aria-hidden="true"></i> Email Logs
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_logout') }}">
                     <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
                 </a>
