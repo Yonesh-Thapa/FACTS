@@ -98,6 +98,12 @@ def program():
     response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
     return response
 
+@app.route('/pricing')
+def pricing():
+    response = make_response(render_template('pricing.html'))
+    response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
+    return response
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     # Import the Contact model here to avoid circular imports

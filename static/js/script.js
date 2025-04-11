@@ -179,7 +179,8 @@ function initBootstrapTooltips() {
 function initCountdownTimer() {
     const countdownElements = [
         document.getElementById('countdown-timer'),
-        document.getElementById('program-countdown-timer')
+        document.getElementById('program-countdown-timer'),
+        document.getElementById('pricing-countdown-timer')
     ];
     
     // Filter out null elements
