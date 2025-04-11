@@ -278,3 +278,17 @@ class SessionDuration(db.Model):
     
     def __repr__(self):
         return f'<SessionDuration {self.visitor_id} - {self.duration_seconds}s>'
+        
+class EmailLog(db.Model):
+    __tablename__ = 'email_logs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email_type = db.Column(db.String(50), nullable=False, index=True)  # e.g., 'info_session_confirmation', 'contact_notification'
+    recipient = db.Column(db.String(100), nullable=False, index=True)
+    subject = db.Column(db.String(200))
+    status = db.Column(db.String(20), nullable=False, index=True)  # 'success', 'failed'
+    error_message = db.Column(db.Text)  # Only populated if status is 'failed'
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    
+    def __repr__(self):
+        return f'<EmailLog {self.email_type} to {self.recipient} ({self.status})>'

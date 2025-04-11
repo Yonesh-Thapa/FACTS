@@ -16,7 +16,7 @@ def send_async_email(app, msg):
         except Exception as e:
             logging.error(f"Error sending email: {str(e)}")
 
-def send_email(subject, sender, recipients, text_body, html_body=None, cc=None, bcc=None):
+def send_email(subject, sender, recipients, text_body, html_body=None, cc=None, bcc=None, email_type=None):
     """
     Send an email using Flask-Mail
     
@@ -28,6 +28,7 @@ def send_email(subject, sender, recipients, text_body, html_body=None, cc=None, 
         html_body: HTML email body (optional)
         cc: List of CC email addresses (optional)
         bcc: List of BCC email addresses (optional)
+        email_type: Type of email for logging purposes (optional)
     """
     app = current_app._get_current_object()
     
@@ -52,10 +53,55 @@ def send_email(subject, sender, recipients, text_body, html_body=None, cc=None, 
     if html_body:
         msg.html = html_body
     
-    # Send email asynchronously to not block the request
-    Thread(target=send_async_email, args=(app, msg)).start()
-    
-    return True
+    try:
+        # Send email asynchronously to not block the request
+        Thread(target=send_async_email, args=(app, msg)).start()
+        
+        # Log successful email if email_type is provided
+        if email_type:
+            try:
+                from app import db
+                from models import EmailLog
+                
+                for recipient in recipients:
+                    email_log = EmailLog(
+                        email_type=email_type,
+                        recipient=recipient,
+                        subject=subject,
+                        status='success'
+                    )
+                    db.session.add(email_log)
+                
+                db.session.commit()
+            except Exception as log_error:
+                app.logger.error(f"Error logging email: {str(log_error)}")
+                # Don't fail the email send if just the logging fails
+        
+        return True
+    except Exception as e:
+        app.logger.error(f"Error sending email: {str(e)}")
+        
+        # Log failed email if email_type is provided
+        if email_type:
+            try:
+                from app import db
+                from models import EmailLog
+                
+                for recipient in recipients:
+                    email_log = EmailLog(
+                        email_type=email_type,
+                        recipient=recipient,
+                        subject=subject,
+                        status='failed',
+                        error_message=str(e)
+                    )
+                    db.session.add(email_log)
+                
+                db.session.commit()
+            except Exception as log_error:
+                app.logger.error(f"Error logging email failure: {str(log_error)}")
+        
+        return False
 
 def send_contact_notification(contact):
     """
@@ -114,7 +160,8 @@ This message was sent from the Future Accountants website contact form.
         sender=('Future Accountants Website', 'noreply@futureaccountants.com.au'),
         recipients=recipients,
         text_body=text_body,
-        html_body=html_body
+        html_body=html_body,
+        email_type='contact_notification'
     )
 
 def send_info_session_confirmation(email):
@@ -124,30 +171,40 @@ def send_info_session_confirmation(email):
     Args:
         email: User's email address
     """
-    subject = 'Thank You for Your Interest in Future Accountants'
+    subject = 'Thank You for Signing Up – Free Info Session with F.A.C.T.S'
     
     text_body = """
-Hello,
+Hi there,
 
-Thank you for signing up for our information session. We appreciate your interest in Future Accountants Coaching and Training Services.
+Thanks for signing up for our upcoming Free Info Session!
 
-We will keep you updated about our upcoming information sessions and programs.
+We're excited to share how Future Accountants Coaching & Training Services (F.A.C.T.S) can help launch your accounting career.
 
-Best regards,
-Darshan Kumar Thapa
-Future Accountants Coaching and Training Services
+You'll receive your Zoom link and full session details via email soon. Please keep an eye on your inbox!
+
+In the meantime, feel free to check out our 8-week job-ready accounting program at https://futureaccountants.com.au.
+
+Looking forward to connecting with you soon.
+
+— The F.A.C.T.S Team
+Based in Hobart, Tasmania
 """
     
     html_body = """
-<p>Hello,</p>
+<p>Hi there,</p>
 
-<p>Thank you for signing up for our information session. We appreciate your interest in Future Accountants Coaching and Training Services.</p>
+<p>Thanks for signing up for our upcoming Free Info Session!</p>
 
-<p>We will keep you updated about our upcoming information sessions and programs.</p>
+<p>We're excited to share how Future Accountants Coaching &amp; Training Services (F.A.C.T.S) can help launch your accounting career.</p>
 
-<p>Best regards,<br>
-Darshan Kumar Thapa<br>
-Future Accountants Coaching and Training Services</p>
+<p>You'll receive your Zoom link and full session details via email soon. Please keep an eye on your inbox!</p>
+
+<p>In the meantime, feel free to check out our 8-week job-ready accounting program at <a href="https://futureaccountants.com.au">futureaccountants.com.au</a>.</p>
+
+<p>Looking forward to connecting with you soon.</p>
+
+<p>— The F.A.C.T.S Team<br>
+Based in Hobart, Tasmania</p>
 """
     
     # Send confirmation email to the user
@@ -156,7 +213,8 @@ Future Accountants Coaching and Training Services</p>
         sender=('Future Accountants', 'noreply@futureaccountants.com.au'),
         recipients=email,
         text_body=text_body,
-        html_body=html_body
+        html_body=html_body,
+        email_type='info_session_confirmation'
     )
     
     # Also send notification to both admin emails

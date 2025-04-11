@@ -594,7 +594,7 @@ def collect_info_session_email():
             # Log the error but don't fail the form submission
             app.logger.error(f"Error sending info session confirmation email: {str(email_error)}")
         
-        flash('Thank you! You\'ll receive details for our next info session soon.', 'success')
+        flash('✅ Thank you! You\'ll receive the Zoom link soon via email.', 'success')
         return redirect(url_for('index'))
     
     return redirect(url_for('index'))
