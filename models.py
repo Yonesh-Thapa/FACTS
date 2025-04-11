@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timedelta, date, time
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import and_, func
@@ -200,6 +200,11 @@ class InfoSessionEmail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), nullable=False, unique=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    confirmation_status = db.Column(db.String(20), default='pending', index=True)  # 'pending', 'delivered', 'bounced'
+    zoom_link_sent = db.Column(db.Boolean, default=False, index=True)
+    zoom_link_sent_at = db.Column(db.DateTime, index=True)
+    reminder_sent = db.Column(db.Boolean, default=False, index=True)
+    reminder_sent_at = db.Column(db.DateTime, index=True)
     notes = db.Column(db.Text)
     
     def __repr__(self):
@@ -279,6 +284,48 @@ class SessionDuration(db.Model):
     def __repr__(self):
         return f'<SessionDuration {self.visitor_id} - {self.duration_seconds}s>'
         
+class InfoSession(db.Model):
+    __tablename__ = 'info_sessions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    date = db.Column(db.Date, nullable=False, index=True)
+    time = db.Column(db.Time, nullable=False)
+    duration_minutes = db.Column(db.Integer, default=60)
+    zoom_link = db.Column(db.String(255))
+    zoom_password = db.Column(db.String(50))
+    zoom_meeting_id = db.Column(db.String(50))
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<InfoSession {self.title} on {self.date} at {self.time}>'
+    
+    @property
+    def datetime(self):
+        """Return a full datetime object combining date and time"""
+        if self.date and self.time:
+            return datetime.combine(self.date, self.time)
+        return None
+    
+    @property
+    def reminder_time(self):
+        """Return the time when the reminder should be sent (1 hour before session)"""
+        session_datetime = self.datetime
+        if session_datetime:
+            return session_datetime - timedelta(hours=1)
+        return None
+    
+    @property
+    def is_upcoming(self):
+        """Return whether the session is upcoming (in the future)"""
+        session_datetime = self.datetime
+        if session_datetime:
+            return session_datetime > datetime.now()
+        return False
+
 class EmailLog(db.Model):
     __tablename__ = 'email_logs'
     
