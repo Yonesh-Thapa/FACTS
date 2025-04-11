@@ -241,33 +241,103 @@ document.addEventListener('DOMContentLoaded', function() {
             const phone = document.getElementById('phone').value || 'Not provided';
             const subject = document.getElementById('subject').value || 'Contact form submission';
             const message = document.getElementById('message').value;
-            const interested = document.getElementById('interested').checked ? 'Yes' : 'No';
+            const interested = document.getElementById('interested').checked;
             
-            // Prepare template parameters for EmailJS
-            const templateParams = {
-                to_email: 'fatrainingservice@gmail.com,hsenoy2022@gmail.com',
-                from_name: name,
-                from_email: email,
-                phone: phone,
-                subject: subject,
-                message: message,
-                interested: interested,
-                reply_to: email
-            };
+            // Create form data for AJAX submission
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('phone', phone);
+            formData.append('subject', subject);
+            formData.append('message', message);
+            formData.append('interested', interested ? 'on' : '');
             
-            // Send the email using EmailJS
-            emailjs.send('default_service', 'contact_form', templateParams)
-                .then(function(response) {
-                    // Submit the form to server for database storage
-                    contactForm.submit();
-                })
-                .catch(function(error) {
-                    // If email sending fails, still submit the form but log the error
-                    console.error('Email sending failed:', error);
-                    contactForm.submit();
-                });
+            // Submit form via AJAX
+            fetch('{{ url_for("contact") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading spinner
+                document.getElementById('form-loading').classList.add('d-none');
+                
+                if (data.success) {
+                    // Show success message
+                    const formContainer = contactForm.parentNode;
+                    formContainer.innerHTML = `
+                        <div class="text-center">
+                            <div class="success-icon mb-4">
+                                <i class="fas fa-check-circle fa-5x text-success"></i>
+                            </div>
+                            <h3 class="mb-3">Message Sent Successfully!</h3>
+                            <p class="lead">${data.message}</p>
+                            <p class="mt-3">We'll respond to your inquiry as soon as possible.</p>
+                        </div>
+                    `;
+                    
+                    // Still send backup email via EmailJS (redundancy)
+                    const templateParams = {
+                        to_email: 'fatrainingservice@gmail.com,hsenoy2022@gmail.com',
+                        from_name: name,
+                        from_email: email,
+                        phone: phone,
+                        subject: subject,
+                        message: message,
+                        interested: interested ? 'Yes' : 'No',
+                        reply_to: email
+                    };
+                    
+                    // Send the email using EmailJS as backup
+                    emailjs.send('default_service', 'contact_form', templateParams)
+                        .then(response => console.log('Backup email sent:', response))
+                        .catch(error => console.error('Backup email failed:', error));
+                } else {
+                    // Show error message
+                    const errorAlert = document.createElement('div');
+                    errorAlert.className = 'alert alert-danger mt-3';
+                    errorAlert.textContent = data.message || 'An error occurred. Please try again.';
+                    contactForm.insertAdjacentElement('beforebegin', errorAlert);
+                    
+                    // Auto-hide error after 5 seconds
+                    setTimeout(() => {
+                        errorAlert.remove();
+                    }, 5000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('form-loading').classList.add('d-none');
+                
+                // Show error message
+                const errorAlert = document.createElement('div');
+                errorAlert.className = 'alert alert-danger mt-3';
+                errorAlert.textContent = 'Network error. Please try again later.';
+                contactForm.insertAdjacentElement('beforebegin', errorAlert);
+                
+                // Auto-hide error after 5 seconds
+                setTimeout(() => {
+                    errorAlert.remove();
+                }, 5000);
+            });
         });
     }
 });
 </script>
+
+<!-- Add some CSS for the success message -->
+<style>
+.success-icon {
+    animation: scaleIn 0.5s ease-in-out;
+}
+
+@keyframes scaleIn {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+</style>
 {% endblock %}

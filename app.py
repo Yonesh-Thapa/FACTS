@@ -151,6 +151,9 @@ def contact():
     from utils.email import send_contact_notification
     
     if request.method == 'POST':
+        # Check if it's an AJAX request for inline form submission
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
         # Use a try/except block for the entire form processing
         try:
             # Extract form data
@@ -163,8 +166,11 @@ def contact():
             
             # Validate form data
             if not name or not email or not message:
-                flash('Please fill out all fields', 'danger')
-                return render_template('contact.html')
+                if is_ajax:
+                    return jsonify({'success': False, 'message': 'Please fill out all required fields.'}), 400
+                else:
+                    flash('Please fill out all fields', 'danger')
+                    return render_template('contact.html')
             
             # Create and save contact form data to database
             new_contact = Contact(
@@ -188,15 +194,29 @@ def contact():
                 # Log the error but don't fail the form submission
                 app.logger.error(f"Error sending contact notification email: {str(email_error)}")
             
-            flash('Message sent successfully! We will get back to you soon.', 'success')
+            # Return success message
+            success_message = 'Thanks! We\'ll contact you shortly.'
+            if is_ajax:
+                return jsonify({
+                    'success': True, 
+                    'message': success_message,
+                    'contact_id': new_contact.id
+                })
+            else:
+                flash(success_message, 'success')
+                # For non-AJAX requests, still use redirect (fallback)
+                return redirect(url_for('contact'))
             
         except Exception as e:
             db.session.rollback()
             app.logger.error(f"Error processing contact form: {str(e)}")
-            flash('An error occurred. Please try again later.', 'danger')
-        
-        # Redirect after form submission (PRG pattern)
-        return redirect(url_for('contact'))
+            error_message = 'An error occurred. Please try again later.'
+            
+            if is_ajax:
+                return jsonify({'success': False, 'message': error_message}), 500
+            else:
+                flash(error_message, 'danger')
+                return redirect(url_for('contact'))
     
     # Test email notification functionality
     if request.args.get('test_email') == '1':
