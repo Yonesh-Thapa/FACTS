@@ -6,6 +6,7 @@ from slugify import slugify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_mail import Mail
 import uuid
 import hashlib
 import re
@@ -29,6 +30,9 @@ db = SQLAlchemy(model_class=Base)
 # Create Flask application
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key")
+
+# Initialize Flask-Mail
+mail = Mail()
 
 # Configure production settings
 if os.environ.get('FLASK_ENV') == 'production':
@@ -58,8 +62,18 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Reduces overhead
 
-# Initialize the app with the extension
+# Configure Flask-Mail for sending emails
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = ('Future Accountants', os.environ.get('MAIL_USERNAME'))
+app.config['MAIL_MAX_EMAILS'] = 25  # Limit to avoid hitting Gmail's sending limits
+
+# Initialize the app with the extensions
 db.init_app(app)
+mail.init_app(app)
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -112,6 +126,7 @@ def pricing():
 def contact():
     # Import the Contact model here to avoid circular imports
     from models import Contact
+    from utils.email import send_contact_notification
     
     if request.method == 'POST':
         # Use a try/except block for the entire form processing
@@ -142,6 +157,15 @@ def contact():
             # Optimize database operation
             db.session.add(new_contact)
             db.session.commit()
+            
+            # Send email notification
+            try:
+                send_contact_notification(new_contact)
+                app.logger.info(f"Contact notification email sent for {email}")
+            except Exception as email_error:
+                # Log the error but don't fail the form submission
+                app.logger.error(f"Error sending contact notification email: {str(email_error)}")
+            
             flash('Message sent successfully! We will get back to you soon.', 'success')
             
         except Exception as e:
@@ -155,13 +179,22 @@ def contact():
     # Test email notification functionality
     if request.args.get('test_email') == '1':
         try:
-            app.logger.info("Sending test email notification to hsenoy2022@gmail.com")
-            # Log that a test email would be sent here
-            # Note: We rely on EmailJS for actual email sending on the client side
-            flash('A test email should be triggered when you submit the contact form. Check both fatrainingservice@gmail.com and hsenoy2022@gmail.com.', 'info')
+            test_contact = Contact(
+                name="Test User",
+                email="test@example.com",
+                phone="0412345678",
+                subject="Test Email Notification",
+                message="This is a test message to verify email functionality.",
+                interested=True
+            )
+            
+            send_contact_notification(test_contact)
+            
+            app.logger.info("Test email notification sent")
+            flash('A test email notification has been sent. Please check the email account.', 'info')
         except Exception as e:
             app.logger.error(f"Error in test email functionality: {str(e)}")
-            flash('Error in test email functionality', 'danger')
+            flash(f'Error in test email functionality: {str(e)}', 'danger')
     
     # GET request - render the contact form
     response = make_response(render_template('contact.html'))
