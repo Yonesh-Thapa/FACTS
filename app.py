@@ -350,6 +350,7 @@ def track_page_view():
 
 # Track button clicks (this will be called from JavaScript)
 @app.route('/api/track-click', methods=['POST'])
+@app.route('/api/track-click', methods=['POST'])
 def track_button_click():
     """Track button clicks for analytics"""
     try:
@@ -918,6 +919,9 @@ def admin_blog():
 @login_required
 def admin_add_blog_post():
     from models import BlogPost
+    import os
+    from werkzeug.utils import secure_filename
+    import uuid
     
     if request.method == 'POST':
         try:
@@ -931,6 +935,26 @@ def admin_add_blog_post():
             if not title or not content:
                 flash('Title and content are required', 'danger')
                 return redirect(url_for('admin_add_blog_post'))
+            
+            # Handle image upload
+            featured_image_file = request.files.get('featured_image_upload')
+            if featured_image_file and featured_image_file.filename:
+                # Create a unique filename to avoid overwrites
+                filename = secure_filename(featured_image_file.filename)
+                file_ext = os.path.splitext(filename)[1]
+                unique_filename = f"{uuid.uuid4().hex}{file_ext}"
+                
+                # Save the uploaded file
+                upload_path = os.path.join('static', 'uploads', 'blog')
+                
+                # Ensure directory exists
+                os.makedirs(upload_path, exist_ok=True)
+                
+                file_path = os.path.join(upload_path, unique_filename)
+                featured_image_file.save(file_path)
+                
+                # Convert path to URL format for database storage
+                featured_image = f"/static/uploads/blog/{unique_filename}"
             
             # Create new blog post
             new_post = BlogPost(
@@ -961,6 +985,9 @@ def admin_add_blog_post():
 @login_required
 def admin_edit_blog_post(post_id):
     from models import BlogPost
+    import os
+    from werkzeug.utils import secure_filename
+    import uuid
     
     post = BlogPost.query.get_or_404(post_id)
     
@@ -969,7 +996,32 @@ def admin_edit_blog_post(post_id):
             post.title = request.form.get('title')
             post.content = request.form.get('content')
             post.category = request.form.get('category')
-            post.featured_image = request.form.get('featured_image')
+            
+            # Keep existing image URL unless a new one is provided
+            featured_image = request.form.get('featured_image')
+            if featured_image:
+                post.featured_image = featured_image
+            
+            # Handle image upload
+            featured_image_file = request.files.get('featured_image_upload')
+            if featured_image_file and featured_image_file.filename:
+                # Create a unique filename to avoid overwrites
+                filename = secure_filename(featured_image_file.filename)
+                file_ext = os.path.splitext(filename)[1]
+                unique_filename = f"{uuid.uuid4().hex}{file_ext}"
+                
+                # Save the uploaded file
+                upload_path = os.path.join('static', 'uploads', 'blog')
+                
+                # Ensure directory exists
+                os.makedirs(upload_path, exist_ok=True)
+                
+                file_path = os.path.join(upload_path, unique_filename)
+                featured_image_file.save(file_path)
+                
+                # Convert path to URL format for database storage
+                post.featured_image = f"/static/uploads/blog/{unique_filename}"
+            
             post.is_published = 'is_published' in request.form
             
             # Generate new slug if title changed
