@@ -579,26 +579,43 @@ def collect_info_session_email():
         # Check if email already exists
         existing_email = InfoSessionEmail.query.filter_by(email=email).first()
         if existing_email:
-            flash('Thank you! You\'re already registered for our info session.', 'info')
+            flash('✅ Thank you! You\'ll receive the Zoom link soon via email.', 'success')
             return redirect(url_for('index'))
         
-        # Create new info session email record
-        new_email = InfoSessionEmail(email=email)
-        db.session.add(new_email)
-        db.session.commit()
-        
-        # Send confirmation email
         try:
-            email_sent = send_info_session_confirmation(email)
-            if email_sent:
-                app.logger.info(f"Info session confirmation email sent to {email}")
-            else:
-                app.logger.warning(f"Failed to send info session confirmation email to {email}")
-        except Exception as email_error:
-            # Log the error but don't fail the form submission
-            app.logger.error(f"Error sending info session confirmation email: {str(email_error)}")
-        
-        flash('✅ Thank you! You\'ll receive the Zoom link soon via email.', 'success')
+            # Create new info session email record with pending status
+            new_email = InfoSessionEmail(
+                email=email,
+                confirmation_status='pending'
+            )
+            db.session.add(new_email)
+            db.session.commit()
+            
+            # Send confirmation email
+            try:
+                email_sent = send_info_session_confirmation(email)
+                if email_sent:
+                    app.logger.info(f"Info session confirmation email sent to {email}")
+                    # Update confirmation status to delivered
+                    new_email.confirmation_status = 'delivered'
+                    db.session.commit()
+                else:
+                    app.logger.warning(f"Failed to send info session confirmation email to {email}")
+                    # Update confirmation status to bounced
+                    new_email.confirmation_status = 'bounced'
+                    db.session.commit()
+            except Exception as email_error:
+                # Log the error but don't fail the form submission
+                app.logger.error(f"Error sending info session confirmation email: {str(email_error)}")
+                # Update confirmation status to bounced
+                new_email.confirmation_status = 'bounced'
+                db.session.commit()
+            
+            flash('✅ Thank you! You\'ll receive the Zoom link soon via email.', 'success')
+        except Exception as db_error:
+            app.logger.error(f"Error saving info session email: {str(db_error)}")
+            flash('There was an error processing your request. Please try again.', 'danger')
+            
         return redirect(url_for('index'))
     
     return redirect(url_for('index'))
@@ -1170,14 +1187,36 @@ def admin_delete_blog_post(post_id):
 @app.route('/admin/info-sessions')
 @login_required
 def admin_info_sessions():
-    from models import InfoSessionEmail
+    from models import InfoSessionEmail, InfoSession
     
     # Get all info session emails
     emails = InfoSessionEmail.query.order_by(InfoSessionEmail.created_at.desc()).all()
     
+    # Get active info sessions for the zoom link sending form
+    active_sessions = InfoSession.query.filter_by(is_active=True).order_by(InfoSession.date.desc()).all()
+    
+    # Count statistics
+    total_emails = len(emails)
+    delivered_count = InfoSessionEmail.query.filter_by(confirmation_status='delivered').count()
+    bounced_count = InfoSessionEmail.query.filter_by(confirmation_status='bounced').count()
+    pending_count = InfoSessionEmail.query.filter_by(confirmation_status='pending').count()
+    
+    zoom_sent_count = InfoSessionEmail.query.filter_by(zoom_link_sent=True).count()
+    zoom_not_sent_count = InfoSessionEmail.query.filter_by(zoom_link_sent=False).count()
+    
+    reminder_sent_count = InfoSessionEmail.query.filter_by(reminder_sent=True).count()
+    
     response = make_response(render_template(
         'admin/info_sessions.html',
-        emails=emails
+        emails=emails,
+        active_sessions=active_sessions,
+        total_emails=total_emails,
+        delivered_count=delivered_count,
+        bounced_count=bounced_count,
+        pending_count=pending_count,
+        zoom_sent_count=zoom_sent_count,
+        zoom_not_sent_count=zoom_not_sent_count,
+        reminder_sent_count=reminder_sent_count
     ))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
@@ -1480,13 +1519,16 @@ def admin_export_info_session_emails():
     writer = csv.writer(output)
     
     # Write header row
-    writer.writerow(['Email', 'Date Registered', 'Notes'])
+    writer.writerow(['Email', 'Date Registered', 'Confirmation Status', 'Zoom Link Sent', 'Reminder Sent', 'Notes'])
     
     # Write data rows
     for email in emails:
         writer.writerow([
             email.email,
             email.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            email.confirmation_status,
+            'Yes' if email.zoom_link_sent else 'No',
+            'Yes' if email.reminder_sent else 'No',
             email.notes or ''
         ])
     
@@ -1496,6 +1538,245 @@ def admin_export_info_session_emails():
     response.headers['Content-type'] = 'text/csv'
     
     return response
+
+@app.route('/admin/info-sessions/manage', methods=['GET', 'POST'])
+@login_required
+def admin_manage_info_sessions():
+    from models import InfoSession
+    
+    # Get all info sessions
+    sessions = InfoSession.query.order_by(InfoSession.date.desc()).all()
+    
+    if request.method == 'POST':
+        try:
+            # Get session details from form
+            title = request.form.get('title')
+            description = request.form.get('description')
+            date_str = request.form.get('date')
+            time_str = request.form.get('time')
+            duration = int(request.form.get('duration', 60))
+            zoom_link = request.form.get('zoom_link')
+            zoom_password = request.form.get('zoom_password')
+            zoom_meeting_id = request.form.get('zoom_meeting_id')
+            is_active = bool(request.form.get('is_active', True))
+            
+            # Validate required fields
+            if not title or not date_str or not time_str or not zoom_link:
+                flash('Please fill in all required fields', 'danger')
+                return redirect(url_for('admin_manage_info_sessions'))
+            
+            # Convert date and time strings to date and time objects
+            session_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            session_time = datetime.strptime(time_str, '%H:%M').time()
+            
+            # Create new info session
+            new_session = InfoSession(
+                title=title,
+                description=description,
+                date=session_date,
+                time=session_time,
+                duration_minutes=duration,
+                zoom_link=zoom_link,
+                zoom_password=zoom_password,
+                zoom_meeting_id=zoom_meeting_id,
+                is_active=is_active
+            )
+            
+            db.session.add(new_session)
+            db.session.commit()
+            
+            flash('Info session created successfully', 'success')
+            return redirect(url_for('admin_manage_info_sessions'))
+            
+        except Exception as e:
+            app.logger.error(f"Error creating info session: {str(e)}")
+            flash(f'Error creating info session: {str(e)}', 'danger')
+            return redirect(url_for('admin_manage_info_sessions'))
+    
+    return render_template('admin/info_session_manage.html', sessions=sessions)
+
+@app.route('/admin/info-sessions/<int:session_id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_info_session(session_id):
+    from models import InfoSession
+    
+    session = InfoSession.query.get_or_404(session_id)
+    
+    if request.method == 'POST':
+        try:
+            # Update session details from form
+            session.title = request.form.get('title')
+            session.description = request.form.get('description')
+            date_str = request.form.get('date')
+            time_str = request.form.get('time')
+            session.duration_minutes = int(request.form.get('duration', 60))
+            session.zoom_link = request.form.get('zoom_link')
+            session.zoom_password = request.form.get('zoom_password')
+            session.zoom_meeting_id = request.form.get('zoom_meeting_id')
+            session.is_active = bool(request.form.get('is_active'))
+            
+            # Convert date and time strings to date and time objects
+            session.date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            session.time = datetime.strptime(time_str, '%H:%M').time()
+            
+            db.session.commit()
+            
+            flash('Info session updated successfully', 'success')
+            return redirect(url_for('admin_manage_info_sessions'))
+            
+        except Exception as e:
+            app.logger.error(f"Error updating info session: {str(e)}")
+            flash(f'Error updating info session: {str(e)}', 'danger')
+            return redirect(url_for('admin_edit_info_session', session_id=session_id))
+    
+    return render_template('admin/info_session_form.html', session=session)
+
+@app.route('/admin/info-sessions/<int:session_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_info_session(session_id):
+    from models import InfoSession
+    
+    session = InfoSession.query.get_or_404(session_id)
+    
+    try:
+        db.session.delete(session)
+        db.session.commit()
+        
+        flash('Info session deleted successfully', 'success')
+    except Exception as e:
+        app.logger.error(f"Error deleting info session: {str(e)}")
+        flash(f'Error deleting info session: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin_manage_info_sessions'))
+
+@app.route('/admin/info-sessions/send-zoom-links', methods=['POST'])
+@login_required
+def admin_send_zoom_links():
+    from models import InfoSession
+    from utils.email import send_zoom_link_to_all
+    
+    try:
+        # Get the info session and custom message
+        session_id = request.form.get('session_id')
+        custom_message = request.form.get('custom_message')
+        
+        if not session_id:
+            flash('Please select an info session', 'danger')
+            return redirect(url_for('admin_info_sessions'))
+        
+        # Get the info session
+        info_session = InfoSession.query.get_or_404(session_id)
+        
+        # Send the zoom links
+        success_count, failure_count, total_count = send_zoom_link_to_all(info_session, custom_message)
+        
+        if success_count > 0:
+            flash(f'Successfully sent {success_count} zoom links ({failure_count} failed out of {total_count} total emails)', 'success')
+        else:
+            flash(f'No zoom links were sent. {failure_count} failed out of {total_count} total emails.', 'warning')
+        
+    except Exception as e:
+        app.logger.error(f"Error sending zoom links: {str(e)}")
+        flash(f'Error sending zoom links: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin_info_sessions'))
+
+@app.route('/admin/info-sessions/send-reminder/<int:session_id>', methods=['POST'])
+@login_required
+def admin_send_reminder(session_id):
+    from models import InfoSession, InfoSessionEmail
+    from utils.email import send_reminder_email
+    
+    try:
+        # Get the info session
+        info_session = InfoSession.query.get_or_404(session_id)
+        
+        # Get all info session emails with zoom links sent
+        emails = InfoSessionEmail.query.filter_by(zoom_link_sent=True, reminder_sent=False).all()
+        
+        success_count = 0
+        failure_count = 0
+        
+        for email in emails:
+            # Send reminder email
+            email_sent = send_reminder_email(email, info_session)
+            
+            if email_sent:
+                # Update the email record
+                email.reminder_sent = True
+                email.reminder_sent_at = datetime.now()
+                success_count += 1
+            else:
+                failure_count += 1
+        
+        # Commit all changes at once
+        db.session.commit()
+        
+        if success_count > 0:
+            flash(f'Successfully sent {success_count} reminder emails ({failure_count} failed)', 'success')
+        else:
+            flash(f'No reminder emails were sent. {failure_count} failed.', 'warning')
+            
+    except Exception as e:
+        app.logger.error(f"Error sending reminder emails: {str(e)}")
+        flash(f'Error sending reminder emails: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin_info_sessions'))
+
+# Automated reminder task (this would be called by a scheduler)
+@app.route('/tasks/send-auto-reminders', methods=['GET'])
+def send_auto_reminders():
+    # This endpoint would be called by a scheduler (e.g., cron job) to automatically send reminders
+    from models import InfoSession, InfoSessionEmail
+    from utils.email import send_reminder_email
+    
+    # Check for authentication token if this is publicly accessible
+    token = request.args.get('token')
+    if not token or token != app.config.get('CRON_SECRET_TOKEN'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        # Get upcoming info sessions
+        upcoming_sessions = InfoSession.query.filter(
+            InfoSession.is_active == True,
+            InfoSession.date >= func.current_date()
+        ).all()
+        
+        reminders_sent = 0
+        
+        for session in upcoming_sessions:
+            # Calculate if it's time to send reminders (1 hour before)
+            reminder_time = session.reminder_time
+            now = datetime.now()
+            
+            # If it's within 5 minutes of the reminder time
+            if reminder_time and now > reminder_time - timedelta(minutes=5) and now < reminder_time + timedelta(minutes=5):
+                # Get emails with zoom links sent but no reminder yet
+                emails = InfoSessionEmail.query.filter_by(zoom_link_sent=True, reminder_sent=False).all()
+                
+                for email in emails:
+                    # Send reminder
+                    email_sent = send_reminder_email(email, session)
+                    
+                    if email_sent:
+                        # Update the email record
+                        email.reminder_sent = True
+                        email.reminder_sent_at = now
+                        reminders_sent += 1
+                
+                # Commit all changes for this session
+                db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "reminders_sent": reminders_sent
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error in auto-reminder task: {str(e)}")
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 # Create initial admin user if it doesn't exist
 with app.app_context():

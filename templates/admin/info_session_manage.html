@@ -1,0 +1,206 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Manage Info Sessions | Admin Dashboard{% endblock %}
+
+{% block page_title %}Manage Info Sessions{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Create New Info Session</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin_manage_info_sessions') }}" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Session Title*</label>
+                                    <input type="text" class="form-control" id="title" name="title" required placeholder="e.g., Free Info Session: Accounting Career Pathways">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Brief description of what will be covered in this info session..."></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="date" class="form-label">Date*</label>
+                                            <input type="date" class="form-control" id="date" name="date" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="time" class="form-label">Time*</label>
+                                            <input type="time" class="form-control" id="time" name="time" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="duration" class="form-label">Duration (minutes)*</label>
+                                    <input type="number" class="form-control" id="duration" name="duration" min="15" max="180" value="60" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="zoom_link" class="form-label">Zoom Link*</label>
+                                    <input type="url" class="form-control" id="zoom_link" name="zoom_link" required placeholder="https://zoom.us/j/...">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="zoom_meeting_id" class="form-label">Zoom Meeting ID</label>
+                                    <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" placeholder="123 456 7890">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="zoom_password" class="form-label">Zoom Password</label>
+                                    <input type="text" class="form-control" id="zoom_password" name="zoom_password" placeholder="abc123">
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                                    <label class="form-check-label" for="is_active">Active Session</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> This info session will be used to send Zoom links to registered users. Make sure all required fields (*) are filled in correctly.
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-1"></i> Create Info Session
+                        </button>
+                        <a href="{{ url_for('admin_info_sessions') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Email Management
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Existing Info Sessions</h5>
+                </div>
+                <div class="card-body">
+                    {% if sessions %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Date & Time</th>
+                                    <th>Zoom Link</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in sessions %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ session.title }}</strong>
+                                        {% if session.description %}
+                                        <br><small class="text-muted">{{ session.description|truncate(100) }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ session.date.strftime('%d %b %Y') }}<br>
+                                        {{ session.time.strftime('%I:%M %p') }}
+                                        <small class="text-muted d-block">({{ session.duration_minutes }} minutes)</small>
+                                    </td>
+                                    <td>
+                                        <a href="{{ session.zoom_link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-video me-1"></i> Open Zoom
+                                        </a>
+                                        {% if session.zoom_password %}
+                                        <br><small class="text-muted">Password: {{ session.zoom_password }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if session.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% if session.is_upcoming %}
+                                        <span class="badge bg-info">Upcoming</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">Past</span>
+                                        {% endif %}
+                                        {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('admin_edit_info_session', session_id=session.id) }}" class="btn btn-sm btn-outline-primary" title="Edit session">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if session.is_active and session.is_upcoming %}
+                                            <form action="{{ url_for('admin_send_reminder', session_id=session.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-info" title="Send reminders manually">
+                                                    <i class="fas fa-bell"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ session.id }}" title="Delete session">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal-{{ session.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ session.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteModalLabel-{{ session.id }}">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the info session:<br> "<strong>{{ session.title }}</strong>"?</p>
+                                                        <p class="text-danger">This action cannot be undone.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="{{ url_for('admin_delete_info_session', session_id=session.id) }}" method="POST">
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">No Info Sessions Yet</h4>
+                        <p>Create your first info session using the form above.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dateInput = document.getElementById('date');
+        dateInput.min = tomorrow.toISOString().split('T')[0]; // Set min date to tomorrow
+        dateInput.value = tomorrow.toISOString().split('T')[0];
+        
+        // Set default time to 7:00 PM
+        document.getElementById('time').value = '19:00';
+    });
+</script>
+{% endblock %}
