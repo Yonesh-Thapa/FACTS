@@ -350,7 +350,6 @@ def track_page_view():
 
 # Track button clicks (this will be called from JavaScript)
 @app.route('/api/track-click', methods=['POST'])
-@app.route('/api/track-click', methods=['POST'])
 def track_button_click():
     """Track button clicks for analytics"""
     try:
