@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Delay initialization slightly to ensure DOM is fully processed
         initCountdownTimer();
     }, 100);
+    
+    // Initialize button click tracking for analytics
+    initButtonTracking();
 });
 
 /**
@@ -243,4 +246,78 @@ function initCountdownTimer() {
             element.innerHTML = formattedTime;
         });
     }
+}
+
+/**
+ * Initialize button click tracking for analytics
+ */
+function initButtonTracking() {
+    // First, mark important CTAs with the tracking attribute
+    const trackableSelectors = [
+        ".btn-primary", 
+        ".btn-success", 
+        ".cta-button", 
+        ".enroll-button",
+        ".program-apply-btn",
+        ".info-session-btn",
+        ".contact-submit",
+        "a[href=\"/contact\"]",
+        "a[href=\"/pricing\"]",
+        "a[href=\"/program\"]"
+    ];
+    
+    // Add data-tracking attribute to all trackable elements
+    trackableSelectors.forEach(selector => {
+        document.querySelectorAll(selector).forEach(element => {
+            if (!element.hasAttribute("data-tracking")) {
+                element.setAttribute("data-tracking", "true");
+                
+                // If the element does not have an ID, assign one based on text content
+                if (!element.id) {
+                    const buttonText = element.textContent.trim().toLowerCase().replace(/[^a-z0-9]/g, "-");
+                    element.id = `btn-${buttonText}-${Math.floor(Math.random() * 1000)}`;
+                }
+            }
+        });
+    });
+    
+    // Track all buttons with data-tracking attribute
+    const trackableButtons = document.querySelectorAll("[data-tracking=\"true\"]");
+    console.log(`Found ${trackableButtons.length} trackable buttons for analytics`);
+    
+    trackableButtons.forEach(button => {
+        button.addEventListener("click", function(e) {
+            // Get button data attributes
+            const buttonId = this.id || "unknown-button";
+            const buttonText = this.textContent.trim() || "";
+            const pagePath = window.location.pathname;
+            
+            console.log(`Tracking button click: ${buttonId} (${buttonText}) on ${pagePath}`);
+            
+            // Make API request to track click
+            fetch("/api/track-click", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    button_id: buttonId,
+                    button_text: buttonText,
+                    page_path: pagePath
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Button click tracked successfully", data);
+            })
+            .catch(error => {
+                console.error("Error tracking button click:", error);
+            });
+        });
+    });
 }
