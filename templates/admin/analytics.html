@@ -1,0 +1,597 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}F.A.C.T.S - Site Analytics{% endblock %}
+
+{% block page_title %}Site Analytics{% endblock %}
+
+{% block head_extras %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+<style>
+    .analytics-card {
+        margin-bottom: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .chart-container {
+        position: relative;
+        margin: auto;
+        height: 300px;
+        width: 100%;
+    }
+    
+    .metric-card {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .metric-card .metric-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+    
+    .metric-card .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .metric-card .metric-label {
+        color: #777;
+        font-size: 0.9rem;
+    }
+    
+    .table-container {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .filter-controls {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+        .metric-card .metric-icon {
+            font-size: 2rem;
+        }
+        
+        .metric-card .metric-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Time Range Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="filter-controls">
+                        <div class="btn-group" role="group" aria-label="Time range">
+                            <button type="button" class="btn btn-outline-primary active">Today</button>
+                            <button type="button" class="btn btn-outline-primary">Last 7 Days</button>
+                            <button type="button" class="btn btn-outline-primary">Last 30 Days</button>
+                            <button type="button" class="btn btn-outline-primary">This Year</button>
+                        </div>
+                        
+                        <div class="input-group" style="max-width: 400px;">
+                            <span class="input-group-text">Custom Range</span>
+                            <input type="date" class="form-control" placeholder="Start Date">
+                            <input type="date" class="form-control" placeholder="End Date">
+                            <button class="btn btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-users" aria-hidden="true"></i></div>
+                <div class="metric-value">5,247</div>
+                <div class="metric-label">Total Visitors</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-file" aria-hidden="true"></i></div>
+                <div class="metric-value">12,893</div>
+                <div class="metric-label">Page Views</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-clock" aria-hidden="true"></i></div>
+                <div class="metric-value">2:35</div>
+                <div class="metric-label">Avg. Session Duration</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="fas fa-percentage" aria-hidden="true"></i></div>
+                <div class="metric-value">65.3%</div>
+                <div class="metric-label">Bounce Rate</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visitors Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card analytics-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Visitor Traffic</h5>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Chart view options">
+                        <button type="button" class="btn btn-outline-secondary active">Daily</button>
+                        <button type="button" class="btn btn-outline-secondary">Weekly</button>
+                        <button type="button" class="btn btn-outline-secondary">Monthly</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="visitorsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popular Pages & Geographic Data -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card analytics-card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Most Visited Pages</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Page</th>
+                                    <th>Views</th>
+                                    <th>Avg. Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Home Page</td>
+                                    <td>3,542</td>
+                                    <td>1:25</td>
+                                </tr>
+                                <tr>
+                                    <td>Program Details</td>
+                                    <td>2,871</td>
+                                    <td>3:10</td>
+                                </tr>
+                                <tr>
+                                    <td>Contact Page</td>
+                                    <td>1,936</td>
+                                    <td>1:45</td>
+                                </tr>
+                                <tr>
+                                    <td>About Page</td>
+                                    <td>1,758</td>
+                                    <td>2:15</td>
+                                </tr>
+                                <tr>
+                                    <td>Pricing Page</td>
+                                    <td>1,452</td>
+                                    <td>2:30</td>
+                                </tr>
+                                <tr>
+                                    <td>Blog - "Top Accounting Skills for 2025"</td>
+                                    <td>834</td>
+                                    <td>4:25</td>
+                                </tr>
+                                <tr>
+                                    <td>Blog - "Xero vs MYOB Comparison"</td>
+                                    <td>722</td>
+                                    <td>3:55</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card analytics-card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Visitor Locations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                    <div class="table-container mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Country</th>
+                                    <th>Visitors</th>
+                                    <th>% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Australia</td>
+                                    <td>3,852</td>
+                                    <td>73.4%</td>
+                                </tr>
+                                <tr>
+                                    <td>New Zealand</td>
+                                    <td>487</td>
+                                    <td>9.3%</td>
+                                </tr>
+                                <tr>
+                                    <td>India</td>
+                                    <td>312</td>
+                                    <td>5.9%</td>
+                                </tr>
+                                <tr>
+                                    <td>United States</td>
+                                    <td>265</td>
+                                    <td>5.1%</td>
+                                </tr>
+                                <tr>
+                                    <td>United Kingdom</td>
+                                    <td>176</td>
+                                    <td>3.4%</td>
+                                </tr>
+                                <tr>
+                                    <td>Others</td>
+                                    <td>155</td>
+                                    <td>2.9%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Referrals & Conversion -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card analytics-card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Traffic Sources</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="referralChart"></canvas>
+                    </div>
+                    <div class="table-container mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Visitors</th>
+                                    <th>Conversion Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Google Search</td>
+                                    <td>2,341</td>
+                                    <td>5.2%</td>
+                                </tr>
+                                <tr>
+                                    <td>Direct Traffic</td>
+                                    <td>1,258</td>
+                                    <td>7.8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Instagram</td>
+                                    <td>854</td>
+                                    <td>4.7%</td>
+                                </tr>
+                                <tr>
+                                    <td>Facebook</td>
+                                    <td>435</td>
+                                    <td>3.9%</td>
+                                </tr>
+                                <tr>
+                                    <td>Email Campaigns</td>
+                                    <td>328</td>
+                                    <td>12.4%</td>
+                                </tr>
+                                <tr>
+                                    <td>LinkedIn</td>
+                                    <td>214</td>
+                                    <td>6.3%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card analytics-card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Button Click Tracking</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="buttonClickChart"></canvas>
+                    </div>
+                    <div class="table-container mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Button</th>
+                                    <th>Clicks</th>
+                                    <th>Conversion Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>"Apply Now" (Homepage)</td>
+                                    <td>765</td>
+                                    <td>8.3%</td>
+                                </tr>
+                                <tr>
+                                    <td>"Join the Next Session" (Homepage)</td>
+                                    <td>654</td>
+                                    <td>7.2%</td>
+                                </tr>
+                                <tr>
+                                    <td>"Contact Us" (Program Page)</td>
+                                    <td>542</td>
+                                    <td>9.4%</td>
+                                </tr>
+                                <tr>
+                                    <td>"Find Out More" (Value-Added Path)</td>
+                                    <td>487</td>
+                                    <td>6.8%</td>
+                                </tr>
+                                <tr>
+                                    <td>"Learn More About Software Training"</td>
+                                    <td>432</td>
+                                    <td>5.7%</td>
+                                </tr>
+                                <tr>
+                                    <td>"Submit" (Contact Form)</td>
+                                    <td>376</td>
+                                    <td>25.3%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Integration Notice -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle" aria-hidden="true"></i> Analytics Integration</h5>
+                <p class="mb-0">This dashboard is displaying sample data for visualization purposes. To connect with real-time analytics, you can integrate with Google Analytics, Plausible Analytics, or Umami. Contact your web administrator to set up the integration.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set Chart.js defaults
+    Chart.defaults.font.family = "'Poppins', 'Helvetica', 'Arial', sans-serif";
+    Chart.defaults.font.size = 13;
+    Chart.defaults.color = '#6c757d';
+    Chart.defaults.plugins.legend.position = 'bottom';
+    
+    // Visitors Chart
+    const visitorsCtx = document.getElementById('visitorsChart').getContext('2d');
+    const visitorsChart = new Chart(visitorsCtx, {
+        type: 'line',
+        data: {
+            labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11'],
+            datasets: [{
+                label: 'Visitors',
+                data: [150, 220, 180, 200, 250, 280, 220, 190, 270, 310, 240],
+                backgroundColor: 'rgba(0, 122, 204, 0.1)',
+                borderColor: '#007ACC',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+            }, {
+                label: 'Page Views',
+                data: [320, 480, 410, 430, 570, 600, 500, 450, 590, 700, 520],
+                backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                borderColor: '#2ECC71',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+    
+    // Location Chart (Doughnut)
+    const locationCtx = document.getElementById('locationChart').getContext('2d');
+    const locationChart = new Chart(locationCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Australia', 'New Zealand', 'India', 'United States', 'United Kingdom', 'Others'],
+            datasets: [{
+                data: [73.4, 9.3, 5.9, 5.1, 3.4, 2.9],
+                backgroundColor: [
+                    '#007ACC',
+                    '#2ECC71',
+                    '#F39C12',
+                    '#E74C3C',
+                    '#9B59B6',
+                    '#95A5A6'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+    
+    // Referral Chart (Pie)
+    const referralCtx = document.getElementById('referralChart').getContext('2d');
+    const referralChart = new Chart(referralCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Google Search', 'Direct Traffic', 'Instagram', 'Facebook', 'Email', 'LinkedIn'],
+            datasets: [{
+                data: [43.1, 23.2, 15.7, 8.0, 6.0, 4.0],
+                backgroundColor: [
+                    '#4285F4', // Google blue
+                    '#007ACC', // Direct blue
+                    '#E1306C', // Instagram pink
+                    '#3b5998', // Facebook blue
+                    '#2ECC71', // Email green
+                    '#0077B5'  // LinkedIn blue
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+    
+    // Button Click Chart (Bar)
+    const buttonClickCtx = document.getElementById('buttonClickChart').getContext('2d');
+    const buttonClickChart = new Chart(buttonClickCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Apply Now', 'Join Session', 'Contact Us', 'Find Out More', 'Software Training', 'Submit'],
+            datasets: [{
+                label: 'Clicks',
+                data: [765, 654, 542, 487, 432, 376],
+                backgroundColor: '#007ACC',
+                borderWidth: 0
+            }, {
+                label: 'Conversion Rate (%)',
+                data: [8.3, 7.2, 9.4, 6.8, 5.7, 25.3],
+                backgroundColor: '#2ECC71',
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.dataset.label.includes('Conversion')) {
+                                label += context.raw + '%';
+                            } else {
+                                label += context.raw;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+    
+    // Time range filter buttons
+    const timeRangeButtons = document.querySelectorAll('.btn-group[aria-label="Time range"] .btn');
+    timeRangeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            timeRangeButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            // In real implementation, this would trigger data reload
+        });
+    });
+    
+    // Chart view options
+    const chartViewButtons = document.querySelectorAll('.btn-group[aria-label="Chart view options"] .btn');
+    chartViewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            chartViewButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            // In real implementation, this would change chart grouping
+        });
+    });
+});
+</script>
+{% endblock %}

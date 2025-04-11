@@ -415,6 +415,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_analytics') }}" {% if request.path == url_for('admin_analytics') %}class="active"{% endif %}>
+                    <i class="fas fa-chart-line" aria-hidden="true"></i> Site Analytics
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_logout') }}">
                     <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
                 </a>

@@ -786,6 +786,20 @@ def admin_info_sessions():
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
 
+# Site Analytics Dashboard
+@app.route('/admin/analytics')
+@login_required
+def admin_analytics():
+    # In a production environment, this would integrate with a real analytics provider
+    # like Google Analytics, Plausible Analytics, or Umami
+    
+    response = make_response(render_template(
+        'admin/analytics.html',
+        # Sample data is provided directly in the template for demonstration
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
 @app.route('/admin/info-sessions/<int:email_id>/delete', methods=['POST'])
 @login_required
 def admin_delete_info_session_email(email_id):
