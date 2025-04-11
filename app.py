@@ -71,8 +71,9 @@ app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = ('Future Accountants', os.environ.get('MAIL_USERNAME'))
 app.config['MAIL_MAX_EMAILS'] = 25  # Limit to avoid hitting Gmail's sending limits
 
-# Set default admin email for notifications (same as mail username if not specified)
+# Set admin emails for notifications
 app.config['ADMIN_EMAIL'] = os.environ.get('ADMIN_EMAIL', os.environ.get('MAIL_USERNAME', 'fatrainingservice@gmail.com'))
+app.config['SECONDARY_ADMIN_EMAIL'] = os.environ.get('SECONDARY_ADMIN_EMAIL')
 
 # For testing email functionality
 app.config['TESTING_EMAIL_ENABLED'] = (os.environ.get('FLASK_ENV') != 'production')
@@ -224,9 +225,15 @@ def test_email():
     from utils.email import send_email
     
     try:
-        # Send a test email
-        admin_email = app.config.get('ADMIN_EMAIL')
+        # Send a test email to both admin emails
+        primary_admin_email = app.config.get('ADMIN_EMAIL')
+        secondary_admin_email = app.config.get('SECONDARY_ADMIN_EMAIL')
         mail_username = app.config.get('MAIL_USERNAME')
+        
+        # Create recipients list, including secondary email if available
+        recipients = [primary_admin_email]
+        if secondary_admin_email:
+            recipients.append(secondary_admin_email)
         
         subject = "Test Email from Future Accountants Website"
         text_body = f"""
@@ -234,6 +241,8 @@ This is a test email from the Future Accountants website.
 Sent at: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}
 
 If you're seeing this, the email functionality is working correctly!
+
+This test email was sent to all configured admin email addresses.
         """
         
         html_body = f"""
@@ -243,21 +252,24 @@ If you're seeing this, the email functionality is working correctly!
 <p>If you're seeing this, the email functionality is working correctly!</p>
 <p>Email configuration:</p>
 <ul>
-    <li>Admin Email: {admin_email}</li>
+    <li>Primary Admin Email: {primary_admin_email}</li>
+    <li>Secondary Admin Email: {secondary_admin_email or 'Not configured'}</li>
     <li>Sender: {mail_username}</li>
 </ul>
+<p>This test email was sent to all configured admin email addresses.</p>
         """
         
         send_email(
             subject=subject,
             sender=('Future Accountants Website', mail_username),
-            recipients=admin_email,
+            recipients=recipients,
             text_body=text_body,
             html_body=html_body
         )
         
-        app.logger.info(f"Test email sent to {admin_email}")
-        return f"Test email sent to {admin_email}. Check the inbox to verify it was received."
+        recipients_str = ", ".join(recipients)
+        app.logger.info(f"Test email sent to {recipients_str}")
+        return f"Test email sent to {recipients_str}. Check your inbox to verify it was received."
     
     except Exception as e:
         app.logger.error(f"Error sending test email: {str(e)}")
