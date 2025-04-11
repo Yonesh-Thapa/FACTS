@@ -2,6 +2,7 @@ import os
 import logging
 from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, make_response
+from slugify import slugify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
