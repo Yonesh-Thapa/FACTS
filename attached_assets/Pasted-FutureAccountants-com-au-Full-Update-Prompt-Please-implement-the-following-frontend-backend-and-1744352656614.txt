@@ -1,0 +1,122 @@
+FutureAccountants.com.au – Full Update Prompt
+
+Please implement the following frontend, backend, and admin panel updates:
+
+📍 1. CTA and Early Bird Visibility
+Replace all “Contact Us” buttons with:
+
+“Apply Now – Secure Your Spot”
+
+“Register Your Interest”
+
+“Join the Next Session – Get Started”
+
+All should link to the existing contact form.
+
+Add a countdown timer to the homepage that counts down to April 30, 2025, with label:
+“⏳ Early Bird Offer Ends In:”
+
+Add a colorful banner at the top or just under the hero section: “🎉 Save $150 if you enroll by April 30 – Only 10 seats per session!”
+
+🔍 2. SEO Improvements
+Add the following SEO keywords throughout the homepage, headings, and meta tags:
+
+accounting training australia
+
+job-ready accounting course
+
+xero training
+
+accounting coaching Hobart
+
+Ensure meta titles and descriptions reflect these keywords.
+
+📝 3. Blog Section + Admin Panel Blog Control
+Create a new Blog or Resources page on the site.
+
+In the admin panel, add a section called “Blog Posts” where admin can:
+
+Add/edit/delete blog entries.
+
+Each blog post should have:
+
+Title
+
+Featured image
+
+Content/body
+
+Category (dropdown: Career Tips, Software, Resume, etc.)
+
+Status toggle (Published/Draft)
+
+🎥 4. Intro Video Placeholder
+On the homepage (just under the hero section), add a placeholder section for a 1–2 minute intro video.
+
+Use a generic YouTube or video player embed for now with the caption: “Meet Your Mentor: Darshan Kumar Thapa”
+
+📧 5. Automated Email on Contact Form Submission
+After a user submits the contact form:
+
+Send them a confirmation email:
+
+Subject: “Thanks for Contacting F.A.C.T.S – Here’s What’s Next”
+
+Body: Thank them, share basic info on the next session, and link or attach a PDF program guide.
+
+Ensure admin also receives a real-time notification of each submission.
+
+🗓️ 6. Info Session Email Collection Section + Portal Tab
+On homepage, add a section: “Want to Attend Our Free Info Session?”
+
+Include:
+
+Email field
+
+Submit button
+
+Short message: “Leave your email to get a Zoom link for our next free info session.”
+
+In the admin panel:
+
+Add a new section called “Info Session Leads” where submitted emails are stored.
+
+Show:
+
+Email
+
+Date/time of submission
+
+Optional notes/tags
+
+Allow CSV export of these emails.
+
+☎️ 7. Clickable Contact Info
+Ensure all phone numbers and email addresses are clickable, especially for mobile users.
+
+Phone: tel: links
+
+Email: mailto: links
+
+📊 8. Backend Performance and Admin Analytics
+Ensure fast and reliable:
+
+Contact form email delivery (no delay, no spam)
+
+Blog creation speed and publish delay
+
+Form data capture
+
+Add a "Site Analytics" tab in the admin portal showing:
+
+Number of site visits (per day/week/month)
+
+Most visited pages
+
+Visitor location breakdown (by country/region)
+
+Referral sources (e.g. Instagram, Google, direct)
+
+Button click/conversion tracking (e.g., how many clicked “Apply Now”)
+
+Use tools like Plausible Analytics, Umami, or integrate with Google Analytics if preferred.
