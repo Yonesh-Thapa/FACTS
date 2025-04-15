@@ -1580,3 +1580,98 @@ hr {
         box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
     }
 }
+
+/* Video Container */
+.video-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.video-container iframe {
+    border: none;
+}
+
+.tiktok-embed-container {
+    min-height: 500px;
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+}
+
+/* Testimonials Section */
+.testimonials-section {
+    padding: 60px 0;
+}
+
+.testimonial-card {
+    background-color: var(--white-color);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-text {
+    font-style: italic;
+    line-height: 1.6;
+    font-size: 1rem;
+    color: var(--gray-color);
+}
+
+.testimonial-author {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.author-avatar img {
+    border: 2px solid var(--primary-color);
+    padding: 2px;
+}
+
+/* Enhanced Icons */
+.feature-item i {
+    color: var(--primary-color);
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+/* Make phone number and email clickable */
+.contact-link {
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+/* Social media links in new tab */
+.social-link {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Social proof elements */
+.stats-section {
+    padding: 30px 0;
+    background-color: var(--light-color);
+}
+
+.stat-counter {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--gray-color);
+}
