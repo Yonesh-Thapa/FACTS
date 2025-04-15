@@ -41,8 +41,13 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="video-container">
-                    <div class="ratio ratio-16x9">
-                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Meet Your Mentor: Darshan Kumar Thapa" allowfullscreen></iframe>
+                    <div class="tiktok-embed-container">
+                        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@darshankumarthapa" data-video-id="YOUR_VIDEO_ID_HERE" style="max-width: 605px;min-width: 325px;">
+                            <section>
+                                <a target="_blank" title="@darshankumarthapa" href="https://www.tiktok.com/@darshankumarthapa">@darshankumarthapa</a>
+                            </section>
+                        </blockquote>
+                        <script async src="https://www.tiktok.com/embed.js"></script>
                     </div>
                 </div>
             </div>
@@ -141,8 +146,8 @@
                     <div class="highlight-icon">
                         <i class="fas fa-robot"></i>
                     </div>
-                    <h3>Value-Added Path</h3>
-                    <p>As part of our commitment to preparing graduates for the future of finance, FACTS also includes an <strong>Introduction to AI and Cybersecurity</strong>. This optional module helps students gain awareness of emerging technologies and digital risks, making them more competitive in the modern accounting job market.</p>
+                    <h3>Future-Proof Skills (AI & Cybersecurity)</h3>
+                    <p>As part of our commitment to future-proofing your skills, we include an introduction to AI tools and cybersecurity basics within the program, making you more competitive in the modern job market.</p>
                 </div>
             </div>
         </div>
@@ -154,7 +159,57 @@
     </div>
 </section>
 
-<!-- Testimonials (can be added later with actual testimonials) -->
+<!-- Testimonials Section -->
+<section class="testimonials-section py-5" style="background-color: #f1f8fe;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h2 class="section-title">What Our Students Say</h2>
+                <div class="section-divider"></div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="testimonial-card p-4 rounded shadow-sm h-100">
+                            <div class="testimonial-content">
+                                <i class="fas fa-quote-left fa-2x text-primary mb-3"></i>
+                                <p class="testimonial-text">The F.A.C.T.S training was exactly what I needed. I landed an accounting job within a month of finishing the program!</p>
+                                <div class="testimonial-author d-flex align-items-center mt-3">
+                                    <div class="author-avatar me-3">
+                                        <img src="{{ url_for('static', filename='images/testimonials/silhouette1.png') }}" alt="Student Testimonial" class="rounded-circle" width="50" height="50">
+                                    </div>
+                                    <div class="author-details">
+                                        <h5 class="mb-0 fw-bold">A. Singh</h5>
+                                        <p class="text-muted mb-0">Graduate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="testimonial-card p-4 rounded shadow-sm h-100">
+                            <div class="testimonial-content">
+                                <i class="fas fa-quote-left fa-2x text-primary mb-3"></i>
+                                <p class="testimonial-text">The practical training on Xero and MYOB was invaluable. The resume workshops and interview practice gave me the confidence I needed to succeed in my job search.</p>
+                                <div class="testimonial-author d-flex align-items-center mt-3">
+                                    <div class="author-avatar me-3">
+                                        <img src="{{ url_for('static', filename='images/testimonials/silhouette2.png') }}" alt="Student Testimonial" class="rounded-circle" width="50" height="50">
+                                    </div>
+                                    <div class="author-details">
+                                        <h5 class="mb-0 fw-bold">M. Johnson</h5>
+                                        <p class="text-muted mb-0">Recent Graduate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Info Session Email Collection -->
 <section class="info-session-section py-5" style="background-color: #ebf8ff;">
