@@ -1675,3 +1675,21 @@ hr {
     font-size: 0.9rem;
     color: var(--gray-color);
 }
+
+/* Coming Soon Container */
+.coming-soon-container {
+    background-color: white;
+    border: 1px solid var(--primary-lighter);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.coming-soon-container:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.coming-soon-container i {
+    color: var(--primary-color);
+}
