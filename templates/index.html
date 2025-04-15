@@ -301,65 +301,44 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM fully loaded and parsed");
+    // Set the deadline date for all countdown timers
+    const deadline = new Date('April 30, 2025 23:59:59').getTime();
     
-    // Function to initialize all countdown timers on the page
-    function initializeCountdowns() {
-        console.log("About to initialize countdown timer");
+    // Find all countdown timers on the page
+    const heroCountdown = document.getElementById('countdown-timer');
+    const offerSectionCountdown = document.getElementById('homepage-offer-timer');
+    
+    // Update function for all timers
+    function updateCountdowns() {
+        const now = new Date().getTime();
+        const timeRemaining = deadline - now;
         
-        // Set the deadline date
-        const deadline = new Date('April 30, 2025 23:59:59').getTime();
-        console.log("Initializing countdown timer...");
+        // Format the time remaining
+        let displayText;
         
-        // Find all countdown timers on the page
-        const countdownElements = [
-            document.getElementById('countdown-timer'),
-            document.getElementById('homepage-offer-timer')
-        ];
-        
-        console.log("Found countdown elements:", countdownElements);
-        
-        // Count valid elements (not null)
-        const validElements = countdownElements.filter(el => el !== null).length;
-        console.log("Valid countdown elements:", validElements);
-        console.log("Deadline set to:", new Date(deadline).toLocaleString());
-        
-        // Update all timers immediately
-        updateAllTimers();
-        
-        // Then update every second
-        setInterval(updateAllTimers, 1000);
-        
-        function updateAllTimers() {
-            const now = new Date().getTime();
-            const timeRemaining = deadline - now;
-            
-            if (timeRemaining < 0) {
-                // If deadline has passed
-                countdownElements.forEach(el => {
-                    if (el) el.innerHTML = 'Offer has expired';
-                });
-                return;
-            }
-            
-            // Calculate days, hours, minutes, and seconds
+        if (timeRemaining < 0) {
+            displayText = 'Offer has expired';
+        } else {
+            // Calculate time components
             const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
             // Format to display
-            const formattedTime = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-            
-            // Update all countdown elements
-            countdownElements.forEach(el => {
-                if (el) el.innerHTML = formattedTime;
-            });
+            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
+        
+        // Update each timer if it exists
+        if (heroCountdown) heroCountdown.textContent = displayText;
+        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
     }
     
-    // Initialize countdown timers
-    initializeCountdowns();
+    // Update immediately
+    updateCountdowns();
+    
+    // Then update every second
+    setInterval(updateCountdowns, 1000);
 });
 </script>
 {% endblock %}
