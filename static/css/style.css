@@ -1693,3 +1693,17 @@ hr {
 .coming-soon-container i {
     color: var(--primary-color);
 }
+
+/* Fixed Width Timer Digits */
+#countdown-timer, 
+#homepage-offer-timer,
+#program-countdown-timer {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    min-width: 140px;
+    display: inline-block;
+    text-align: center;
+    background-color: var(--primary-light);
+    padding: 5px 8px;
+    border-radius: 4px;
+}
