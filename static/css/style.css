@@ -688,6 +688,26 @@ hr {
     z-index: 10;
 }
 
+.class-schedule-info {
+    background-color: rgba(0, 122, 204, 0.05);
+    border-left-color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.class-schedule-info h5 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.class-schedule-info p {
+    margin-bottom: 0.5rem;
+}
+
+.class-schedule-info i {
+    color: var(--primary-color);
+}
+
 .program-stats {
     display: flex;
     flex-wrap: wrap;
@@ -1397,6 +1417,16 @@ hr {
     .accordion-button {
         font-size: 1rem;
         padding: 15px;
+    }
+    
+    /* Improved button spacing on mobile */
+    .btn {
+        margin-bottom: 10px;
+    }
+    
+    .btn + .btn {
+        margin-left: 0;
+        margin-top: 10px;
     }
 }
 
