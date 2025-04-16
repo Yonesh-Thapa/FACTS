@@ -1481,6 +1481,10 @@ hr {
     padding: 2px 0;
     margin: 0 1px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 1.5em; /* Fixed height */
+    line-height: 1.5em; /* Center vertically */
+    overflow: hidden; /* Prevent overflow */
+    min-width: 1.2em; /* Ensure minimum width */
 }
 
 /* Countdown unit labels */
