@@ -1450,12 +1450,30 @@ hr {
     text-align: center;
 }
 
-#countdown-timer {
+/* Countdown display element - fixed width and monospace font prevent layout shifts */
+#countdown-timer, #program-countdown-timer, #pricing-countdown-timer {
+    font-family: 'Courier New', monospace;
     font-weight: 700;
-    letter-spacing: 0.5px;
     font-size: 2.2rem;
     color: #d9534f;
     margin-top: 0.5rem;
+    display: inline-block;
+    min-width: 280px; /* Fixed width to prevent layout shifts */
+    text-align: center;
+}
+
+/* Countdown digit containers to ensure consistent spacing */
+.countdown-digit {
+    display: inline-block;
+    min-width: 1.7em;
+    text-align: center;
+}
+
+/* Countdown unit labels */
+.countdown-label {
+    display: inline-block;
+    min-width: 1em;
+    text-align: center;
 }
 
 /* Early Bird Offer Styles */
@@ -1694,19 +1712,7 @@ hr {
     color: var(--primary-color);
 }
 
-/* Fixed Width Timer Digits */
-#countdown-timer, 
-#homepage-offer-timer,
-#program-countdown-timer {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    min-width: 140px;
-    display: inline-block;
-    text-align: center;
-    background-color: var(--primary-light);
-    padding: 5px 8px;
-    border-radius: 4px;
-}
+/* Fixed Width Timer Digits - Combined with settings above */
 
 /* About Page Styling */
 .about-intro {

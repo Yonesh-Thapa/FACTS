@@ -242,8 +242,14 @@ function initCountdownTimer() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Format the result with leading zeros for better formatting
-            const formattedTime = `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            // Format with fixed-width elements to prevent layout shifts
+            // Each number is wrapped in a digit container with fixed width
+            const formattedTime = `
+                <span class="countdown-digit">${days.toString().padStart(3, '0')}</span><span class="countdown-label">d</span>
+                <span class="countdown-digit">${hours.toString().padStart(2, '0')}</span><span class="countdown-label">h</span>
+                <span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span><span class="countdown-label">m</span>
+                <span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span><span class="countdown-label">s</span>
+            `;
             
             // Update all countdown elements
             validElements.forEach(element => {
