@@ -244,12 +244,9 @@ function initCountdownTimer() {
             
             // Format with fixed-width elements to prevent layout shifts
             // Each number is wrapped in a digit container with fixed width
-            const formattedTime = `
-                <span class="countdown-digit">${days.toString().padStart(3, '0')}</span><span class="countdown-label">d</span>
-                <span class="countdown-digit">${hours.toString().padStart(2, '0')}</span><span class="countdown-label">h</span>
-                <span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span><span class="countdown-label">m</span>
-                <span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span><span class="countdown-label">s</span>
-            `;
+            // Remove any whitespace or newlines to prevent layout shifts
+            const formattedTime = 
+                `<span class="countdown-digit">${days.toString().padStart(3, '0')}</span><span class="countdown-label">d</span><span class="countdown-digit">${hours.toString().padStart(2, '0')}</span><span class="countdown-label">h</span><span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span><span class="countdown-label">m</span><span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span><span class="countdown-label">s</span>`;
             
             // Update all countdown elements
             validElements.forEach(element => {

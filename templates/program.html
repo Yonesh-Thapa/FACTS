@@ -321,8 +321,8 @@
             <div class="col-lg-8 mx-auto text-center">
                 <div class="countdown-container">
                     <h4>Early Bird Special Ends In:</h4>
-                    <div id="program-countdown-timer" class="countdown-timer">
-                        374d 0h 0m 0s
+                    <div id="program-countdown-timer">
+                        <span class="countdown-digit">000</span><span class="countdown-label">d</span><span class="countdown-digit">00</span><span class="countdown-label">h</span><span class="countdown-digit">00</span><span class="countdown-label">m</span><span class="countdown-digit">00</span><span class="countdown-label">s</span>
                     </div>
                     <p class="mt-2 lead">Apply before April 30, 2025 to save A$150</p>
                     <p><a href="{{ url_for('pricing') }}" class="text-primary">View detailed pricing information</a></p>
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const timeRemaining = deadline - now;
             
             if (timeRemaining < 0) {
-                countdownElement.innerHTML = 'Offer has expired';
+                countdownElement.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
                 return;
             }
             
@@ -419,8 +419,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
+            // Format with fixed-width elements to prevent layout shifts
+            const formattedHTML = 
+                `<span class="countdown-digit">${days.toString().padStart(3, '0')}</span><span class="countdown-label">d</span><span class="countdown-digit">${hours.toString().padStart(2, '0')}</span><span class="countdown-label">h</span><span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span><span class="countdown-label">m</span><span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span><span class="countdown-label">s</span>`;
+            
             // Display the result
-            countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            countdownElement.innerHTML = formattedHTML;
         }
     }
 });

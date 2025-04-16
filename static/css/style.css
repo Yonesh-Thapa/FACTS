@@ -1451,29 +1451,58 @@ hr {
 }
 
 /* Countdown display element - fixed width and monospace font prevent layout shifts */
-#countdown-timer, #program-countdown-timer, #pricing-countdown-timer {
+#countdown-timer, #program-countdown-timer, #pricing-countdown-timer, #homepage-offer-timer {
     font-family: 'Courier New', monospace;
     font-weight: 700;
     font-size: 2.2rem;
     color: #d9534f;
-    margin-top: 0.5rem;
+    margin: 0.5rem auto;
     display: inline-block;
-    min-width: 280px; /* Fixed width to prevent layout shifts */
+    width: 290px; /* Fixed width to prevent layout shifts */
     text-align: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 6px 4px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+    letter-spacing: 0.05em; /* Slight letter spacing for better readability */
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Prevent overflow */
 }
 
 /* Countdown digit containers to ensure consistent spacing */
 .countdown-digit {
     display: inline-block;
-    min-width: 1.7em;
+    width: 2em; /* Fixed width for each digit */
     text-align: center;
+    font-family: 'Courier New', monospace;
+    background-color: rgba(0, 122, 204, 0.08);
+    border-radius: 4px;
+    padding: 2px 0;
+    margin: 0 1px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Countdown unit labels */
 .countdown-label {
     display: inline-block;
-    min-width: 1em;
+    width: 1em; /* Fixed width for unit labels */
     text-align: center;
+    font-size: 0.8em;
+    font-weight: normal;
+    color: #666;
+    margin: 0 2px 0 0;
+}
+
+/* Countdown wrapper to provide consistent container */
+.countdown-wrapper {
+    text-align: center;
+    margin: 1rem auto;
+    padding: 0.5rem;
+    background-color: var(--primary-lighter);
+    border-radius: var(--border-radius);
+    display: block;
+    width: 100%;
 }
 
 /* Early Bird Offer Styles */

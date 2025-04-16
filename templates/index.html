@@ -13,8 +13,11 @@
                 <div class="early-bird-banner mb-3">
                     <p>🎉 Save $150 if you enroll by April 30 – Only 10 seats per session!</p>
                 </div>
-                <div class="countdown-timer mb-3">
-                    <p>⏳ Early Bird Offer Ends In: <span id="countdown-timer">374d 0h 0m 0s</span></p>
+                <div class="countdown-wrapper mb-3">
+                    <p class="mb-1">⏳ Early Bird Offer Ends In:</p>
+                    <div id="countdown-timer">
+                        <span class="countdown-digit">000</span><span class="countdown-label">d</span><span class="countdown-digit">00</span><span class="countdown-label">h</span><span class="countdown-digit">00</span><span class="countdown-label">m</span><span class="countdown-digit">00</span><span class="countdown-label">s</span>
+                    </div>
                 </div>
                 <p class="session-info">Next Session Starts May 7, 2025 – Wed & Thu, 7:00-9:00 PM AEST</p>
                 <p class="class-size-note"><i class="fas fa-users"></i> Only 10 students per session for personalized attention.</p>
@@ -220,8 +223,8 @@
                     
                     <div class="countdown-container mb-4">
                         <h4>Offer Ends In:</h4>
-                        <div id="homepage-offer-timer" class="countdown-timer">
-                            374d 0h 0m 0s
+                        <div id="homepage-offer-timer">
+                            <span class="countdown-digit">000</span><span class="countdown-label">d</span><span class="countdown-digit">00</span><span class="countdown-label">h</span><span class="countdown-digit">00</span><span class="countdown-label">m</span><span class="countdown-digit">00</span><span class="countdown-label">s</span>
                         </div>
                         <p class="mt-2"><a href="{{ url_for('pricing') }}" class="text-primary">View detailed pricing information</a></p>
                     </div>
@@ -282,11 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const now = new Date().getTime();
         const timeRemaining = deadline - now;
         
-        // Format the time remaining
-        let displayText;
-        
         if (timeRemaining < 0) {
-            displayText = 'Offer has expired';
+            // If offer expired
+            const expiredHTML = '<span class="countdown-expired">Offer has expired</span>';
+            if (heroCountdown) heroCountdown.innerHTML = expiredHTML;
+            if (offerSectionCountdown) offerSectionCountdown.innerHTML = expiredHTML;
         } else {
             // Calculate time components
             const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
@@ -294,13 +297,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Format to display
-            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            // Format with fixed-width elements to prevent layout shifts
+            const formattedHTML = 
+                `<span class="countdown-digit">${days.toString().padStart(3, '0')}</span><span class="countdown-label">d</span><span class="countdown-digit">${hours.toString().padStart(2, '0')}</span><span class="countdown-label">h</span><span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span><span class="countdown-label">m</span><span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span><span class="countdown-label">s</span>`;
+            
+            // Update each timer if it exists
+            if (heroCountdown) heroCountdown.innerHTML = formattedHTML;
+            if (offerSectionCountdown) offerSectionCountdown.innerHTML = formattedHTML;
         }
-        
-        // Update each timer if it exists
-        if (heroCountdown) heroCountdown.textContent = displayText;
-        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
     }
     
     // Update immediately
