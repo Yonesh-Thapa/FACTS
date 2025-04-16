@@ -271,53 +271,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Set the deadline date for all countdown timers
-    const deadline = new Date('April 30, 2025 23:59:59').getTime();
-    
-    // Find all countdown timers on the page
-    const heroCountdown = document.getElementById('countdown-timer');
-    const offerSectionCountdown = document.getElementById('homepage-offer-timer');
-    
-    // Update function for all timers
-    function updateCountdowns() {
-        const now = new Date().getTime();
-        const timeRemaining = deadline - now;
-        
-        if (timeRemaining < 0) {
-            // If offer expired
-            const expiredHTML = '<span class="countdown-expired">Offer has expired</span>';
-            if (heroCountdown) heroCountdown.innerHTML = expiredHTML;
-            if (offerSectionCountdown) offerSectionCountdown.innerHTML = expiredHTML;
-        } else {
-            // Calculate time components
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-            
-            // Format with fixed-width elements to prevent layout shifts
-            // Extra rigorous padding with 0s to ensure consistent display
-            const daysStr = days.toString().padStart(3, '0');
-            const hoursStr = hours.toString().padStart(2, '0');
-            const minutesStr = minutes.toString().padStart(2, '0');
-            const secondsStr = seconds.toString().padStart(2, '0');
-            
-            const formattedHTML = 
-                `<span class="countdown-digit">${daysStr}</span><span class="countdown-label">d</span><span class="countdown-digit">${hoursStr}</span><span class="countdown-label">h</span><span class="countdown-digit">${minutesStr}</span><span class="countdown-label">m</span><span class="countdown-digit">${secondsStr}</span><span class="countdown-label">s</span>`;
-            
-            // Update each timer if it exists
-            if (heroCountdown) heroCountdown.innerHTML = formattedHTML;
-            if (offerSectionCountdown) offerSectionCountdown.innerHTML = formattedHTML;
-        }
-    }
-    
-    // Update immediately
-    updateCountdowns();
-    
-    // Then update every second
-    setInterval(updateCountdowns, 1000);
-});
-</script>
+<!-- No custom scripts needed - using global countdown.js -->
 {% endblock %}
