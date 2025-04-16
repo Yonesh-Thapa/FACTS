@@ -13,11 +13,8 @@
                 <div class="early-bird-banner mb-3">
                     <p>🎉 Save $150 if you enroll by April 30 – Only 10 seats per session!</p>
                 </div>
-                <div class="countdown-wrapper mb-3">
-                    <p class="mb-1">⏳ Early Bird Offer Ends In:</p>
-                    <div class="countdown-container" id="countdown-timer">
-                        <!-- Countdown timer will be inserted by JavaScript -->
-                    </div>
+                <div class="countdown-timer mb-3">
+                    <p>⏳ Early Bird Offer Ends In: <span id="countdown-timer"></span></p>
                 </div>
                 <p class="session-info">Next Session Starts May 7, 2025 – Wed & Thu, 7:00-9:00 PM AEST</p>
                 <p class="class-size-note"><i class="fas fa-users"></i> Only 10 students per session for personalized attention.</p>
@@ -25,7 +22,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="hero-image">
-                    <img src="{{ url_for('static', filename='images/learning/accounting_learning.jpg') }}" alt="Accounting Training with Darshan Kumar Thapa" class="img-fluid rounded">
+                    <img src="{{ url_for('static', filename='images/classroom_accounting.svg') }}" alt="Accounting Education Classroom" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -45,7 +42,7 @@
             <div class="col-lg-8">
                 <div class="video-container">
                     <div class="tiktok-embed-container">
-                        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@darshankumarthapa" data-video-id="YOUR_VIDEO_ID_HERE" style="max-width: 605px;min-width: 325px;" data-autoplay="true">
+                        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@darshankumarthapa" data-video-id="YOUR_VIDEO_ID_HERE" style="max-width: 605px;min-width: 325px;">
                             <section>
                                 <a target="_blank" title="@darshankumarthapa" href="https://www.tiktok.com/@darshankumarthapa">@darshankumarthapa</a>
                             </section>
@@ -71,7 +68,7 @@
             <div class="col-md-6">
                 <div class="trainer-card">
                     <div class="trainer-img">
-                        <img src="{{ url_for('static', filename='images/team/darshan_thapa_new.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="max-width: 250px;">
+                        <img src="{{ url_for('static', filename='images/team/darshan_thapa_profile.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="max-width: 250px;">
                     </div>
                     <h3 class="trainer-name">Darshan Kumar Thapa</h3>
                     <p class="trainer-credentials">ASA CPA, MPAS, Xero Certified Consultant</p>
@@ -223,8 +220,8 @@
                     
                     <div class="countdown-container mb-4">
                         <h4>Offer Ends In:</h4>
-                        <div id="homepage-offer-timer">
-                            <!-- Countdown timer will be inserted by JavaScript -->
+                        <div id="homepage-offer-timer" class="countdown-timer">
+                            Loading countdown...
                         </div>
                         <p class="mt-2"><a href="{{ url_for('pricing') }}" class="text-primary">View detailed pricing information</a></p>
                     </div>
@@ -271,5 +268,46 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- No custom scripts needed - using global countdown.js -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set the deadline date for all countdown timers
+    const deadline = new Date('April 30, 2025 23:59:59').getTime();
+    
+    // Find all countdown timers on the page
+    const heroCountdown = document.getElementById('countdown-timer');
+    const offerSectionCountdown = document.getElementById('homepage-offer-timer');
+    
+    // Update function for all timers
+    function updateCountdowns() {
+        const now = new Date().getTime();
+        const timeRemaining = deadline - now;
+        
+        // Format the time remaining
+        let displayText;
+        
+        if (timeRemaining < 0) {
+            displayText = 'Offer has expired';
+        } else {
+            // Calculate time components
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Format to display
+            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+        
+        // Update each timer if it exists
+        if (heroCountdown) heroCountdown.textContent = displayText;
+        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
+    }
+    
+    // Update immediately
+    updateCountdowns();
+    
+    // Then update every second
+    setInterval(updateCountdowns, 1000);
+});
+</script>
 {% endblock %}

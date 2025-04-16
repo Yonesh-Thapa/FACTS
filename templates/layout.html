@@ -11,13 +11,10 @@
     <meta property="og:url" content="{{ request.url }}">
     <meta property="og:title" content="{% block og_title %}F.A.C.T.S - Accounting Training Australia & Xero Training{% endblock %}">
     <meta property="og:description" content="{% block og_description %}F.A.C.T.S offers job-ready accounting training in Australia, including Xero training and accounting coaching in Hobart. Our professional accounting courses prepare graduates for real-world accounting careers.{% endblock %}">
-    <meta property="og:image" content="{{ url_for('static', filename='images/logo/facts_logo.png', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='img/facts-og-image.jpg', _external=True) }}">
     
     <!-- Twitter Card data (falls back to Open Graph) -->
     <meta name="twitter:card" content="summary_large_image">
-    
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     
     <title>{% block title %}F.A.C.T.S - Accounting Training Australia & Xero Training{% endblock %}</title>
     
@@ -36,7 +33,6 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/countdown.css') }}">
     
     {% block head_extra %}{% endblock %}
 </head>
@@ -45,7 +41,7 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}" aria-label="F.A.C.T.S Home">
-                <img src="{{ url_for('static', filename='images/logo/facts_logo.png') }}" alt="Future Accountants Coaching and Training Services" height="40" class="d-inline-block align-top">
+                <span class="brand-text">F.A.C.T.S</span>
             </a>
             
             <!-- Phone number visible on desktop -->
@@ -114,9 +110,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <div class="footer-logo mb-3">
-                        <img src="{{ url_for('static', filename='images/logo/facts_logo.png') }}" alt="Future Accountants Coaching and Training Services" height="50" class="mb-2">
-                    </div>
+                    <h3 class="footer-title">F.A.C.T.S</h3>
                     <p>Empowering accounting graduates across Australia with practical, job-ready skills.</p>
                 </div>
                 <div class="col-md-4">
@@ -150,7 +144,6 @@
     
     <!-- Custom JavaScript -->
     <script src="{{ url_for('static', filename='js/script.js', v=202504110649) }}" defer></script>
-    <script src="{{ url_for('static', filename='js/countdown.js', v=202504160001) }}" defer></script>
 
     {% block scripts %}{% endblock %}
 </body>

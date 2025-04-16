@@ -33,9 +33,6 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-4">
-                                <img src="{{ url_for('static', filename='images/learning/one_on_one_training.jpg') }}" alt="One-on-one accounting training" class="img-fluid rounded shadow">
-                            </div>
                             <div class="program-stats">
                                 <div class="stat-item">
                                     <span class="stat-number">8</span>
@@ -321,8 +318,8 @@
             <div class="col-lg-8 mx-auto text-center">
                 <div class="countdown-container">
                     <h4>Early Bird Special Ends In:</h4>
-                    <div id="program-countdown-timer">
-                        <!-- Countdown timer will be inserted by JavaScript -->
+                    <div id="program-countdown-timer" class="countdown-timer">
+                        Loading countdown...
                     </div>
                     <p class="mt-2 lead">Apply before April 30, 2025 to save A$150</p>
                     <p><a href="{{ url_for('pricing') }}" class="text-primary">View detailed pricing information</a></p>
@@ -390,5 +387,39 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- No custom scripts needed - using global countdown.js -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Direct countdown timer for this page
+    const countdownElement = document.getElementById('program-countdown-timer');
+    if (countdownElement) {
+        // Set the deadline date
+        const deadline = new Date('April 30, 2025 23:59:59').getTime();
+        
+        // Update immediately
+        updateTimer();
+        
+        // Then update every second
+        setInterval(updateTimer, 1000);
+        
+        function updateTimer() {
+            const now = new Date().getTime();
+            const timeRemaining = deadline - now;
+            
+            if (timeRemaining < 0) {
+                countdownElement.innerHTML = 'Offer has expired';
+                return;
+            }
+            
+            // Calculate days, hours, minutes, and seconds
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Display the result
+            countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+    }
+});
+</script>
 {% endblock %}

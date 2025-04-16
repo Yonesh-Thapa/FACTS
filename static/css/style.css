@@ -1450,63 +1450,12 @@ hr {
     text-align: center;
 }
 
-/* Countdown display element - fixed width and monospace font prevent layout shifts */
-#countdown-timer, #program-countdown-timer, #pricing-countdown-timer, #homepage-offer-timer {
-    font-family: 'Courier New', monospace;
+#countdown-timer {
     font-weight: 700;
+    letter-spacing: 0.5px;
     font-size: 2.2rem;
     color: #d9534f;
-    margin: 0.5rem auto;
-    display: inline-block;
-    width: 290px; /* Fixed width to prevent layout shifts */
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 6px 4px;
-    border-radius: 8px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-    line-height: 1.2;
-    letter-spacing: 0.05em; /* Slight letter spacing for better readability */
-    white-space: nowrap; /* Prevent wrapping */
-    overflow: hidden; /* Prevent overflow */
-}
-
-/* Countdown digit containers to ensure consistent spacing */
-.countdown-digit {
-    display: inline-block;
-    width: 2em; /* Fixed width for each digit */
-    text-align: center;
-    font-family: 'Courier New', monospace;
-    background-color: rgba(0, 122, 204, 0.08);
-    border-radius: 4px;
-    padding: 2px 0;
-    margin: 0 1px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    height: 1.5em; /* Fixed height */
-    line-height: 1.5em; /* Center vertically */
-    overflow: hidden; /* Prevent overflow */
-    min-width: 1.2em; /* Ensure minimum width */
-}
-
-/* Countdown unit labels */
-.countdown-label {
-    display: inline-block;
-    width: 1em; /* Fixed width for unit labels */
-    text-align: center;
-    font-size: 0.8em;
-    font-weight: normal;
-    color: #666;
-    margin: 0 2px 0 0;
-}
-
-/* Countdown wrapper to provide consistent container */
-.countdown-wrapper {
-    text-align: center;
-    margin: 1rem auto;
-    padding: 0.5rem;
-    background-color: var(--primary-lighter);
-    border-radius: var(--border-radius);
-    display: block;
-    width: 100%;
+    margin-top: 0.5rem;
 }
 
 /* Early Bird Offer Styles */
@@ -1743,78 +1692,4 @@ hr {
 
 .coming-soon-container i {
     color: var(--primary-color);
-}
-
-/* Fixed Width Timer Digits - Combined with settings above */
-
-/* About Page Styling */
-.about-intro {
-    border-left: 4px solid var(--primary-color);
-}
-
-.mission-card, .vision-card, .values-card {
-    height: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.mission-card:hover, .vision-card:hover, .values-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.mission-card {
-    background-color: #f1f8ff;
-    border-top: 3px solid var(--primary-color);
-}
-
-.vision-card {
-    background-color: #f1fff8;
-    border-top: 3px solid var(--secondary-color);
-}
-
-.values-card {
-    background-color: #f8f8ff;
-    border-top: 3px solid #9c27b0;
-}
-
-.icon-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-}
-
-.mission-card .icon-circle {
-    background-color: var(--primary-light);
-    color: var(--primary-color);
-}
-
-.vision-card .icon-circle {
-    background-color: var(--secondary-light);
-    color: var(--secondary-color);
-}
-
-.values-card .icon-circle {
-    background-color: #f3e5f5;
-    color: #9c27b0;
-}
-
-.mission-title, .vision-title, .values-title {
-    margin-bottom: 15px;
-    font-weight: 600;
-}
-
-.values-list li {
-    margin-bottom: 8px;
-    text-align: left;
-    padding-left: 5px;
-}
-
-.values-list li strong {
-    color: #9c27b0;
 }
