@@ -36,6 +36,7 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/countdown.css') }}">
     
     {% block head_extra %}{% endblock %}
 </head>
@@ -149,6 +150,7 @@
     
     <!-- Custom JavaScript -->
     <script src="{{ url_for('static', filename='js/script.js', v=202504110649) }}" defer></script>
+    <script src="{{ url_for('static', filename='js/countdown.js', v=202504160001) }}" defer></script>
 
     {% block scripts %}{% endblock %}
 </body>
