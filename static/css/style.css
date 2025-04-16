@@ -1707,3 +1707,75 @@ hr {
     padding: 5px 8px;
     border-radius: 4px;
 }
+
+/* About Page Styling */
+.about-intro {
+    border-left: 4px solid var(--primary-color);
+}
+
+.mission-card, .vision-card, .values-card {
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mission-card:hover, .vision-card:hover, .values-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.mission-card {
+    background-color: #f1f8ff;
+    border-top: 3px solid var(--primary-color);
+}
+
+.vision-card {
+    background-color: #f1fff8;
+    border-top: 3px solid var(--secondary-color);
+}
+
+.values-card {
+    background-color: #f8f8ff;
+    border-top: 3px solid #9c27b0;
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.mission-card .icon-circle {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.vision-card .icon-circle {
+    background-color: var(--secondary-light);
+    color: var(--secondary-color);
+}
+
+.values-card .icon-circle {
+    background-color: #f3e5f5;
+    color: #9c27b0;
+}
+
+.mission-title, .vision-title, .values-title {
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.values-list li {
+    margin-bottom: 8px;
+    text-align: left;
+    padding-left: 5px;
+}
+
+.values-list li strong {
+    color: #9c27b0;
+}
