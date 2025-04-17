@@ -560,67 +560,10 @@ def add_cache_headers(response):
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    # Normal authentication flow (auth reinstated per client request)
-    # Authentication bypassing code has been commented out but preserved
-    '''
-    # If DEBUG_MODE is enabled, automatically log in as admin
-    if DEBUG_MODE:
-        from models import Admin
-        # Get the first admin user or create one if none exists
-        user = Admin.query.first()
-        
-        if not user:
-            # This is just a safety check - in practice, the admin should already exist
-            from werkzeug.security import generate_password_hash
-            app.logger.info("Creating temporary admin user for DEBUG_MODE")
-            user = Admin(
-                username="admin",
-                email="admin@example.com"
-            )
-            user.password_hash = generate_password_hash("admin123")
-            db.session.add(user)
-            db.session.commit()
-        
-        # Force login without checking password
-        login_user(user)
-        flash('DEBUG MODE: Auto-login successful!', 'warning')
-        
-        # Redirect to admin dashboard immediately
-        next_page = request.args.get('next')
-        if next_page and next_page.startswith('/'):
-            return redirect(next_page)
-        
-        return redirect(url_for('admin_dashboard'))
-    '''
+    # TEMPORARY: Admin portal under maintenance
+    flash('The admin portal is temporarily unavailable due to maintenance. Please check back later.', 'warning')
     
-    if current_user.is_authenticated:
-        return redirect(url_for('admin_dashboard'))
-    
-    if request.method == 'POST':
-        from models import Admin
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '')
-        
-        user = Admin.query.filter_by(username=username).first()
-        
-        if user and user.check_password(password):
-            # Update last login time
-            user.last_login = datetime.utcnow()
-            db.session.commit()
-            
-            login_user(user)
-            flash('Login successful!', 'success')
-            
-            # Check if there's a next parameter (for pages that require login)
-            next_page = request.args.get('next')
-            if next_page and next_page.startswith('/'):
-                return redirect(next_page)
-            
-            return redirect(url_for('admin_dashboard'))
-        else:
-            flash('Invalid username or password', 'danger')
-    
-    response = make_response(render_template('admin/login.html'))
+    response = make_response(render_template('admin/login.html', maintenance_mode=True))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
 
