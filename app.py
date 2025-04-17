@@ -12,8 +12,8 @@ import hashlib
 import re
 from urllib.parse import urlparse
 
-# DEBUG MODE FLAG - Set to False to re-enable authentication
-DEBUG_MODE = False
+# DEBUG MODE FLAG - Set to True to bypass authentication
+DEBUG_MODE = True
 
 # Create a bypass for the login_required decorator when DEBUG_MODE is True
 if DEBUG_MODE:
@@ -560,41 +560,29 @@ def add_cache_headers(response):
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    # Show login form but with maintenance message
-    if current_user.is_authenticated:
+    # Auto-login bypass for admin
+    from models import Admin
+    
+    # Find the first admin user (or create one if none exists)
+    user = Admin.query.first()
+    
+    if user:
+        # Just auto-login without password
+        login_user(user)
+        
+        # Update last login time
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        
+        # Redirect to admin dashboard immediately
+        next_page = request.args.get('next')
+        if next_page and next_page.startswith('/'):
+            return redirect(next_page)
+        
         return redirect(url_for('admin_dashboard'))
-    
-    # Display maintenance message for visitors
-    flash('The admin portal is temporarily unavailable due to maintenance. Please check back later.', 'warning')
-    
-    # But still allow actual login for owner
-    if request.method == 'POST':
-        from models import Admin
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '')
-        
-        user = Admin.query.filter_by(username=username).first()
-        
-        if user and user.check_password(password):
-            # Update last login time
-            user.last_login = datetime.utcnow()
-            db.session.commit()
-            
-            login_user(user)
-            flash('Login successful!', 'success')
-            
-            # Check if there's a next parameter (for pages that require login)
-            next_page = request.args.get('next')
-            if next_page and next_page.startswith('/'):
-                return redirect(next_page)
-            
-            return redirect(url_for('admin_dashboard'))
-        else:
-            flash('Invalid username or password', 'danger')
-    
-    response = make_response(render_template('admin/login.html', maintenance_mode=False))  # Show form but with message
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-    return response
+    else:
+        flash('No admin user found in the database. Please contact the system administrator.', 'danger')
+        return redirect(url_for('index'))
 
 @app.route('/admin/logout')
 @login_required
