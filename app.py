@@ -560,10 +560,39 @@ def add_cache_headers(response):
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    # TEMPORARY: Admin portal under maintenance
+    # Show login form but with maintenance message
+    if current_user.is_authenticated:
+        return redirect(url_for('admin_dashboard'))
+    
+    # Display maintenance message for visitors
     flash('The admin portal is temporarily unavailable due to maintenance. Please check back later.', 'warning')
     
-    response = make_response(render_template('admin/login.html', maintenance_mode=True))
+    # But still allow actual login for owner
+    if request.method == 'POST':
+        from models import Admin
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        
+        user = Admin.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            # Update last login time
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            login_user(user)
+            flash('Login successful!', 'success')
+            
+            # Check if there's a next parameter (for pages that require login)
+            next_page = request.args.get('next')
+            if next_page and next_page.startswith('/'):
+                return redirect(next_page)
+            
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Invalid username or password', 'danger')
+    
+    response = make_response(render_template('admin/login.html', maintenance_mode=False))  # Show form but with message
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
 

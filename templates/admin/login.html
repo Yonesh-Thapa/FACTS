@@ -24,28 +24,29 @@
                 {% endif %}
             {% endwith %}
             
-            {% if maintenance_mode %}
-                <div class="maintenance-message text-center mb-4">
-                    <i class="fas fa-tools fa-3x mb-3" style="color: #007ACC;"></i>
-                    <h4>Maintenance in Progress</h4>
-                    <p>The admin portal is temporarily unavailable due to scheduled maintenance.</p>
-                    <p>Please check back later.</p>
+            <div class="maintenance-message text-center mb-4">
+                <i class="fas fa-tools fa-3x mb-3" style="color: #007ACC;"></i>
+                <h4>Maintenance in Progress</h4>
+                <p>The admin portal is temporarily unavailable due to scheduled maintenance.</p>
+                <p>Please check back later.</p>
+            </div>
+            
+            <hr>
+            <p class="text-center mb-4">Owner access only</p>
+            
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
                 </div>
-            {% else %}
-                <form method="POST" action="{{ url_for('admin_login') }}">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                </form>
-            {% endif %}
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
             <div class="text-center mt-3">
                 <a href="{{ url_for('index') }}" class="text-decoration-none">Back to Website</a>
             </div>
