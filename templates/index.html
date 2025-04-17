@@ -2,6 +2,11 @@
 
 {% block title %}Accounting Training Australia | Xero & MYOB Training | F.A.C.T.S{% endblock %}
 
+{% block meta_description %}F.A.C.T.S bridges the gap between accounting theory and practice with our 8-week job-ready training program. Master practical skills in Xero, MYOB, GST/BAS, and gain essential Australian accounting experience with CPA-led training.{% endblock %}
+
+{% block og_title %}F.A.C.T.S | Job-Ready Accounting Training Australia{% endblock %}
+{% block og_description %}Transform your accounting career with F.A.C.T.S 8-week intensive training program. Learn practical Xero & MYOB skills, GST/BAS preparation, and gain job-ready accounting experience led by an ASA CPA instructor.{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
@@ -294,13 +299,43 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Format to display
-            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            // Create a more structured and stable HTML format with fixed-width containers for digits
+            const formattedHTML = `
+                <span class="countdown-unit">
+                    <span class="countdown-digit">${days}</span>
+                    <span class="countdown-label">d</span>
+                </span>
+                <span class="countdown-unit">
+                    <span class="countdown-digit">${hours.toString().padStart(2, '0')}</span>
+                    <span class="countdown-label">h</span>
+                </span>
+                <span class="countdown-unit">
+                    <span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span>
+                    <span class="countdown-label">m</span>
+                </span>
+                <span class="countdown-unit">
+                    <span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span>
+                    <span class="countdown-label">s</span>
+                </span>
+            `;
         }
         
         // Update each timer if it exists
-        if (heroCountdown) heroCountdown.textContent = displayText;
-        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
+        if (heroCountdown) {
+            if (timeRemaining < 0) {
+                heroCountdown.innerHTML = '<span class="countdown-expired">Offer Expired</span>';
+            } else {
+                heroCountdown.innerHTML = formattedHTML;
+            }
+        }
+        
+        if (offerSectionCountdown) {
+            if (timeRemaining < 0) {
+                offerSectionCountdown.innerHTML = '<span class="countdown-expired">Offer Expired</span>';
+            } else {
+                offerSectionCountdown.innerHTML = formattedHTML;
+            }
+        }
     }
     
     // Update immediately
