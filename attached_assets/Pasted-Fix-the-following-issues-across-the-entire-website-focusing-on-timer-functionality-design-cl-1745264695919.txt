@@ -1,0 +1,304 @@
+Fix the following issues across the entire website, focusing on **timer functionality**, **design clarity**, and **page-specific color styling**:
+
+---
+
+### 1. ⏳ Fix Countdown Timer (HTML + JS)
+- All countdown timers on the site (`#countdown-timer`, `#homepage-offer-timer`, `#program-countdown-timer`, `#pricing-countdown-timer`) must:
+  - Share a **single JavaScript countdown function**.
+  - Automatically start once the page loads.
+  - Update every second.
+  - Fallback text while loading: `Loading countdown...`.
+  - Expired text: `<span class="countdown-expired">Offer has expired</span>`.
+
+Use this consistent HTML structure inside the timer container:
+```html
+<span class="countdown-unit">
+  <span class="countdown-digit">09</span>
+  <span class="countdown-label">d</span>
+</span>
+2. 🎨 Apply Color Format Per Page
+🏠 Homepage (#countdown-timer)
+css
+Copy
+Edit
+.countdown-timer {
+  background-color: #004080; /* dark blue background */
+}
+.countdown-digit {
+  background-color: #0059b3; /* brighter blue */
+  color: #ffffff;
+}
+.countdown-label {
+  color: #ffffff;
+}
+💸 Pricing Page (#pricing-countdown-timer)
+css
+Copy
+Edit
+.countdown-timer {
+  background-color: #f1f8fe;
+  border: 2px solid #007ACC;
+}
+.countdown-digit {
+  background-color: #007ACC;
+  color: #ffffff;
+}
+.countdown-label {
+  color: #007ACC;
+}
+🧾 Program Page (#program-countdown-timer)
+css
+Copy
+Edit
+.countdown-timer {
+  background-color: #ebf8ff;
+  border: 2px solid #2ECC71;
+}
+.countdown-digit {
+  background-color: #2ECC71;
+  color: #ffffff;
+}
+.countdown-label {
+  color: #2ECC71;
+}
+🕒 Expired Timer Style
+css
+Copy
+Edit
+.countdown-expired {
+  display: inline-block;
+  background-color: #FF4D4F;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+3. 📱 Make Countdown Mobile Friendly
+Use the following styles globally:
+
+css
+Copy
+Edit
+.countdown-timer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 260px;
+  padding: 12px 20px;
+  border-radius: 12px;
+}
+.countdown-unit {
+  display: inline-block;
+  text-align: center;
+  min-width: 50px;
+}
+.countdown-digit {
+  font-size: 1.4rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.countdown-label {
+  font-size: 0.9rem;
+  margin-top: 4px;
+  display: block;
+}
+4. 🧹 Clean Up JavaScript
+Remove console.log() statements unless needed.
+
+Load countdown script only once from script.js and use:
+
+js
+Copy
+Edit
+const timerIds = ['countdown-timer', 'homepage-offer-timer', 'program-countdown-timer', 'pricing-countdown-timer'];
+Loop through timerIds, and if element exists, update it.
+
+This will fully fix your countdown timers, apply consistent branding colors to each page, improve layout stability, and ensure timers don’t flicker or glitch even when digits go from double to single digits.
+
+vbnet
+Copy
+Edit
+
+Would you like me to include a downloadable **starter `countdown.js`** file that follows this structure exactly?
+
+
+
+
+
+You said:
+i want all of this in one replit ai prompt
+
+
+ChatGPT said:
+Perfect. Here's your complete all-in-one Replit AI prompt — optimized for Replit AI to fix your countdown timers, apply different color styles per page, make it responsive, and remove all glitches and flickers. This single prompt addresses everything in one go.
+
+✅ ✅ ✅ Full Replit AI Prompt — Countdown Fix + Page-Specific Colors + Responsive + Cleanup
+txt
+Copy
+Edit
+Fix all countdown-related issues across the entire website and apply clean, responsive, color-coded styling for each page.
+
+---
+
+🔧 1. Fix Countdown Timer Logic (JavaScript)
+- Use one centralized function in `script.js` called `initCountdownTimer()`.
+- Countdown must work for the following element IDs:
+  - `#countdown-timer` (Homepage)
+  - `#homepage-offer-timer` (Hero or Main Banner)
+  - `#program-countdown-timer` (Program Page)
+  - `#pricing-countdown-timer` (Pricing Page)
+
+- Immediately show `Loading countdown...` as placeholder.
+- Once loaded, use this structure:
+```html
+<span class="countdown-unit">
+  <span class="countdown-digit">09</span>
+  <span class="countdown-label">d</span>
+</span>
+If the offer has expired, display:
+
+html
+Copy
+Edit
+<span class="countdown-expired">Offer has expired</span>
+🎨 2. Apply Page-Specific Countdown Colors (CSS)
+
+✅ Homepage Countdown (#countdown-timer)
+
+css
+Copy
+Edit
+.countdown-timer {
+  background-color: #004080;
+}
+.countdown-digit {
+  background-color: #0059b3;
+  color: #ffffff;
+}
+.countdown-label {
+  color: #ffffff;
+}
+✅ Program Page Countdown (#program-countdown-timer)
+
+css
+Copy
+Edit
+.countdown-timer {
+  background-color: #ebf8ff;
+  border: 2px solid #2ECC71;
+}
+.countdown-digit {
+  background-color: #2ECC71;
+  color: #ffffff;
+}
+.countdown-label {
+  color: #2ECC71;
+}
+✅ Pricing Page Countdown (#pricing-countdown-timer)
+
+css
+Copy
+Edit
+.countdown-timer {
+  background-color: #f1f8fe;
+  border: 2px solid #007ACC;
+}
+.countdown-digit {
+  background-color: #007ACC;
+  color: #ffffff;
+}
+.countdown-label {
+  color: #007ACC;
+}
+✅ Expired Style
+
+css
+Copy
+Edit
+.countdown-expired {
+  display: inline-block;
+  background-color: #FF4D4F;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+📱 3. Make Countdown Responsive and Stable (CSS) Apply this globally:
+
+css
+Copy
+Edit
+.countdown-timer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 260px;
+  padding: 12px 20px;
+  border-radius: 12px;
+}
+
+.countdown-unit {
+  display: inline-block;
+  text-align: center;
+  min-width: 50px;
+}
+
+.countdown-digit {
+  font-size: 1.4rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  min-width: 40px;
+}
+
+.countdown-label {
+  font-size: 0.9rem;
+  margin-top: 4px;
+  display: block;
+}
+🧹 4. Clean Up JavaScript (Performance)
+
+In script.js, remove all unnecessary console.log() statements.
+
+Ensure initCountdownTimer() runs only if at least one countdown element is found.
+
+Use this logic to loop through all countdowns:
+
+js
+Copy
+Edit
+const timerIds = [
+  'countdown-timer',
+  'homepage-offer-timer',
+  'program-countdown-timer',
+  'pricing-countdown-timer'
+];
+
+timerIds.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    // Insert formatted HTML countdown here
+  }
+});
+💡 Final Goals:
+
+Countdown timers work everywhere with unique color styles per page.
+
+Timer layout is stable (no jitter or flicker when numbers change).
+
+All timers are mobile responsive and load cleanly.
+
+Expired timers clearly show “Offer has expired” in red.
+
+Countdown code is clean, optimized, and uses no duplication.
+
+yaml
+Copy
+Edit
+
+---
+
+Would you like a downloadable `.js` and `.css` file that contains this full implementation as a backu

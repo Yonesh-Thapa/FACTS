@@ -1441,34 +1441,67 @@ hr {
     animation: pulse 2s infinite;
 }
 
+/* Global Countdown Timer Base Styles */
 .countdown-timer {
-    background-color: #004080; /* deep blue */
-    color: #ffffff;
-    padding: 8px 15px;
-    border-radius: 12px;
-    font-weight: 500;
-    text-align: center;
-    display: inline-block;
-    min-width: 260px; /* keeps layout stable */
-}
-
-#countdown-timer {
-    font-weight: 700;
-    font-size: 2rem;
-    color: #ffffff;
-    letter-spacing: 1px;
     display: flex;
     justify-content: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 260px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 500;
 }
 
-#countdown-timer span {
+/* Homepage Countdown Styling (#countdown-timer) */
+#countdown-timer.countdown-timer {
+    background-color: #004080;
+}
+#countdown-timer .countdown-digit {
     background-color: #0059b3;
-    padding: 8px 12px;
-    border-radius: 6px;
-    min-width: 40px; /* avoids flicker from number width change */
-    text-align: center;
-    transition: background-color 0.3s;
+    color: #ffffff;
+}
+#countdown-timer .countdown-label {
+    color: #ffffff;
+}
+
+/* Homepage Banner Countdown Styling (#homepage-offer-timer) */
+#homepage-offer-timer.countdown-timer {
+    background-color: #004080;
+}
+#homepage-offer-timer .countdown-digit {
+    background-color: #0059b3;
+    color: #ffffff;
+}
+#homepage-offer-timer .countdown-label {
+    color: #ffffff;
+}
+
+/* Program Page Countdown Styling (#program-countdown-timer) */
+#program-countdown-timer.countdown-timer {
+    background-color: #ebf8ff;
+    border: 2px solid #2ECC71;
+}
+#program-countdown-timer .countdown-digit {
+    background-color: #2ECC71;
+    color: #ffffff;
+}
+#program-countdown-timer .countdown-label {
+    color: #2ECC71;
+}
+
+/* Pricing Page Countdown Styling (#pricing-countdown-timer) */
+#pricing-countdown-timer.countdown-timer {
+    background-color: #f1f8fe;
+    border: 2px solid #007ACC;
+}
+#pricing-countdown-timer .countdown-digit {
+    background-color: #007ACC;
+    color: #ffffff;
+}
+#pricing-countdown-timer .countdown-label {
+    color: #007ACC;
 }
 
 /* Early Bird Offer Styles */
@@ -1715,33 +1748,30 @@ hr {
 .countdown-unit {
     display: inline-block;
     text-align: center;
-    margin: 0 4px;
-    min-width: 40px;
+    min-width: 50px;
 }
 
 .countdown-digit {
     display: inline-block;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    background-color: var(--primary-color);
-    color: white;
-    padding: 5px 8px;
-    border-radius: 5px;
+    padding: 8px 12px;
+    border-radius: 6px;
     min-width: 40px;
     font-variant-numeric: tabular-nums;
     text-align: center;
 }
 
 .countdown-label {
-    display: inline-block;
-    margin-left: 2px;
+    font-size: 0.9rem;
+    margin-top: 4px;
+    display: block;
     font-weight: 500;
-    color: var(--primary-color);
 }
 
 .countdown-expired {
     display: inline-block;
-    background-color: var(--secondary-color);
+    background-color: #FF4D4F;
     color: white;
     padding: 6px 12px;
     border-radius: 5px;
