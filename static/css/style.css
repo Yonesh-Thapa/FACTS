@@ -1777,3 +1777,47 @@ hr {
     border-radius: 5px;
     font-weight: 600;
 }
+
+/* Mobile Responsiveness for Countdown Timer */
+@media (max-width: 768px) {
+    .countdown-timer {
+        padding: 10px;
+        gap: 6px;
+    }
+    
+    .countdown-unit {
+        min-width: 42px;
+    }
+    
+    .countdown-digit {
+        font-size: 1.2rem;
+        min-width: 35px;
+        padding: 6px 10px;
+    }
+    
+    .countdown-label {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .countdown-timer {
+        padding: 8px;
+        gap: 4px;
+    }
+    
+    .countdown-unit {
+        min-width: 35px;
+    }
+    
+    .countdown-digit {
+        font-size: 1rem;
+        min-width: 28px;
+        padding: 5px 8px;
+    }
+    
+    .countdown-label {
+        font-size: 0.7rem;
+        margin-top: 2px;
+    }
+}
