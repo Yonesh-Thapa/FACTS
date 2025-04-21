@@ -1457,6 +1457,8 @@ hr {
 /* Homepage Countdown Styling (#countdown-timer) */
 #countdown-timer.countdown-timer {
     background-color: #004080;
+    display: inline-flex;
+    margin-top: 8px;
 }
 #countdown-timer .countdown-digit {
     background-color: #0059b3;
@@ -1464,6 +1466,23 @@ hr {
 }
 #countdown-timer .countdown-label {
     color: #ffffff;
+}
+
+/* Banner Timer Container Styling */
+.banner-timer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    background-color: rgba(0, 122, 204, 0.1);
+    padding: 8px 15px;
+    border-radius: 8px;
+    border-left: 4px solid #007ACC;
+}
+.banner-timer p {
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #004080;
 }
 
 /* Homepage Banner Countdown Styling (#homepage-offer-timer) */
@@ -1819,5 +1838,19 @@ hr {
     .countdown-label {
         font-size: 0.7rem;
         margin-top: 2px;
+    }
+    
+    /* Mobile Banner Timer */
+    .banner-timer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 10px;
+    }
+    
+    .banner-timer #countdown-timer {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 4px;
     }
 }
