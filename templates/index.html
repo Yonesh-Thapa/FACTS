@@ -53,6 +53,7 @@
                             </section>
                         </blockquote>
                         <script async src="https://www.tiktok.com/embed.js"></script>
+
                     </div>
                 </div>
             </div>
@@ -196,6 +197,7 @@
                     <p class="lead mb-4">Learn more about our program, meet our instructor, and get your questions answered in our upcoming free information session.</p>
                     <form id="infoSessionForm" action="{{ url_for('collect_info_session_email') }}" method="POST" class="info-session-form">
                         <div class="input-group mb-3">
+                            <label for="infoSessionEmail" class="visually-hidden">Email for Info Session</label>
                             <input type="email" class="form-control" id="infoSessionEmail" name="email" placeholder="Enter your email address" required>
                             <button class="btn btn-primary" type="submit">Get Zoom Link</button>
                         </div>
@@ -273,76 +275,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Set the deadline date for all countdown timers
-    const deadline = new Date('April 30, 2025 23:59:59').getTime();
-    
-    // Find all countdown timers on the page
-    const heroCountdown = document.getElementById('countdown-timer');
-    const offerSectionCountdown = document.getElementById('homepage-offer-timer');
-    
-    // Update function for all timers
-    function updateCountdowns() {
-        const now = new Date().getTime();
-        const timeRemaining = deadline - now;
-        
-        // Format the time remaining
-        let displayText;
-        
-        if (timeRemaining < 0) {
-            displayText = 'Offer has expired';
-        } else {
-            // Calculate time components
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-            
-            // Create a more structured and stable HTML format with fixed-width containers for digits
-            const formattedHTML = `
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${days}</span>
-                    <span class="countdown-label">d</span>
-                </span>
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${hours.toString().padStart(2, '0')}</span>
-                    <span class="countdown-label">h</span>
-                </span>
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span>
-                    <span class="countdown-label">m</span>
-                </span>
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span>
-                    <span class="countdown-label">s</span>
-                </span>
-            `;
-        }
-        
-        // Update each timer if it exists
-        if (heroCountdown) {
-            if (timeRemaining < 0) {
-                heroCountdown.innerHTML = '<span class="countdown-expired">Offer Expired</span>';
-            } else {
-                heroCountdown.innerHTML = formattedHTML;
-            }
-        }
-        
-        if (offerSectionCountdown) {
-            if (timeRemaining < 0) {
-                offerSectionCountdown.innerHTML = '<span class="countdown-expired">Offer Expired</span>';
-            } else {
-                offerSectionCountdown.innerHTML = formattedHTML;
-            }
-        }
-    }
-    
-    // Update immediately
-    updateCountdowns();
-    
-    // Then update every second
-    setInterval(updateCountdowns, 1000);
-});
-</script>
+
 {% endblock %}

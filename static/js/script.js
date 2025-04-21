@@ -47,10 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize countdown timer for early bird offer
     console.log('About to initialize countdown timer');
-    setTimeout(function() {
-        // Delay initialization slightly to ensure DOM is fully processed
-        initCountdownTimer();
-    }, 100);
+    if (document.querySelector("#countdown-timer")) {
+    setTimeout(() => initCountdownTimer(), 100);
+}
+
     
     // Initialize button click tracking for analytics
     initButtonTracking();
