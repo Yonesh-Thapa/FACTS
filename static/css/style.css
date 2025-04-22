@@ -131,7 +131,7 @@ section {
    Navigation
    ==================== */
 .navbar {
-    padding: 12px 15 px;
+    padding: 15px 0;
     background-color: rgba(255, 255, 255, 0.95);
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
     transition: var(--transition);
@@ -1441,86 +1441,21 @@ hr {
     animation: pulse 2s infinite;
 }
 
-/* Global Countdown Timer Base Styles */
 .countdown-timer {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    min-width: 260px;
-    padding: 12px 20px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: 500;
-}
-
-/* Homepage Countdown Styling (#countdown-timer) */
-#countdown-timer.countdown-timer {
-    background-color: #004080;
-    display: inline-flex;
-    margin-top: 8px;
-}
-#countdown-timer .countdown-digit {
-    ;
-    color: #ffffff;
-}
-#countdown-timer .countdown-label {
-    color: #ffffff;
-}
-
-/* Banner Timer Container Styling */
-.banner-timer {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    background-color: rgba(0, 122, 204, 0.1);
+    background-color: var(--primary-dark);
+    color: var(--white-color);
     padding: 8px 15px;
-    border-radius: 8px;
-    border-left: 4px solid #007ACC;
-}
-.banner-timer p {
-    margin-bottom: 0;
-    font-weight: 600;
-    color: #004080;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    text-align: center;
 }
 
-/* Homepage Banner Countdown Styling (#homepage-offer-timer) */
-#homepage-offer-timer.countdown-timer {
-    background-color: #004080;
-}
-#homepage-offer-timer .countdown-digit {
-    background-color: #0059b3;
-    color: #ffffff;
-}
-#homepage-offer-timer .countdown-label {
-    color: #ffffff;
-}
-
-/* Program Page Countdown Styling (#program-countdown-timer) */
-#program-countdown-timer.countdown-timer {
-    background-color: #ebf8ff;
-    border: 2px solid #2ECC71;
-}
-#program-countdown-timer .countdown-digit {
-    background-color: #2ECC71;
-    color: #ffffff;
-}
-#program-countdown-timer .countdown-label {
-    color: #2ECC71;
-}
-
-/* Pricing Page Countdown Styling (#pricing-countdown-timer) */
-#pricing-countdown-timer.countdown-timer {
-    background-color: #f1f8fe;
-    border: 2px solid #007ACC;
-}
-#pricing-countdown-timer .countdown-digit {
-    background-color: #007ACC;
-    color: #ffffff;
-}
-#pricing-countdown-timer .countdown-label {
-    color: #007ACC;
+#countdown-timer {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-size: 2.2rem;
+    color: #d9534f;
+    margin-top: 0.5rem;
 }
 
 /* Early Bird Offer Styles */
@@ -1665,9 +1600,6 @@ hr {
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: var(--border-radius);
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
 }
 
 /* Testimonials Section */
@@ -1758,99 +1690,6 @@ hr {
     transform: translateY(-5px);
 }
 
-
 .coming-soon-container i {
     color: var(--primary-color);
-}
-
-/* Improved Countdown Timer - Fixed Width Units */
-.countdown-unit {
-    display: inline-block;
-    text-align: center;
-    min-width: 50px;
-}
-
-.countdown-digit {
-    display: inline-block;
-    font-size: 1.4rem;
-    font-weight: 700;
-    padding: 8px 12px;
-    border-radius: 6px;
-    min-width: 40px;
-    font-variant-numeric: tabular-nums;
-    text-align: center;
-}
-
-.countdown-label {
-    font-size: 0.9rem;
-    margin-top: 4px;
-    display: block;
-    font-weight: 500;
-}
-
-.countdown-expired {
-    display: inline-block;
-    background-color: #FF4D4F;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 5px;
-    font-weight: 600;
-}
-
-/* Mobile Responsiveness for Countdown Timer */
-@media (max-width: 768px) {
-    .countdown-timer {
-        padding: 10px;
-        gap: 6px;
-    }
-    
-    .countdown-unit {
-        min-width: 42px;
-    }
-    
-    .countdown-digit {
-        font-size: 1.2rem;
-        min-width: 35px;
-        padding: 6px 10px;
-    }
-    
-    .countdown-label {
-        font-size: 0.8rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .countdown-timer {
-        padding: 8px;
-        gap: 4px;
-    }
-    
-    .countdown-unit {
-        min-width: 35px;
-    }
-    
-    .countdown-digit {
-        font-size: 1rem;
-        min-width: 28px;
-        padding: 5px 8px;
-    }
-    
-    .countdown-label {
-        font-size: 0.7rem;
-        margin-top: 2px;
-    }
-    
-    /* Mobile Banner Timer */
-    .banner-timer {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-        padding: 10px;
-    }
-    
-    .banner-timer #countdown-timer {
-        width: 100%;
-        justify-content: space-between;
-        margin-top: 4px;
-    }
 }

@@ -2,11 +2,6 @@
 
 {% block title %}Accounting Training Australia | Xero & MYOB Training | F.A.C.T.S{% endblock %}
 
-{% block meta_description %}F.A.C.T.S bridges the gap between accounting theory and practice with our 8-week job-ready training program. Master practical skills in Xero, MYOB, GST/BAS, and gain essential Australian accounting experience with CPA-led training.{% endblock %}
-
-{% block og_title %}F.A.C.T.S | Job-Ready Accounting Training Australia{% endblock %}
-{% block og_description %}Transform your accounting career with F.A.C.T.S 8-week intensive training program. Learn practical Xero & MYOB skills, GST/BAS preparation, and gain job-ready accounting experience led by an ASA CPA instructor.{% endblock %}
-
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
@@ -18,9 +13,8 @@
                 <div class="early-bird-banner mb-3">
                     <p>🎉 Save $150 if you enroll by April 30 – Only 10 seats per session!</p>
                 </div>
-                <div class="banner-timer mb-3">
-                    <p>⏳ Early Bird Offer Ends In:</p> 
-                    <div id="countdown-timer" class="countdown-timer"></div>
+                <div class="countdown-timer mb-3">
+                    <p>⏳ Early Bird Offer Ends In: <span id="countdown-timer"></span></p>
                 </div>
                 <p class="session-info">Next Session Starts May 7, 2025 – Wed & Thu, 7:00-9:00 PM AEST</p>
                 <p class="class-size-note"><i class="fas fa-users"></i> Only 10 students per session for personalized attention.</p>
@@ -54,7 +48,6 @@
                             </section>
                         </blockquote>
                         <script async src="https://www.tiktok.com/embed.js"></script>
-
                     </div>
                 </div>
             </div>
@@ -198,7 +191,6 @@
                     <p class="lead mb-4">Learn more about our program, meet our instructor, and get your questions answered in our upcoming free information session.</p>
                     <form id="infoSessionForm" action="{{ url_for('collect_info_session_email') }}" method="POST" class="info-session-form">
                         <div class="input-group mb-3">
-                            <label for="infoSessionEmail" class="visually-hidden">Email for Info Session</label>
                             <input type="email" class="form-control" id="infoSessionEmail" name="email" placeholder="Enter your email address" required>
                             <button class="btn btn-primary" type="submit">Get Zoom Link</button>
                         </div>
@@ -276,5 +268,46 @@
 {% endblock %}
 
 {% block scripts %}
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set the deadline date for all countdown timers
+    const deadline = new Date('April 30, 2025 23:59:59').getTime();
+    
+    // Find all countdown timers on the page
+    const heroCountdown = document.getElementById('countdown-timer');
+    const offerSectionCountdown = document.getElementById('homepage-offer-timer');
+    
+    // Update function for all timers
+    function updateCountdowns() {
+        const now = new Date().getTime();
+        const timeRemaining = deadline - now;
+        
+        // Format the time remaining
+        let displayText;
+        
+        if (timeRemaining < 0) {
+            displayText = 'Offer has expired';
+        } else {
+            // Calculate time components
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Format to display
+            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+        
+        // Update each timer if it exists
+        if (heroCountdown) heroCountdown.textContent = displayText;
+        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
+    }
+    
+    // Update immediately
+    updateCountdowns();
+    
+    // Then update every second
+    setInterval(updateCountdowns, 1000);
+});
+</script>
 {% endblock %}

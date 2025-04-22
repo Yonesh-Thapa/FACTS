@@ -1,11 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}F.A.C.T.S - 8-Week Job-Ready Accounting Training Program{% endblock %}
-
-{% block meta_description %}F.A.C.T.S offers an 8-week intensive job-ready accounting program covering practical skills in Xero, MYOB, accounts receivable/payable, GST, BAS preparation, and AI integration. Limited to 10 students per class for personalized attention.{% endblock %}
-
-{% block og_title %}F.A.C.T.S 8-Week Job-Ready Accounting Program | Xero & MYOB Training{% endblock %}
-{% block og_description %}Boost your employability with our comprehensive 8-week accounting program teaching practical skills employers want - Xero, MYOB, accounts receivable/payable, GST/BAS preparation, and future-focused AI skills.{% endblock %}
+{% block title %}F.A.C.T.S - 8-Week Job-Ready Training Program{% endblock %}
 
 {% block content %}
 <!-- Program Header -->
@@ -392,5 +387,39 @@
 {% endblock %}
 
 {% block scripts %}
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Direct countdown timer for this page
+    const countdownElement = document.getElementById('program-countdown-timer');
+    if (countdownElement) {
+        // Set the deadline date
+        const deadline = new Date('April 30, 2025 23:59:59').getTime();
+        
+        // Update immediately
+        updateTimer();
+        
+        // Then update every second
+        setInterval(updateTimer, 1000);
+        
+        function updateTimer() {
+            const now = new Date().getTime();
+            const timeRemaining = deadline - now;
+            
+            if (timeRemaining < 0) {
+                countdownElement.innerHTML = 'Offer has expired';
+                return;
+            }
+            
+            // Calculate days, hours, minutes, and seconds
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Display the result
+            countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+    }
+});
+</script>
 {% endblock %}

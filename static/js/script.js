@@ -47,10 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize countdown timer for early bird offer
     console.log('About to initialize countdown timer');
-    if (document.querySelector("#countdown-timer")) {
-    setTimeout(() => initCountdownTimer(), 100);
-}
-
+    setTimeout(function() {
+        // Delay initialization slightly to ensure DOM is fully processed
+        initCountdownTimer();
+    }, 100);
     
     // Initialize button click tracking for analytics
     initButtonTracking();
@@ -183,66 +183,24 @@ function initBootstrapTooltips() {
 }
 
 /**
- * Debounce function to limit how often a function is called
- * @param {Function} func - The function to debounce
- * @param {number} wait - The debounce time in milliseconds
- * @returns {Function} - The debounced function
- */
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-/**
  * Initialize countdown timer for early bird offer
  * Updated on April 11, 2025 to ensure accurate countdown to April 30, 2025
  */
 function initCountdownTimer() {
     console.log('Initializing countdown timer...');
     
-    // Try to find all countdown timers on the page
-    const countdownSelectors = [
-        'countdown-timer',
-        'homepage-offer-timer',
-        'pricing-countdown-timer',
-        'program-countdown-timer'
+    // Find all countdown timer elements on the page
+    const countdownElements = [
+        document.getElementById('countdown-timer'),
+        document.getElementById('program-countdown-timer'),
+        document.getElementById('pricing-countdown-timer')
     ];
-    
-    // Try to find all elements, including those with class names
-    const countdownElements = [];
-    
-    // Search for elements by ID
-    countdownSelectors.forEach(selector => {
-        const element = document.getElementById(selector);
-        if (element) {
-            // Add countdown-timer class if not already present
-            if (!element.classList.contains('countdown-timer')) {
-                element.classList.add('countdown-timer');
-            }
-            countdownElements.push(element);
-        }
-    });
-    
-    // Also look for elements with the countdown-timer class that aren't in our ID list
-    const classElements = document.querySelectorAll('.countdown-timer');
-    classElements.forEach(element => {
-        if (!countdownElements.includes(element)) {
-            countdownElements.push(element);
-        }
-    });
     
     console.log('Found countdown elements:', countdownElements);
     
     // Filter out null elements
     const validElements = countdownElements.filter(element => element !== null);
-    console.log('Valid countdown elements found:', validElements.length);
+    console.log('Valid countdown elements:', validElements.length);
     
     if (validElements.length === 0) {
         console.log('No valid countdown elements found, exiting function.');
@@ -259,9 +217,6 @@ function initCountdownTimer() {
     
     // Update the countdown every second
     const countdown = setInterval(updateCountdown, 1000);
-    
-    // Add resize event listener to update the display when window is resized
-    window.addEventListener('resize', debounce(updateCountdown, 250));
     
     function updateCountdown() {
         try {
@@ -287,32 +242,12 @@ function initCountdownTimer() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Determine if we're on a mobile device
-            const isMobile = window.innerWidth < 576;
-            
-            // Create a more structured and stable HTML format with fixed-width containers for digits
-            const formattedHTML = `
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${days}</span>
-                    <span class="countdown-label">${isMobile ? 'd' : 'days'}</span>
-                </span>
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${hours.toString().padStart(2, '0')}</span>
-                    <span class="countdown-label">${isMobile ? 'h' : 'hours'}</span>
-                </span>
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${minutes.toString().padStart(2, '0')}</span>
-                    <span class="countdown-label">${isMobile ? 'm' : 'mins'}</span>
-                </span>
-                <span class="countdown-unit">
-                    <span class="countdown-digit">${seconds.toString().padStart(2, '0')}</span>
-                    <span class="countdown-label">${isMobile ? 's' : 'secs'}</span>
-                </span>
-            `;
+            // Format the result with leading zeros for better formatting
+            const formattedTime = `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
             
             // Update all countdown elements
             validElements.forEach(element => {
-                element.innerHTML = formattedHTML;
+                element.innerHTML = formattedTime;
             });
         } catch (error) {
             console.error('Error in countdown timer:', error);

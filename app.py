@@ -12,8 +12,8 @@ import hashlib
 import re
 from urllib.parse import urlparse
 
-# DEBUG MODE FLAG - Set to True to bypass authentication
-DEBUG_MODE = True
+# DEBUG MODE FLAG - Set to False to re-enable authentication
+DEBUG_MODE = False
 
 # Create a bypass for the login_required decorator when DEBUG_MODE is True
 if DEBUG_MODE:
@@ -560,19 +560,30 @@ def add_cache_headers(response):
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    # Auto-login bypass for admin
-    from models import Admin
-    
-    # Find the first admin user (or create one if none exists)
-    user = Admin.query.first()
-    
-    if user:
-        # Just auto-login without password
-        login_user(user)
+    # Normal authentication flow (auth reinstated per client request)
+    # Authentication bypassing code has been commented out but preserved
+    '''
+    # If DEBUG_MODE is enabled, automatically log in as admin
+    if DEBUG_MODE:
+        from models import Admin
+        # Get the first admin user or create one if none exists
+        user = Admin.query.first()
         
-        # Update last login time
-        user.last_login = datetime.utcnow()
-        db.session.commit()
+        if not user:
+            # This is just a safety check - in practice, the admin should already exist
+            from werkzeug.security import generate_password_hash
+            app.logger.info("Creating temporary admin user for DEBUG_MODE")
+            user = Admin(
+                username="admin",
+                email="admin@example.com"
+            )
+            user.password_hash = generate_password_hash("admin123")
+            db.session.add(user)
+            db.session.commit()
+        
+        # Force login without checking password
+        login_user(user)
+        flash('DEBUG MODE: Auto-login successful!', 'warning')
         
         # Redirect to admin dashboard immediately
         next_page = request.args.get('next')
@@ -580,9 +591,38 @@ def admin_login():
             return redirect(next_page)
         
         return redirect(url_for('admin_dashboard'))
-    else:
-        flash('No admin user found in the database. Please contact the system administrator.', 'danger')
-        return redirect(url_for('index'))
+    '''
+    
+    if current_user.is_authenticated:
+        return redirect(url_for('admin_dashboard'))
+    
+    if request.method == 'POST':
+        from models import Admin
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        
+        user = Admin.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            # Update last login time
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            login_user(user)
+            flash('Login successful!', 'success')
+            
+            # Check if there's a next parameter (for pages that require login)
+            next_page = request.args.get('next')
+            if next_page and next_page.startswith('/'):
+                return redirect(next_page)
+            
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Invalid username or password', 'danger')
+    
+    response = make_response(render_template('admin/login.html'))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 @app.route('/admin/logout')
 @login_required

@@ -24,23 +24,19 @@
                 {% endif %}
             {% endwith %}
             
-            <div class="admin-access-info text-center mb-4">
-                <i class="fas fa-lock-open fa-3x mb-3" style="color: #007ACC;"></i>
-                <h4>Admin Access</h4>
-                <p>Welcome to the admin portal. You're being automatically logged in.</p>
-                <div class="spinner-border text-primary mt-3" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
                 </div>
-                <p class="mt-3">Please wait...</p>
-            </div>
-            
-            <script>
-                // Auto-submit the login form
-                window.addEventListener('DOMContentLoaded', (event) => {
-                    // Redirect to admin dashboard directly
-                    window.location.href = "{{ url_for('admin_dashboard') }}";
-                });
-            </script>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
             <div class="text-center mt-3">
                 <a href="{{ url_for('index') }}" class="text-decoration-none">Back to Website</a>
             </div>
