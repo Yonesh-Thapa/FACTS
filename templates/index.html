@@ -39,14 +39,41 @@
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
                     <div class="responsive-video-wrapper">
-                        <video id="intro-video" controls autoplay muted loop playsinline class="responsive-video">
+                        <video id="intro-video" controls loop playsinline preload="auto" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}">
                             <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}" type="video/mp4">
                             <source src="{{ url_for('static', filename='videos/intro_video.mov') }}" type="video/quicktime">
-                            <source src="{{ url_for('static', filename='videos/intro_video.webm') }}" type="video/webm">
                             Your browser does not support the video tag.
                         </video>
+                        <div class="play-button-overlay" id="video-play-overlay">
+                            <div class="play-button">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const video = document.getElementById('intro-video');
+                        const overlay = document.getElementById('video-play-overlay');
+                        
+                        if (video && overlay) {
+                            overlay.addEventListener('click', function() {
+                                video.play();
+                                this.classList.add('hidden');
+                            });
+                            
+                            // Show overlay if video is paused
+                            video.addEventListener('pause', function() {
+                                overlay.classList.remove('hidden');
+                            });
+                            
+                            // Hide overlay when video plays
+                            video.addEventListener('play', function() {
+                                overlay.classList.add('hidden');
+                            });
+                        }
+                    });
+                </script>
             </div>
             
             <!-- Why Choose F.A.C.T.S Column -->

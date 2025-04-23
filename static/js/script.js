@@ -337,42 +337,90 @@ function initButtonTracking() {
  * Ensure video autoplay with sound works across browsers
  */
 function initVideoAutoplay() {
+    console.log('Initializing video autoplay');
     const introVideo = document.getElementById('intro-video');
-    if (!introVideo) return;
+    if (!introVideo) {
+        console.log('No video element found with id "intro-video"');
+        return;
+    }
     
-    // Force autoplay with sound
-    introVideo.muted = false;
+    console.log('Video element found:', introVideo);
+    console.log('Video source:', introVideo.querySelector('source')?.src);
     
-    // Some browsers require user interaction before allowing autoplay with sound
-    // This is a workaround to try to make it work more consistently
-    document.addEventListener('click', function videoPlayHandler() {
-        if (introVideo.paused) {
-            introVideo.play()
-                .then(() => {
-                    console.log('Video started playing with sound');
-                })
-                .catch(error => {
-                    console.warn('Could not autoplay video with sound:', error);
-                    // Fallback: try to play muted first, then unmute
-                    introVideo.muted = true;
-                    introVideo.play()
-                        .then(() => {
-                            // After successful play, try to unmute
-                            setTimeout(() => {
-                                introVideo.muted = false;
-                                console.log('Video unmuted after initial play');
-                            }, 1000);
-                        })
-                        .catch(e => console.error('Could not play video even muted:', e));
-                });
-            
-            // Remove the event listener after first click
-            document.removeEventListener('click', videoPlayHandler);
+    // Set initial properties
+    introVideo.muted = true; // Must start muted to autoplay in most browsers
+    introVideo.setAttribute('playsinline', ''); // Required for iOS
+    
+    // Force load the video if not loaded
+    introVideo.load();
+    
+    // Try to play immediately (muted)
+    const playPromise = introVideo.play();
+    
+    if (playPromise !== undefined) {
+        playPromise
+            .then(() => {
+                console.log('Video playing successfully (muted)');
+                
+                // Add click handler to unmute after user interaction
+                document.addEventListener('click', function unmuteOnClick() {
+                    console.log('User clicked, trying to unmute');
+                    introVideo.muted = false;
+                    document.removeEventListener('click', unmuteOnClick);
+                }, { once: true });
+            })
+            .catch(error => {
+                console.error('Error playing video:', error);
+                
+                // Add a visible play button for manual play
+                const videoContainer = introVideo.closest('.responsive-video-wrapper');
+                if (videoContainer) {
+                    const playButton = document.createElement('button');
+                    playButton.className = 'manual-play-button';
+                    playButton.innerHTML = '<i class="fas fa-play"></i>';
+                    playButton.setAttribute('aria-label', 'Play video');
+                    
+                    playButton.addEventListener('click', function() {
+                        introVideo.muted = true; // Start muted to ensure it plays
+                        introVideo.play()
+                            .then(() => {
+                                this.remove(); // Remove the play button
+                                // Try to unmute after a second
+                                setTimeout(() => {
+                                    introVideo.muted = false;
+                                }, 1000);
+                            })
+                            .catch(e => console.error('Manual play failed:', e));
+                    });
+                    
+                    videoContainer.appendChild(playButton);
+                }
+            });
+    }
+    
+    // Add CSS for the play button
+    const style = document.createElement('style');
+    style.textContent = `
+        .manual-play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 122, 204, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.3s, transform 0.3s;
         }
-    });
-    
-    // Try to play immediately (will work in some browsers)
-    introVideo.play()
-        .then(() => console.log('Video autoplayed with sound successfully'))
-        .catch(error => console.warn('Autoplay with sound failed initially, waiting for user interaction:', error));
+        .manual-play-button:hover {
+            background-color: rgba(0, 122, 204, 0.9);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+    `;
+    document.head.appendChild(style);
 }
