@@ -29,50 +29,28 @@
     </div>
 </section>
 
-<!-- Intro Video Section -->
-<section class="intro-video-section py-5">
+<!-- Intro Video and Why Choose F.A.C.T.S Section -->
+<section class="intro-and-why-section py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-4">
-                <h2 class="section-title">Meet Your Mentor: Darshan Kumar Thapa</h2>
-                <div class="section-divider"></div>
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+        <div class="row align-items-center">
+            <!-- Video Column -->
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="section-title text-center mb-4">Meet Your Mentor</h2>
+                <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
                     <div class="responsive-video-wrapper">
-                        <video id="intro-video" controls autoplay loop playsinline poster="{{ url_for('static', filename='images/people/darshan_kumar_thapa.jpg') }}" class="responsive-video">
+                        <video id="intro-video" controls autoplay loop playsinline class="responsive-video">
                             <source src="{{ url_for('static', filename='videos/intro_video.mov') }}" type="video/quicktime">
                             Your browser does not support the video tag.
                         </video>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-
-<!-- About Preview Section -->
-<section id="about-preview" class="about-preview-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-4">
-                <h2 class="section-title">Why Choose F.A.C.T.S</h2>
-                <div class="section-divider"></div>
-            </div>
-        </div>
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <div class="trainer-card">
-                    <div class="trainer-img">
-                        <img src="{{ url_for('static', filename='images/people/darshan_kumar_thapa.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="max-width: 250px;">
-                    </div>
-                    <h3 class="trainer-name">Darshan Kumar Thapa</h3>
-                    <p class="trainer-credentials">ASA CPA, MPAS, Xero Certified Consultant</p>
-                </div>
-            </div>
-            <div class="col-md-6">
+            
+            <!-- Why Choose F.A.C.T.S Column -->
+            <div class="col-lg-6">
+                <h2 class="section-title text-center mb-4">Why Choose F.A.C.T.S</h2>
+                <div class="section-divider mx-auto mb-4"></div>
                 <div class="about-content">
                     <h3>Bridging the Gap from Graduation to Employment</h3>
                     <p>Future Accountants Coaching and Training Service (F.A.C.T.S) helps accounting graduates gain the practical skills employers are looking for. We combine technical software training with career preparation to help you stand out in the job market.</p>
