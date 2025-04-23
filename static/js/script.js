@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
         handleScroll();
     }
     
+    // Ensure intro video plays with sound
+    initVideoAutoplay();
+    
     // Smooth scrolling for anchor links with event delegation
     initSmoothScrolling();
     
@@ -328,4 +331,48 @@ function initButtonTracking() {
             });
         });
     });
+}
+
+/**
+ * Ensure video autoplay with sound works across browsers
+ */
+function initVideoAutoplay() {
+    const introVideo = document.getElementById('intro-video');
+    if (!introVideo) return;
+    
+    // Force autoplay with sound
+    introVideo.muted = false;
+    
+    // Some browsers require user interaction before allowing autoplay with sound
+    // This is a workaround to try to make it work more consistently
+    document.addEventListener('click', function videoPlayHandler() {
+        if (introVideo.paused) {
+            introVideo.play()
+                .then(() => {
+                    console.log('Video started playing with sound');
+                })
+                .catch(error => {
+                    console.warn('Could not autoplay video with sound:', error);
+                    // Fallback: try to play muted first, then unmute
+                    introVideo.muted = true;
+                    introVideo.play()
+                        .then(() => {
+                            // After successful play, try to unmute
+                            setTimeout(() => {
+                                introVideo.muted = false;
+                                console.log('Video unmuted after initial play');
+                            }, 1000);
+                        })
+                        .catch(e => console.error('Could not play video even muted:', e));
+                });
+            
+            // Remove the event listener after first click
+            document.removeEventListener('click', videoPlayHandler);
+        }
+    });
+    
+    // Try to play immediately (will work in some browsers)
+    introVideo.play()
+        .then(() => console.log('Video autoplayed with sound successfully'))
+        .catch(error => console.warn('Autoplay with sound failed initially, waiting for user interaction:', error));
 }
