@@ -224,6 +224,25 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Make contact items clickable
+    const contactItems = document.querySelectorAll('.contact-item');
+    
+    contactItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Find the link within this contact item
+            const link = this.querySelector('a');
+            if (link) {
+                // If link has target="_blank", open in new tab
+                if (link.getAttribute('target') === '_blank') {
+                    window.open(link.href, '_blank');
+                } else {
+                    // Otherwise follow the link normally
+                    window.location.href = link.href;
+                }
+            }
+        });
+    });
+    
     // Get the contact form
     const contactForm = document.getElementById('contactForm');
     

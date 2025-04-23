@@ -1103,6 +1103,15 @@ hr {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.contact-item:hover {
+    background-color: var(--primary-lighter);
+    transform: translateY(-2px);
 }
 
 .icon-box {
@@ -1130,12 +1139,19 @@ hr {
 }
 
 .contact-text a {
-    color: var(--gray-color);
+    color: var(--primary-color);
     transition: var(--transition);
+    text-decoration: none;
+    display: inline-block;
+    padding: 2px 0;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
 }
 
 .contact-text a:hover {
-    color: var(--primary-color);
+    color: var(--secondary-color);
+    border-bottom: 1px solid var(--secondary-color);
+    text-decoration: none;
 }
 
 .business-hours h4 {
