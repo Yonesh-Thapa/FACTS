@@ -41,13 +41,11 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="video-container">
-                    <div class="tiktok-embed-container">
-                        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@darshankumarthapa" data-video-id="YOUR_VIDEO_ID_HERE" style="max-width: 605px;min-width: 325px;">
-                            <section>
-                                <a target="_blank" title="@darshankumarthapa" href="https://www.tiktok.com/@darshankumarthapa">@darshankumarthapa</a>
-                            </section>
-                        </blockquote>
-                        <script async src="https://www.tiktok.com/embed.js"></script>
+                    <div class="responsive-video-wrapper">
+                        <video id="intro-video" controls autoplay muted loop playsinline poster="{{ url_for('static', filename='images/people/darshan_kumar_thapa.jpg') }}" class="responsive-video">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}" type="video/quicktime">
+                            Your browser does not support the video tag.
+                        </video>
                     </div>
                 </div>
             </div>
@@ -68,7 +66,7 @@
             <div class="col-md-6">
                 <div class="trainer-card">
                     <div class="trainer-img">
-                        <img src="{{ url_for('static', filename='images/team/darshan_thapa_profile.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="max-width: 250px;">
+                        <img src="{{ url_for('static', filename='images/people/darshan_kumar_thapa.jpg') }}" alt="Darshan Kumar Thapa" class="img-fluid rounded-circle" style="max-width: 250px;">
                     </div>
                     <h3 class="trainer-name">Darshan Kumar Thapa</h3>
                     <p class="trainer-credentials">ASA CPA, MPAS, Xero Certified Consultant</p>

@@ -1603,6 +1603,26 @@ hr {
     border: none;
 }
 
+.responsive-video-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    background-color: #000;
+}
+
+.responsive-video {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+    margin: 0 auto;
+    border-radius: var(--border-radius);
+}
+
 .tiktok-embed-container {
     min-height: 500px;
     display: flex;
