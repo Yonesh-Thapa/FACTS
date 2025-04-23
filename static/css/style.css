@@ -151,11 +151,17 @@ section {
 }
 
 .logo-img {
-    height: 65px;
+    height: 60px;
     width: auto;
-    margin-right: 10px;
     transition: transform 0.3s ease;
-    padding: 0;
+    padding: 5px 0;
+    display: block;
+}
+
+.footer-logo-img {
+    height: 70px;
+    width: auto;
+    margin-bottom: 10px;
 }
 
 .navbar-brand:hover .logo-img {
