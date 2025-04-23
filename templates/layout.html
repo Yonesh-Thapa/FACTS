@@ -41,7 +41,7 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}" aria-label="F.A.C.T.S Home">
-                <span class="brand-text">F.A.C.T.S</span>
+                <img src="{{ url_for('static', filename='images/logo/future_accountants_logo.png') }}" alt="Future Accountants Coaching and Training Service" class="logo-img">
             </a>
             
             <!-- Phone number visible on desktop -->
@@ -110,7 +110,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <h3 class="footer-title">F.A.C.T.S</h3>
+                    <div class="footer-logo mb-3">
+                        <img src="{{ url_for('static', filename='images/logo/future_accountants_logo.png') }}" alt="Future Accountants Coaching and Training Service" class="footer-logo-img">
+                    </div>
                     <p>Empowering accounting graduates across Australia with practical, job-ready skills.</p>
                 </div>
                 <div class="col-md-4">
