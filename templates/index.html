@@ -39,8 +39,10 @@
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
                     <div class="responsive-video-wrapper">
-                        <video id="intro-video" controls autoplay loop playsinline class="responsive-video">
+                        <video id="intro-video" controls autoplay muted loop playsinline class="responsive-video">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}" type="video/mp4">
                             <source src="{{ url_for('static', filename='videos/intro_video.mov') }}" type="video/quicktime">
+                            <source src="{{ url_for('static', filename='videos/intro_video.webm') }}" type="video/webm">
                             Your browser does not support the video tag.
                         </video>
                     </div>

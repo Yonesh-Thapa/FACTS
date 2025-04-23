@@ -1624,6 +1624,48 @@ hr {
     border-radius: var(--border-radius);
 }
 
+/* Intro and Why Choose Section Specific Styles */
+.intro-and-why-section {
+    padding: 60px 0;
+    background-color: #fff;
+}
+
+.intro-and-why-section .section-title {
+    margin-bottom: 15px;
+}
+
+.intro-and-why-section .about-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991.98px) {
+    .intro-and-why-section .col-lg-6:first-child {
+        margin-bottom: 40px;
+    }
+    
+    .responsive-video-wrapper {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .responsive-video-wrapper {
+        padding-top: 75%; /* Adjust aspect ratio for mobile */
+    }
+    
+    .intro-and-why-section {
+        padding: 40px 0;
+    }
+    
+    .intro-and-why-section .section-title {
+        font-size: 1.75rem;
+    }
+}
+
 .tiktok-embed-container {
     min-height: 500px;
     display: flex;
