@@ -308,30 +308,64 @@ document.addEventListener('DOMContentLoaded', function() {
     const heroCountdown = document.getElementById('countdown-timer');
     const offerSectionCountdown = document.getElementById('homepage-offer-timer');
     
+    // Cache for previous values to avoid unnecessary DOM updates
+    const previousValues = {};
+    
+    // Set ARIA attributes once, not on every update
+    if (heroCountdown) {
+        heroCountdown.setAttribute('aria-live', 'off');
+        heroCountdown.setAttribute('aria-atomic', 'true');
+        heroCountdown.setAttribute('role', 'timer');
+    }
+    
+    if (offerSectionCountdown) {
+        offerSectionCountdown.setAttribute('aria-live', 'off');
+        offerSectionCountdown.setAttribute('aria-atomic', 'true');
+        offerSectionCountdown.setAttribute('role', 'timer');
+    }
+    
     // Update function for all timers
     function updateCountdowns() {
         const now = new Date().getTime();
         const timeRemaining = deadline - now;
         
-        // Format the time remaining
-        let displayText;
-        
+        // Check if countdown is finished
         if (timeRemaining < 0) {
-            displayText = 'Offer has expired';
-        } else {
-            // Calculate time components
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            const expiredText = 'Offer has expired';
             
-            // Format to display
-            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            // Only update if content has changed
+            if (heroCountdown && heroCountdown.textContent !== expiredText) {
+                heroCountdown.textContent = expiredText;
+            }
+            
+            if (offerSectionCountdown && offerSectionCountdown.textContent !== expiredText) {
+                offerSectionCountdown.textContent = expiredText;
+            }
+            return;
         }
         
-        // Update each timer if it exists
-        if (heroCountdown) heroCountdown.textContent = displayText;
-        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
+        // Calculate time components
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+        
+        // Create cache key
+        const cacheKey = `${days}:${hours}:${minutes}:${seconds}`;
+        
+        // Format time display
+        const displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        
+        // Only update DOM if values changed
+        if (heroCountdown && previousValues['hero'] !== cacheKey) {
+            heroCountdown.textContent = displayText;
+            previousValues['hero'] = cacheKey;
+        }
+        
+        if (offerSectionCountdown && previousValues['offer'] !== cacheKey) {
+            offerSectionCountdown.textContent = displayText;
+            previousValues['offer'] = cacheKey;
+        }
     }
     
     // Update immediately

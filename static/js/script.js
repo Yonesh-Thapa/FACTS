@@ -215,6 +215,17 @@ function initCountdownTimer() {
     const deadline = earlyBirdDeadline.getTime();
     console.log('Deadline set to:', earlyBirdDeadline.toLocaleString());
     
+    // Set up cache for previous values to avoid unnecessary DOM updates
+    const previousValues = {};
+    
+    // Set up ARIA attributes once, not on every update
+    validElements.forEach(element => {
+        // Add ARIA attributes for accessibility
+        element.setAttribute('aria-live', 'off'); // Changed to off to prevent frequent announcements
+        element.setAttribute('aria-atomic', 'true');
+        element.setAttribute('role', 'timer');
+    });
+    
     // Immediately update countdown once before interval starts
     updateCountdown();
     
@@ -234,11 +245,12 @@ function initCountdownTimer() {
                 console.log('Countdown finished, offer expired');
                 clearInterval(countdown);
                 validElements.forEach(element => {
-                    element.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
-                    element.setAttribute('aria-live', 'polite');
-                    element.setAttribute('aria-atomic', 'true');
-                    element.setAttribute('role', 'status');
-                    element.setAttribute('aria-label', 'The Early Bird offer has expired');
+                    // Only update if the content has changed
+                    if (element.textContent !== 'Offer has expired') {
+                        element.textContent = 'Offer has expired';
+                        element.setAttribute('aria-label', 'The Early Bird offer has expired');
+                        element.setAttribute('role', 'status');
+                    }
                 });
                 return;
             }
@@ -249,21 +261,31 @@ function initCountdownTimer() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Format the result with leading zeros for better formatting
-            const formattedTime = `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            // Create a cache key to check if values have changed
+            const cacheKey = `${days}:${hours}:${minutes}:${seconds}`;
             
-            // Create a more descriptive text for screen readers
+            // Format the result without using padStart to avoid zero flickering issues
+            const formattedTime = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            
+            // Create a more descriptive text for screen readers (updated less frequently)
             const ariaText = `${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds remaining until the Early Bird offer ends`;
             
-            // Update all countdown elements with accessible markup
-            validElements.forEach(element => {
-                // Update with accessible structure
-                element.innerHTML = formattedTime;
-                // Add ARIA attributes for accessibility
-                element.setAttribute('aria-live', 'polite');
-                element.setAttribute('aria-atomic', 'true');
-                element.setAttribute('role', 'timer');
-                element.setAttribute('aria-label', ariaText);
+            // Only update the DOM if the values have changed
+            validElements.forEach((element, index) => {
+                const elementCacheKey = `${index}:${cacheKey}`;
+                
+                // Check if we need to update this element
+                if (previousValues[elementCacheKey] !== formattedTime) {
+                    element.textContent = formattedTime;
+                    
+                    // Only update the ARIA label occasionally to reduce screen reader noise
+                    if (seconds % 15 === 0) { // Update ARIA label every 15 seconds
+                        element.setAttribute('aria-label', ariaText);
+                    }
+                    
+                    // Save the new value in our cache
+                    previousValues[elementCacheKey] = formattedTime;
+                }
             });
         } catch (error) {
             console.error('Error in countdown timer:', error);
