@@ -14,7 +14,12 @@
                     <p>🎉 Save $150 if you enroll by April 30 – Only 10 seats per session!</p>
                 </div>
                 <div class="countdown-timer mb-3">
-                    <p>⏳ Early Bird Offer Ends In: <span id="countdown-timer"></span></p>
+                    <p>⏳ Early Bird Offer Ends In: <span id="countdown-timer" role="timer" aria-live="off">
+                        <span class="countdown-days">0</span>d 
+                        <span class="countdown-hours">00</span>h 
+                        <span class="countdown-minutes">00</span>m 
+                        <span class="countdown-seconds">00</span>s
+                    </span></p>
                 </div>
                 <p class="session-info">Next Session Starts May 7, 2025 – Wed & Thu, 7:00-9:00 PM AEST</p>
                 <p class="class-size-note"><i class="fas fa-users"></i> Only 10 students per session for personalized attention.</p>
@@ -39,12 +44,16 @@
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
                     <div class="responsive-video-wrapper">
-                        <video id="intro-video" loop playsinline muted autoplay preload="metadata" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=2" type="video/mp4">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}?v=2" type="video/quicktime">
+                        <video id="intro-video" loop playsinline muted autoplay disableRemotePlayback disablePictureInPicture preload="auto" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=3" type="video/mp4">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}?v=3" type="video/quicktime">
                             <track label="English" kind="subtitles" srclang="en" src="{{ url_for('static', filename='videos/captions/intro_video.vtt') }}" default>
                             Your browser does not support the video tag.
                         </video>
+                        <!-- Big play button overlay for desktop -->
+                        <div id="big-play-button" class="big-play-button" role="button" tabindex="0" aria-label="Play video">
+                            <i class="fas fa-play"></i>
+                        </div>
                         <div class="video-controls">
                             <button id="volume-toggle" class="volume-toggle" aria-label="Unmute video">
                                 <i class="fas fa-volume-mute"></i>
@@ -60,42 +69,151 @@
                         const video = document.getElementById('intro-video');
                         const volumeToggle = document.getElementById('volume-toggle');
                         const playPauseBtn = document.getElementById('play-pause-btn');
+                        const bigPlayButton = document.getElementById('big-play-button');
                         
-                        if (video && volumeToggle && playPauseBtn) {
-                            // Handle volume toggle
-                            volumeToggle.addEventListener('click', function() {
-                                video.muted = !video.muted;
-                                if (video.muted) {
-                                    volumeToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                                    volumeToggle.setAttribute('aria-label', 'Unmute video');
+                        if (video) {
+                            // Ensure video attributes are set properly
+                            video.setAttribute('muted', '');
+                            video.setAttribute('playsinline', '');
+                            video.setAttribute('autoplay', '');
+                            video.muted = true; // Must be muted for autoplay
+                            
+                            // Force reload to help with autoplay
+                            video.load();
+                            
+                            // Initially hide big play button on mobile devices where autoplay works better
+                            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                                if (bigPlayButton) bigPlayButton.style.display = 'none';
+                            }
+                            
+                            // Add a timestamp to video source to prevent caching
+                            const sources = video.querySelectorAll('source');
+                            sources.forEach(source => {
+                                let src = source.getAttribute('src');
+                                // Set a new timestamp to force reloading
+                                if (src.includes('?')) {
+                                    src = src.split('?')[0] + '?v=' + new Date().getTime();
                                 } else {
-                                    volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
-                                    volumeToggle.setAttribute('aria-label', 'Mute video');
+                                    src += '?v=' + new Date().getTime();
                                 }
+                                source.setAttribute('src', src);
                             });
                             
+                            // Reload with the new source
+                            video.load();
+                            
+                            // Try to autoplay right away
+                            const playPromise = video.play();
+                            
+                            if (playPromise !== undefined) {
+                                playPromise.then(() => {
+                                    console.log('Autoplay successful');
+                                    if (bigPlayButton) bigPlayButton.style.display = 'none';
+                                    if (playPauseBtn) {
+                                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                                        playPauseBtn.setAttribute('aria-label', 'Pause video');
+                                    }
+                                }).catch(error => {
+                                    console.log('Autoplay prevented by browser:', error);
+                                    // Show big play button if autoplay fails
+                                    if (bigPlayButton) {
+                                        bigPlayButton.style.display = 'flex';
+                                        bigPlayButton.classList.add('pulsing');
+                                    }
+                                    if (playPauseBtn) {
+                                        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                                        playPauseBtn.setAttribute('aria-label', 'Play video');
+                                    }
+                                });
+                            }
+                            
+                            // Handle big play button click
+                            if (bigPlayButton) {
+                                bigPlayButton.addEventListener('click', function() {
+                                    // Try to play with user interaction
+                                    video.play()
+                                        .then(() => {
+                                            console.log('Video playing after big button click');
+                                            bigPlayButton.style.display = 'none';
+                                            if (playPauseBtn) {
+                                                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                                                playPauseBtn.setAttribute('aria-label', 'Pause video');
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Play failed even with user interaction:', error);
+                                        });
+                                });
+                                
+                                // Handle keyboard accessibility
+                                bigPlayButton.addEventListener('keypress', function(e) {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        this.click();
+                                    }
+                                });
+                            }
+                            
+                            // Handle volume toggle (important fix for mobile)
+                            if (volumeToggle) {
+                                volumeToggle.addEventListener('click', function() {
+                                    // If video is paused, try to play it first (mobile browsers often require interaction)
+                                    if (video.paused) {
+                                        video.play().catch(e => console.warn('Could not play on volume toggle:', e));
+                                    }
+                                    
+                                    // Toggle mute status with a small delay to ensure it works on mobile
+                                    setTimeout(() => {
+                                        video.muted = !video.muted;
+                                        if (video.muted) {
+                                            volumeToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                                            volumeToggle.setAttribute('aria-label', 'Unmute video');
+                                        } else {
+                                            volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                                            volumeToggle.setAttribute('aria-label', 'Mute video');
+                                        }
+                                    }, 50);
+                                });
+                            }
+                            
                             // Handle play/pause toggle
-                            playPauseBtn.addEventListener('click', function() {
-                                if (video.paused) {
-                                    video.play();
-                                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                                    playPauseBtn.setAttribute('aria-label', 'Pause video');
-                                } else {
-                                    video.pause();
+                            if (playPauseBtn) {
+                                playPauseBtn.addEventListener('click', function() {
+                                    if (video.paused) {
+                                        video.play()
+                                            .then(() => {
+                                                console.log('Video played from control button');
+                                                if (bigPlayButton) bigPlayButton.style.display = 'none';
+                                                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                                                playPauseBtn.setAttribute('aria-label', 'Pause video');
+                                            })
+                                            .catch(e => console.error('Play from control button failed:', e));
+                                    } else {
+                                        video.pause();
+                                        if (bigPlayButton) bigPlayButton.style.display = 'flex';
+                                        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                                        playPauseBtn.setAttribute('aria-label', 'Play video');
+                                    }
+                                });
+                            }
+                            
+                            // Update button states when video state changes
+                            video.addEventListener('pause', function() {
+                                console.log('Video paused');
+                                if (bigPlayButton) bigPlayButton.style.display = 'flex';
+                                if (playPauseBtn) {
                                     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                                     playPauseBtn.setAttribute('aria-label', 'Play video');
                                 }
                             });
                             
-                            // Update button states when video state changes
-                            video.addEventListener('pause', function() {
-                                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                                playPauseBtn.setAttribute('aria-label', 'Play video');
-                            });
-                            
                             video.addEventListener('play', function() {
-                                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                                playPauseBtn.setAttribute('aria-label', 'Pause video');
+                                console.log('Video playing');
+                                if (bigPlayButton) bigPlayButton.style.display = 'none';
+                                if (playPauseBtn) {
+                                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                                    playPauseBtn.setAttribute('aria-label', 'Pause video');
+                                }
                             });
                         }
                     });
@@ -251,8 +369,11 @@
                     
                     <div class="countdown-container mb-4">
                         <h4>Offer Ends In:</h4>
-                        <div id="homepage-offer-timer" class="countdown-timer" aria-live="polite" aria-label="Countdown to end of Early Bird offer">
-                            Loading countdown...
+                        <div id="homepage-offer-timer" class="countdown-timer" aria-live="off" role="timer" aria-label="Countdown to end of Early Bird offer">
+                            <span class="countdown-days">0</span>d 
+                            <span class="countdown-hours">00</span>h 
+                            <span class="countdown-minutes">00</span>m 
+                            <span class="countdown-seconds">00</span>s
                         </div>
                         <p class="mt-2"><a href="{{ url_for('pricing') }}" class="text-primary">View detailed pricing information</a></p>
                     </div>
@@ -313,11 +434,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const now = new Date().getTime();
         const timeRemaining = deadline - now;
         
-        // Format the time remaining
-        let displayText;
-        
         if (timeRemaining < 0) {
-            displayText = 'Offer has expired';
+            // Offer expired
+            if (heroCountdown) heroCountdown.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
+            if (offerSectionCountdown) offerSectionCountdown.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
         } else {
             // Calculate time components
             const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
@@ -325,13 +445,30 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Format to display
-            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            // Format with leading zeros
+            const formattedDays = days.toString();
+            const formattedHours = hours.toString().padStart(2, '0');
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const formattedSeconds = seconds.toString().padStart(2, '0');
+            
+            // Update hero countdown (older format)
+            if (heroCountdown) {
+                heroCountdown.innerHTML = `<span class="countdown-timer"><span class="countdown-days">${formattedDays}</span>d <span class="countdown-hours">${formattedHours}</span>h <span class="countdown-minutes">${formattedMinutes}</span>m <span class="countdown-seconds">${formattedSeconds}</span>s</span>`;
+            }
+            
+            // Update offer section countdown (newer format with separate spans)
+            if (offerSectionCountdown) {
+                const daysEl = offerSectionCountdown.querySelector('.countdown-days');
+                const hoursEl = offerSectionCountdown.querySelector('.countdown-hours');
+                const minutesEl = offerSectionCountdown.querySelector('.countdown-minutes');
+                const secondsEl = offerSectionCountdown.querySelector('.countdown-seconds');
+                
+                if (daysEl) daysEl.textContent = formattedDays;
+                if (hoursEl) hoursEl.textContent = formattedHours;
+                if (minutesEl) minutesEl.textContent = formattedMinutes;
+                if (secondsEl) secondsEl.textContent = formattedSeconds;
+            }
         }
-        
-        // Update each timer if it exists
-        if (heroCountdown) heroCountdown.textContent = displayText;
-        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
     }
     
     // Update immediately

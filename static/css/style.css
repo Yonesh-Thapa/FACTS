@@ -1662,6 +1662,44 @@ hr {
     border-radius: var(--border-radius);
 }
 
+/* Big play button in the center of the video */
+.big-play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(0, 122, 204, 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    font-size: 32px;
+}
+
+.big-play-button:hover,
+.big-play-button:focus {
+    background-color: rgba(0, 122, 204, 1);
+    transform: translate(-50%, -50%) scale(1.1);
+    outline: none;
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.big-play-button.pulsing {
+    animation: pulse 2s infinite;
+}
+
 .video-controls {
     position: absolute;
     bottom: 15px;
@@ -1684,6 +1722,22 @@ hr {
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.05em;
     font-weight: bold;
+    color: inherit !important; /* Prevent color changes */
+}
+
+/* Fixed-width containers for each time unit to prevent layout shifts */
+.countdown-days,
+.countdown-hours,
+.countdown-minutes,
+.countdown-seconds {
+    display: inline-block;
+    width: 1.5em; /* Fixed width for single digits */
+    text-align: center;
+}
+
+.countdown-days {
+    width: auto; /* Days can vary more in length */
+    min-width: 1em;
 }
 
 .volume-toggle, .play-pause-btn {
