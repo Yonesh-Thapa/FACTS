@@ -1,5 +1,5 @@
 # robots.txt for Future Accountants website
-# Created on April 11, 2025
+# Last updated on April 24, 2025
 
 User-agent: *
 Allow: /
@@ -13,3 +13,6 @@ Allow: /static/
 # Disallow admin area
 Disallow: /admin/
 Disallow: /admin
+
+# Sitemap location
+Sitemap: https://futureaccountants.com.au/sitemap.xml

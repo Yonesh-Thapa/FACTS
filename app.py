@@ -144,6 +144,16 @@ def pricing():
     response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
     return response
 
+@app.route('/sitemap.xml')
+def sitemap():
+    """Serve the sitemap.xml file from the static directory"""
+    return send_from_directory('static', 'sitemap.xml', mimetype='application/xml')
+
+@app.route('/robots.txt')
+def robots():
+    """Serve the robots.txt file from the static directory"""
+    return send_from_directory('static', 'robots.txt', mimetype='text/plain')
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     # Import the Contact model here to avoid circular imports
