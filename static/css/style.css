@@ -1678,7 +1678,7 @@ hr {
     opacity: 1;
 }
 
-.volume-toggle, .play-pause-btn {
+.volume-toggle, .play-pause-btn, .cc-toggle {
     width: 40px;
     height: 40px;
     background-color: rgba(0, 122, 204, 0.8);
@@ -1693,7 +1693,7 @@ hr {
     font-size: 16px;
 }
 
-.volume-toggle:hover, .play-pause-btn:hover {
+.volume-toggle:hover, .play-pause-btn:hover, .cc-toggle:hover {
     transform: scale(1.1);
     background-color: rgba(0, 122, 204, 1);
 }
@@ -1704,7 +1704,7 @@ hr {
         right: 10px;
     }
     
-    .volume-toggle, .play-pause-btn {
+    .volume-toggle, .play-pause-btn, .cc-toggle {
         width: 36px;
         height: 36px;
         font-size: 14px;
@@ -1717,7 +1717,7 @@ hr {
         right: 5px;
     }
     
-    .volume-toggle, .play-pause-btn {
+    .volume-toggle, .play-pause-btn, .cc-toggle {
         width: 32px;
         height: 32px;
         font-size: 12px;
