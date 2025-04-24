@@ -263,11 +263,20 @@ function initCountdownTimer() {
                 // Check if element exists
                 if (!element) return;
                 
-                // Use fixed-width HTML for smoother updates
-                const countdownHTML = `<span class="countdown-timer"><span class="countdown-days">${formattedDays}</span>d <span class="countdown-hours">${formattedHours}</span>h <span class="countdown-minutes">${formattedMinutes}</span>m <span class="countdown-seconds">${formattedSeconds}</span>s</span>`;
+                // Use fixed-width HTML with specific units for smoother updates
+                const countdownHTML = `<span class="countdown-timer">
+                    <span class="countdown-days">${formattedDays}</span><span class="countdown-unit">d</span>
+                    <span class="countdown-hours">${formattedHours}</span><span class="countdown-unit">h</span>
+                    <span class="countdown-minutes">${formattedMinutes}</span><span class="countdown-unit">m</span>
+                    <span class="countdown-seconds">${formattedSeconds}</span><span class="countdown-unit">s</span>
+                </span>`;
+                
+                // Compare content without whitespace to minimize unnecessary updates
+                const normalizedCurrentHTML = element.innerHTML.replace(/\s+/g, '');
+                const normalizedNewHTML = countdownHTML.replace(/\s+/g, '');
                 
                 // Only update if content is different to reduce DOM operations
-                if (element.innerHTML !== countdownHTML) {
+                if (normalizedCurrentHTML !== normalizedNewHTML) {
                     element.innerHTML = countdownHTML;
                 }
                 

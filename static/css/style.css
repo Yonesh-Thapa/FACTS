@@ -1680,10 +1680,29 @@ hr {
 
 /* Countdown Timer Styles */
 .countdown-timer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: color 0.25s ease;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.05em;
+    font-family: monospace, 'Courier New', Courier;
+    letter-spacing: 0;
     font-weight: bold;
+}
+
+/* Individual time unit containers with fixed width */
+.countdown-days, .countdown-hours, .countdown-minutes, .countdown-seconds {
+    display: inline-block;
+    text-align: center;
+    min-width: 1.8ch; /* Ensure consistent width regardless of digit */
+}
+
+/* Unit labels with fixed width */
+.countdown-unit {
+    display: inline-block;
+    text-align: center;
+    min-width: 1.2ch;
+    margin: 0 0.1em;
 }
 
 .volume-toggle, .play-pause-btn {
