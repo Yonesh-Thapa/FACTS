@@ -1,0 +1,34 @@
+Fix the video player in the "Meet Your Mentor" section. Do not change any layout, text, or spacing. Only fix video behavior so it works consistently across all platforms (desktop, mobile, tablets). Here's what I want:
+
+1. The video must autoplay **muted** on page load for all devices.
+2. The controls — play/pause, volume, and CC — must be **clickable** and function correctly on desktop.
+3. The video must load correctly with a **poster** image and show the poster only when not playing.
+4. The video should not show automatic accessibility captions. Instead, use **custom subtitles (.vtt)** and make them **toggleable** with the CC button.
+5. Ensure the video player and controls are **fully responsive** and do not break layout on small screens.
+
+Video element is defined in `templates/index.html`:
+- HTML has `autoplay muted playsinline` attributes
+- Controls are custom: buttons for `play-pause`, `volume`, and `cc-toggle`
+- Subtitles are loaded via `.vtt` from `static/videos/captions/mymentor.vtt`
+
+Apply these specific fixes:
+
+✅ JavaScript:
+- Add `video.muted = true;` and `video.setAttribute("muted", "")` to force autoplay on all browsers
+- Remove `video.load()` unless it's needed for dynamic switching
+- Use `window.addEventListener('load', ...)` instead of `DOMContentLoaded` to improve autoplay timing
+- Wrap `.play()` call in a `.catch()` block and show console message if autoplay fails
+
+✅ HTML:
+- Ensure `<track>` tag uses:  
+  `<track kind="subtitles" label="English" srclang="en" src="videos/captions/mymentor.vtt">`  
+  (No `default` attribute unless you want it enabled by default)
+- Keep `poster="{{ url_for('static', filename='images/tutor.jpg') }}"` as long as the path resolves correctly
+
+✅ CSS:
+- Ensure `.video-controls` is not blocking interaction (`pointer-events: auto`)
+- Add `z-index: 5` and `position: absolute` to `.video-controls`
+- Ensure `.video-container` has `position: relative`
+- Add a fallback background color for `.responsive-video` like `background-color: #000`
+
+Make sure all these changes are implemented without affecting existing layout, responsiveness, or content. The goal is to get a responsive, working, accessible video player that looks exactly the same but behaves correctly across all modern browsers and devices.

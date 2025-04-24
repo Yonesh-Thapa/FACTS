@@ -1660,6 +1660,7 @@ hr {
     object-fit: contain;
     margin: 0 auto;
     border-radius: var(--border-radius);
+    background-color: #000; /* Fallback color */
 }
 
 .video-controls {
@@ -1672,6 +1673,7 @@ hr {
     z-index: 5;
     opacity: 0.6;
     transition: opacity 0.3s ease;
+    pointer-events: auto;
 }
 
 .video-controls:hover {
