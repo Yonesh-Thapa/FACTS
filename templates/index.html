@@ -39,13 +39,16 @@
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
                     <div class="responsive-video-wrapper">
-                        <video id="intro-video" loop playsinline muted autoplay preload="metadata" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=2" type="video/mp4">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}?v=2" type="video/quicktime">
-                            <track label="English" kind="subtitles" srclang="en" src="{{ url_for('static', filename='videos/captions/intro_video.vtt') }}" default>
+                        <video id="intro-video" loop playsinline muted autoplay preload="metadata" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}" crossorigin="anonymous">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=3" type="video/mp4">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}?v=3" type="video/quicktime">
+                            <track label="English" kind="subtitles" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
                             Your browser does not support the video tag.
                         </video>
                         <div class="video-controls">
+                            <button id="cc-toggle" class="cc-toggle" aria-label="Enable captions">
+                                <i class="fas fa-closed-captioning"></i>
+                            </button>
                             <button id="volume-toggle" class="volume-toggle" aria-label="Unmute video">
                                 <i class="fas fa-volume-mute"></i>
                             </button>
@@ -60,8 +63,30 @@
                         const video = document.getElementById('intro-video');
                         const volumeToggle = document.getElementById('volume-toggle');
                         const playPauseBtn = document.getElementById('play-pause-btn');
+                        const ccToggle = document.getElementById('cc-toggle');
                         
-                        if (video && volumeToggle && playPauseBtn) {
+                        if (video && volumeToggle && playPauseBtn && ccToggle) {
+                            // Get the text track and initially disable it
+                            const track = video.textTracks[0];
+                            if (track) {
+                                track.mode = 'hidden'; // Start with captions disabled
+                            }
+                            
+                            // Handle CC toggle
+                            ccToggle.addEventListener('click', function() {
+                                if (track) {
+                                    if (track.mode === 'showing') {
+                                        track.mode = 'hidden';
+                                        ccToggle.innerHTML = '<i class="fas fa-closed-captioning"></i>';
+                                        ccToggle.setAttribute('aria-label', 'Enable captions');
+                                    } else {
+                                        track.mode = 'showing';
+                                        ccToggle.innerHTML = '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>';
+                                        ccToggle.setAttribute('aria-label', 'Disable captions');
+                                    }
+                                }
+                            });
+                            
                             // Handle volume toggle
                             volumeToggle.addEventListener('click', function() {
                                 video.muted = !video.muted;
@@ -77,7 +102,7 @@
                             // Handle play/pause toggle
                             playPauseBtn.addEventListener('click', function() {
                                 if (video.paused) {
-                                    video.play();
+                                    video.play().catch(e => console.error('Play failed:', e));
                                     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                     playPauseBtn.setAttribute('aria-label', 'Pause video');
                                 } else {
@@ -97,6 +122,10 @@
                                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                 playPauseBtn.setAttribute('aria-label', 'Pause video');
                             });
+                            
+                            // Force the video to load and play with the correct attributes
+                            video.load();
+                            video.play().catch(e => console.log('Initial autoplay failed, user interaction needed:', e));
                         }
                     });
                 </script>
