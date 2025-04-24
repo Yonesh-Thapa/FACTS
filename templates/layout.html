@@ -34,6 +34,24 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
+    <!-- JSON-LD Structured Data for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "Future Accountants Coaching and Training Service",
+      "url": "{{ request.url_root }}",
+      "logo": "{{ url_for('static', filename='images/logo/future_accountants_logo.png', _external=True) }}",
+      "email": "fatrainingservice@gmail.com",
+      "telephone": "+61449547715",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "AU"
+      },
+      "description": "Job-ready online accounting training for Australian graduates – gain practical Xero & MYOB skills and career coaching with F.A.C.T.S."
+    }
+    </script>
+    
     {% block head_extra %}{% endblock %}
 </head>
 <body>

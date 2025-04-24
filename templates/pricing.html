@@ -2,6 +2,42 @@
 
 {% block title %}F.A.C.T.S - Program Pricing & Early Bird Special{% endblock %}
 
+{% block head_extra %}
+<!-- FAQ Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Are there any additional costs beyond the program fee?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, the program fee is all-inclusive. It covers all 16 live sessions, software training, career preparation, and materials needed for the course. There are no hidden fees or additional costs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if I need to withdraw from the program?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We understand that circumstances can change. A full refund is available if you withdraw more than 14 days before the program starts. A 50% refund is available for withdrawals 7-14 days before the program starts. No refunds are available for withdrawals less than 7 days before the program starts."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you offer payment plans?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, we offer a flexible payment plan option. You can pay 50% of the fee to secure your spot, and the remaining 50% is due by the third week of the program. Please note that the Early Bird discount requires full payment to qualify."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- Pricing Header -->
 <section class="page-header pricing-header">
