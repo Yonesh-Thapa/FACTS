@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- WWW to non-WWW redirect for SEO - 301 permanent redirect -->
+    <script>
+        // Only perform redirect if:
+        // 1. We're on the www subdomain
+        // 2. We're using HTTP or HTTPS (not local development)
+        // 3. We're on futureaccountants.com.au domain
+        if (window.location.hostname.startsWith('www.futureaccountants.com.au')) {
+            // Create the new URL with the same path and query parameters
+            const newUrl = window.location.protocol + '//' + 
+                          'futureaccountants.com.au' + 
+                          window.location.pathname + 
+                          window.location.search + 
+                          window.location.hash;
+            
+            // Perform a 301-style (permanent) redirect
+            window.location.replace(newUrl);
+        }
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block meta_description %}F.A.C.T.S offers job-ready accounting training in Australia, including Xero training and accounting coaching in Hobart. Our professional accounting courses prepare graduates for real-world accounting careers.{% endblock %}">
