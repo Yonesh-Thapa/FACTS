@@ -1678,14 +1678,6 @@ hr {
     opacity: 1;
 }
 
-/* Countdown Timer Styles */
-.countdown-timer {
-    transition: color 0.25s ease;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.05em;
-    font-weight: bold;
-}
-
 .volume-toggle, .play-pause-btn {
     width: 40px;
     height: 40px;
