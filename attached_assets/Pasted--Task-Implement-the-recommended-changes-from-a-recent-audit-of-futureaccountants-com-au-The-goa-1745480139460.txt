@@ -1,0 +1,132 @@
+**Task:** Implement the recommended changes from a recent audit of futureaccountants.com.au. The goal is to improve UI/UX consistency, responsiveness, performance, SEO, accessibility, and add internationalization support. Follow the steps below, making code changes as needed:
+
+1. **UI/UX Improvements:**
+   - Ensure all call-to-action buttons use consistent text. Change any "Book Now" label to "Apply Now" for uniformity across the site (both in the navigation menu and page sections).
+   - Check the site’s CSS for text color on backgrounds. Increase color contrast for better readability (e.g., if there is any light gray text on white, change it to a darker gray or black to meet WCAG 2.0 contrast ratio of at least 4.5:1).
+   - Verify the font sizing in CSS. For mobile devices, set base font size ~16px and use relative units for headings to scale appropriately. Remove any CSS that forces small text on small screens (to prevent iOS zoom on focus).
+   - In the video embed for "Meet Your Mentor", add `controls` attribute to the `<video>` tag (so users can play/pause). Also include a `<track>` for captions (even if it’s just English subtitles of his speech) for accessibility.
+
+2. **Responsiveness & Navigation:**
+   - Add a `<meta name="viewport" content="width=device-width, initial-scale=1">` in the `<head>` of each HTML page if not already present.
+   - Implement a mobile navigation menu:
+     - Include a hamburger icon button in the header that is visible on screen widths < 768px.
+     - Use CSS/JS to toggle a dropdown of the menu links when the hamburger is clicked. Ensure the menu can be closed by clicking an X or the overlay.
+     - Make the hamburger accessible: add `aria-label="Open menu"` and toggle to `aria-label="Close menu"` when opened, and manage focus (focus trap within menu when open).
+   - Use CSS media queries to adjust layout:
+     - For example, in the pricing section, use a media query to stack the “Standard Enrollment” and “Early Bird” columns vertically on narrow screens (100% width each), and side-by-side (50% each) on desktop.
+     - Ensure images (like the classroom photo and tutor photo) have `max-width: 100%` in the CSS so they resize on smaller screens.
+   - Test these changes with the browser’s responsive design mode and adjust any padding/margin that causes overflow on small screens.
+
+3. **Performance Optimizations:**
+   - Optimize images: For each image file in the project (e.g., `static/images/classroom_accounting.jpg`, `static/images/people/darshan_kumar_thapa.jpg`, etc.), run them through an image compressor or use an online tool to reduce file size. Replace the originals with the optimized versions. If possible, also provide WebP versions and use the `<picture>` element or `srcset` for modern browsers.
+   - Add the `loading="lazy"` attribute to `<img>` tags for images that are not in the first viewport (e.g., the footer logo or any image that appears after the first screenful of content).
+   - In the HTML `<head>`, add a preload for the hero image for faster LCP:  
+     `<link rel="preload" as="image" href="/static/images/classroom_accounting.jpg" imagesrcset="/static/images/classroom_accounting.webp" type="image/jpeg" imagesizes="100vw">` (adjust path/type as appropriate).
+   - Minify CSS/JS: If there is a custom CSS file (e.g., `styles.css`), run it through a minifier. Do the same for any custom JavaScript file. If using multiple CSS files, consider combining into one to reduce requests.
+   - Update the countdown timer script:
+     - Ensure it runs after the DOM loads. If it’s inline script, consider moving it to a separate file loaded with `defer` attribute.
+     - Verify the countdown is calculating correctly (target date should match the Early Bird deadline). Use `console.log` for debugging if needed, then remove it.
+     - Mark the element showing the time left with `aria-live="polite"` so screen readers announce updates.
+   - Implement caching headers (if the site is served via a backend like Node/Express or even Netlify, configure caching for static assets). For example, in an Express server, use `res.set("Cache-Control", "public, max-age=604800, immutable")` for static files.
+
+4. **SEO Enhancements:**
+   - Add meta tags in the `<head>` of each page:
+     - For example, `<meta name="description" content="Job-ready online accounting training for Australian graduates – gain practical Xero & MYOB skills and career coaching with F.A.C.T.S.">` on the homepage. Use a relevant sentence on each page (Pricing, Program, About) describing that page.
+     - Add Open Graph tags: `<meta property="og:title" content="Launch Your Accounting Career with F.A.C.T.S">`, `<meta property="og:description" content="8-week online accounting training program in Australia for graduates. Learn Xero, MYOB, and get job placement support.">`, `<meta property="og:image" content="/static/images/classroom_accounting.jpg">`, `<meta property="og:url" content="https://futureaccountants.com.au/">` etc.
+     - Add `<meta name="robots" content="index, follow">` (just to be explicit that the site should be indexed).
+   - Insert JSON-LD structured data:
+     - For Organization in the `<head>` of the homepage:
+       ```html
+       <script type="application/ld+json">
+       {
+         "@context": "https://schema.org",
+         "@type": "EducationalOrganization",
+         "name": "Future Accountants Coaching and Training Service",
+         "url": "https://futureaccountants.com.au/",
+         "logo": "https://futureaccountants.com.au/static/images/logo.png",
+         "email": "fatrainingservice@gmail.com",
+         "telephone": "+61449547715",
+         "address": {
+           "@type": "PostalAddress",
+           "addressCountry": "AU"
+         }
+       }
+       </script>
+       ```
+       (Use actual logo path if available; this assumes a logo.png exists. Include physical address if available.)
+     - For FAQ on the Pricing page, wrap each Q&A in a JSON-LD FAQPage script. For example:
+       ```html
+       <script type="application/ld+json">
+       {
+         "@context": "https://schema.org",
+         "@type": "FAQPage",
+         "mainEntity": [
+           {
+             "@type": "Question",
+             "name": "Are there any additional costs beyond the program fee?",
+             "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No, the program fee is all-inclusive. It covers all 16 live sessions, software training, career preparation, and materials needed for the course. There are no hidden fees or additional costs."
+             }
+           },
+           {
+             "@type": "Question",
+             "name": "What happens if I need to withdraw from the program?",
+             "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "We understand that circumstances can change. ... (continue full answer text here) ..."
+             }
+           }
+           // ... include other FAQs similarly
+         ]
+       }
+       </script>
+       ```
+       Place this at the bottom of the Pricing page HTML.
+   - In content, add internal links: e.g., on the About page text “8-week program”, embed a hyperlink to `/program`. On the Program page, link the first mention of “pricing” to `/pricing`.
+   - Ensure each page has one H1 tag (already done) and logical subheadings (adjust any missing levels as noted).
+   - Create a new file `sitemap.xml` at the site root listing all pages (Home, About, Program, Pricing, Contact). Use the basic XML sitemap format.
+   - (If applicable) in the robots.txt, add: `Sitemap: https://futureaccountants.com.au/sitemap.xml`
+
+5. **Accessibility Fixes:**
+   - Add ARIA labels for social media icons in the footer. For example, if there’s an `<a href="https://facebook.com/..." class="social-icon facebook"></a>`, add `aria-label="Follow us on Facebook"` to that link.
+   - For the email signup form, wrap the input and button in a `<form>` with an action (or a script to handle submission). Add a `<label for="email">Email:</label>` and an `id="email"` on the input. If using placeholder instead, ensure `aria-label="Email address"` is present on the input.
+   - Ensure the video has alternative content. If a transcript is available, add a link or expandable section with the transcript text below the video.
+   - Add a skip link at the top of the page (e.g., `<a href="#maincontent" class="skip-link">Skip to content</a>`) to allow screen reader and keyboard users to bypass the nav if needed.
+   - In the CSS, if any `:focus` outlines were removed, re-enable them or style them clearly (e.g., `a:focus { outline: 2px solid #000; outline-offset: 2px; }`).
+   - Run an accessibility linter (like eslint-plugin-jsx-a11y if JSX, or WAVE manually) after these changes to verify no errors remain.
+
+6. **Internationalization Implementation:**
+   - Plan to add Spanish (“es”) as a second language (for example). Create a folder `es/` and duplicate the HTML pages there, translating the content to Spanish. (Alternatively, prepare a translation JSON if using a JS framework.)
+   - Add a language toggle on the site header: maybe a globe icon or text “EN | ES”. Link “ES” to the Spanish version pages.
+   - In the HTML `<html>` tag, add `lang="en"` on English pages and `lang="es"` on Spanish pages for accessibility and SEO.
+   - Use JavaScript to detect browser language. In a script, do:
+     ```js
+     const userLang = navigator.language || navigator.userLanguage;
+     if(userLang && userLang.startsWith('es')) {
+       // If the user hasn't been to the site before or hasn’t manually chosen English, redirect or suggest Spanish:
+       window.location.pathname = '/es/';
+     }
+     ```
+     *Note:* include a condition to not do this redirect if the user has already chosen a language (perhaps store a flag in `localStorage` when they switch).
+   - Add hreflang links in the `<head>` of each page. E.g., on the English homepage:
+     ```html
+     <link rel="alternate" href="https://futureaccountants.com.au/" hreflang="en-au" />
+     <link rel="alternate" href="https://futureaccountants.com.au/es/" hreflang="es" />
+     <link rel="alternate" href="https://futureaccountants.com.au/" hreflang="x-default" />
+     ```
+     and similarly on the Spanish page referencing the English.
+   - (If not doing full separate pages) Alternatively, integrate Google Translate widget:
+     - Add the Google Translate script from Google (per their documentation) and a `<div id="google_translate_element"></div>` in the footer.
+     - Ensure it doesn’t conflict with the menu JS (test after adding).
+   - Test the site by simulating browser language preferences (you can temporarily change your browser language or use dev tools). Make sure Spanish content shows and that switching back to English is possible.
+
+7. **Testing & Deployment:**
+   - After implementing, test all functionalities:
+     - On desktop and mobile emulators for layout.
+     - Use Chrome DevTools Lighthouse for performance (>90 score goal) and accessibility (aim 100 score).
+     - Validate structured data using Google’s Rich Results Test.
+     - Click through the site in Spanish to ensure all links go to Spanish versions and nothing reverts to English unexpectedly.
+   - Commit the changes and deploy the updated site.
+
+**End of Task.** Apply all code changes above. Provide a brief summary of changes once done.

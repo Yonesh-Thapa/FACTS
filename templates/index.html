@@ -42,6 +42,7 @@
                         <video id="intro-video" controls loop playsinline preload="auto" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}">
                             <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}" type="video/mp4">
                             <source src="{{ url_for('static', filename='videos/intro_video.mov') }}" type="video/quicktime">
+                            <track label="English" kind="subtitles" srclang="en" src="{{ url_for('static', filename='videos/captions/intro_video.vtt') }}" default>
                             Your browser does not support the video tag.
                         </video>
                         <div class="play-button-overlay" id="video-play-overlay">
@@ -158,7 +159,7 @@
         </div>
         <div class="row">
             <div class="col-12 text-center mt-4">
-                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">Book Now</a>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">Apply Now</a>
             </div>
         </div>
     </div>
@@ -225,7 +226,7 @@
                     
                     <div class="countdown-container mb-4">
                         <h4>Offer Ends In:</h4>
-                        <div id="homepage-offer-timer" class="countdown-timer">
+                        <div id="homepage-offer-timer" class="countdown-timer" aria-live="polite" aria-label="Countdown to end of Early Bird offer">
                             Loading countdown...
                         </div>
                         <p class="mt-2"><a href="{{ url_for('pricing') }}" class="text-primary">View detailed pricing information</a></p>
@@ -265,7 +266,7 @@
             <div class="col-12 text-center">
                 <h2>Ready to Launch Your Accounting Career?</h2>
                 <p>Next Session Starts May 7, 2025 – Wed & Thu, 7:00-9:00 PM AEST</p>
-                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg mt-3">Book Now – Start Your Journey</a>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg mt-3">Apply Now – Start Your Journey</a>
             </div>
         </div>
     </div>
