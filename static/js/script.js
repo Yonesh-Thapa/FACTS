@@ -360,11 +360,30 @@ function initVideoAutoplay() {
     console.log('Video element found:', introVideo);
     console.log('Video source:', introVideo.querySelector('source')?.src);
     
-    // Set initial properties
+    // Make sure HTML attributes are set properly
     introVideo.muted = true; // Must start muted to autoplay in most browsers
     introVideo.setAttribute('playsinline', ''); // Required for iOS
+    introVideo.setAttribute('muted', ''); // Ensure muted is set as an attribute too
+    introVideo.setAttribute('autoplay', ''); // Ensure autoplay is set as an attribute
     
-    // Force load the video if not loaded
+    // Handle mobile device screen sizes
+    function updateVideoObjectFit() {
+        // In portrait orientation or on small screens, use cover instead of contain
+        if (window.innerWidth < 768 || window.innerHeight > window.innerWidth) {
+            introVideo.style.objectFit = 'cover';
+        } else {
+            introVideo.style.objectFit = 'contain';
+        }
+    }
+    
+    // Apply initial object-fit setting
+    updateVideoObjectFit();
+    
+    // Update on resize and orientation change
+    window.addEventListener('resize', updateVideoObjectFit);
+    window.addEventListener('orientationchange', updateVideoObjectFit);
+    
+    // Force load the video
     introVideo.load();
     
     // Try to play immediately (muted)
@@ -374,66 +393,15 @@ function initVideoAutoplay() {
         playPromise
             .then(() => {
                 console.log('Video playing successfully (muted)');
-                
-                // Add click handler to unmute after user interaction
-                document.addEventListener('click', function unmuteOnClick() {
-                    console.log('User clicked, trying to unmute');
-                    introVideo.muted = false;
-                    document.removeEventListener('click', unmuteOnClick);
-                }, { once: true });
             })
             .catch(error => {
                 console.error('Error playing video:', error);
                 
-                // Add a visible play button for manual play
-                const videoContainer = introVideo.closest('.responsive-video-wrapper');
-                if (videoContainer) {
-                    const playButton = document.createElement('button');
-                    playButton.className = 'manual-play-button';
-                    playButton.innerHTML = '<i class="fas fa-play"></i>';
-                    playButton.setAttribute('aria-label', 'Play video');
-                    
-                    playButton.addEventListener('click', function() {
-                        introVideo.muted = true; // Start muted to ensure it plays
-                        introVideo.play()
-                            .then(() => {
-                                this.remove(); // Remove the play button
-                                // Try to unmute after a second
-                                setTimeout(() => {
-                                    introVideo.muted = false;
-                                }, 1000);
-                            })
-                            .catch(e => console.error('Manual play failed:', e));
-                    });
-                    
-                    videoContainer.appendChild(playButton);
-                }
+                // If autoplay fails, try once more after a short delay
+                setTimeout(() => {
+                    introVideo.play().catch(e => 
+                        console.error('Second autoplay attempt failed:', e));
+                }, 1000);
             });
     }
-    
-    // Add CSS for the play button
-    const style = document.createElement('style');
-    style.textContent = `
-        .manual-play-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 122, 204, 0.7);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 10;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .manual-play-button:hover {
-            background-color: rgba(0, 122, 204, 0.9);
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-    `;
-    document.head.appendChild(style);
 }
