@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const timeRemaining = deadline - now;
             
             if (timeRemaining < 0) {
-                countdownElement.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
+                countdownElement.innerHTML = 'Offer has expired';
                 return;
             }
             
@@ -422,27 +422,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Format with leading zeros for consistency
-            const formattedDays = days.toString();
-            const formattedHours = hours.toString().padStart(2, '0');
-            const formattedMinutes = minutes.toString().padStart(2, '0');
-            const formattedSeconds = seconds.toString().padStart(2, '0');
-            
-            // Use our styled HTML structure
-            const countdownHTML = `<span class="countdown-timer">
-                <span class="countdown-days">${formattedDays}</span><span class="countdown-unit">d</span>
-                <span class="countdown-hours">${formattedHours}</span><span class="countdown-unit">h</span>
-                <span class="countdown-minutes">${formattedMinutes}</span><span class="countdown-unit">m</span>
-                <span class="countdown-seconds">${formattedSeconds}</span><span class="countdown-unit">s</span>
-            </span>`;
-            
-            // Compare without whitespace to minimize DOM updates
-            const normalizedCurrentHTML = countdownElement.innerHTML.replace(/\s+/g, '');
-            const normalizedNewHTML = countdownHTML.replace(/\s+/g, '');
-            
-            if (normalizedCurrentHTML !== normalizedNewHTML) {
-                countdownElement.innerHTML = countdownHTML;
-            }
+            // Display the result
+            countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
     }
 });

@@ -313,50 +313,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const now = new Date().getTime();
         const timeRemaining = deadline - now;
         
+        // Format the time remaining
+        let displayText;
+        
         if (timeRemaining < 0) {
-            const expiredHTML = '<span class="countdown-expired">Offer has expired</span>';
-            // Update each timer if it exists
-            if (heroCountdown) heroCountdown.innerHTML = expiredHTML;
-            if (offerSectionCountdown) offerSectionCountdown.innerHTML = expiredHTML;
-            return;
-        } 
-        
-        // Calculate time components
-        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-        
-        // Format with leading zeros for consistency
-        const formattedDays = days.toString();
-        const formattedHours = hours.toString().padStart(2, '0');
-        const formattedMinutes = minutes.toString().padStart(2, '0');
-        const formattedSeconds = seconds.toString().padStart(2, '0');
-        
-        // Create formatted HTML with proper styling
-        const countdownHTML = `<span class="countdown-timer">
-            <span class="countdown-days">${formattedDays}</span><span class="countdown-unit">d</span>
-            <span class="countdown-hours">${formattedHours}</span><span class="countdown-unit">h</span>
-            <span class="countdown-minutes">${formattedMinutes}</span><span class="countdown-unit">m</span>
-            <span class="countdown-seconds">${formattedSeconds}</span><span class="countdown-unit">s</span>
-        </span>`;
-        
-        // Update each timer if it exists, with optimized DOM updates
-        if (heroCountdown) {
-            const currentHTML = heroCountdown.innerHTML.replace(/\s+/g, '');
-            const newHTML = countdownHTML.replace(/\s+/g, '');
-            if (currentHTML !== newHTML) {
-                heroCountdown.innerHTML = countdownHTML;
-            }
+            displayText = 'Offer has expired';
+        } else {
+            // Calculate time components
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Format to display
+            displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
         
-        if (offerSectionCountdown) {
-            const currentHTML = offerSectionCountdown.innerHTML.replace(/\s+/g, '');
-            const newHTML = countdownHTML.replace(/\s+/g, '');
-            if (currentHTML !== newHTML) {
-                offerSectionCountdown.innerHTML = countdownHTML;
-            }
-        }
+        // Update each timer if it exists
+        if (heroCountdown) heroCountdown.textContent = displayText;
+        if (offerSectionCountdown) offerSectionCountdown.textContent = displayText;
     }
     
     // Update immediately
