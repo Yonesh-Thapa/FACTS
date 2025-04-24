@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import datetime
-from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, make_response, g
+from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, make_response, g, send_from_directory
 from slugify import slugify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
