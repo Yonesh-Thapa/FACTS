@@ -235,6 +235,10 @@ function initCountdownTimer() {
                 clearInterval(countdown);
                 validElements.forEach(element => {
                     element.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
+                    element.setAttribute('aria-live', 'polite');
+                    element.setAttribute('aria-atomic', 'true');
+                    element.setAttribute('role', 'status');
+                    element.setAttribute('aria-label', 'The Early Bird offer has expired');
                 });
                 return;
             }
@@ -248,9 +252,18 @@ function initCountdownTimer() {
             // Format the result with leading zeros for better formatting
             const formattedTime = `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
             
-            // Update all countdown elements
+            // Create a more descriptive text for screen readers
+            const ariaText = `${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds remaining until the Early Bird offer ends`;
+            
+            // Update all countdown elements with accessible markup
             validElements.forEach(element => {
+                // Update with accessible structure
                 element.innerHTML = formattedTime;
+                // Add ARIA attributes for accessibility
+                element.setAttribute('aria-live', 'polite');
+                element.setAttribute('aria-atomic', 'true');
+                element.setAttribute('role', 'timer');
+                element.setAttribute('aria-label', ariaText);
             });
         } catch (error) {
             console.error('Error in countdown timer:', error);

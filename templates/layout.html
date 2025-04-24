@@ -59,7 +59,7 @@
     <a href="#main-content" class="skip-link">Skip to content</a>
     
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" role="navigation" aria-label="Main navigation">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}" aria-label="F.A.C.T.S Home">
                 <img src="{{ url_for('static', filename='images/logo/future_accountants_logo.png') }}" alt="Future Accountants Coaching and Training Service" class="logo-img">
@@ -67,8 +67,8 @@
             
             <!-- Phone number visible on desktop -->
             <div class="d-none d-lg-flex phone-number-container me-3">
-                <a href="tel:0449547715" class="navbar-phone">
-                    <i class="fas fa-phone-alt me-1"></i> 0449 547 715
+                <a href="tel:0449547715" class="navbar-phone" aria-label="Call us at 0449 547 715">
+                    <i class="fas fa-phone-alt me-1" aria-hidden="true"></i> 0449 547 715
                 </a>
             </div>
             
@@ -76,31 +76,31 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+                <ul class="navbar-nav ms-auto" role="menubar">
+                    <li class="nav-item" role="none">
+                        <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}" role="menuitem" {% if request.path == url_for('index') %}aria-current="page"{% endif %}>Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == url_for('about') %}active{% endif %}" href="{{ url_for('about') }}">About</a>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link {% if request.path == url_for('about') %}active{% endif %}" href="{{ url_for('about') }}" role="menuitem" {% if request.path == url_for('about') %}aria-current="page"{% endif %}>About</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == url_for('program') %}active{% endif %}" href="{{ url_for('program') }}">Program</a>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link {% if request.path == url_for('program') %}active{% endif %}" href="{{ url_for('program') }}" role="menuitem" {% if request.path == url_for('program') %}aria-current="page"{% endif %}>Program</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == url_for('pricing') %}active{% endif %}" href="{{ url_for('pricing') }}">Pricing</a>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link {% if request.path == url_for('pricing') %}active{% endif %}" href="{{ url_for('pricing') }}" role="menuitem" {% if request.path == url_for('pricing') %}aria-current="page"{% endif %}>Pricing</a>
                     </li>
                     <!-- Blog menu item temporarily hidden for launch -->
-                    <!-- <li class="nav-item">
-                        <a class="nav-link {% if request.path == url_for('blog') or request.path.startswith('/blog/') %}active{% endif %}" href="{{ url_for('blog') }}">Blog</a>
+                    <!-- <li class="nav-item" role="none">
+                        <a class="nav-link {% if request.path == url_for('blog') or request.path.startswith('/blog/') %}active{% endif %}" href="{{ url_for('blog') }}" role="menuitem" {% if request.path == url_for('blog') or request.path.startswith('/blog/') %}aria-current="page"{% endif %}>Blog</a>
                     </li> -->
                     <!-- Phone number visible on mobile only -->
-                    <li class="nav-item d-lg-none">
-                        <a class="nav-link" href="tel:0449547715">
-                            <i class="fas fa-phone-alt me-1"></i> 0449 547 715
+                    <li class="nav-item d-lg-none" role="none">
+                        <a class="nav-link" href="tel:0449547715" role="menuitem" aria-label="Call us at 0449 547 715">
+                            <i class="fas fa-phone-alt me-1" aria-hidden="true"></i> 0449 547 715
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary apply-now-btn {% if request.path == url_for('contact') %}active{% endif %}" href="{{ url_for('contact') }}">Apply Now</a>
+                    <li class="nav-item" role="none">
+                        <a class="btn btn-primary apply-now-btn {% if request.path == url_for('contact') %}active{% endif %}" href="{{ url_for('contact') }}" role="menuitem" {% if request.path == url_for('contact') %}aria-current="page"{% endif %}>Apply Now</a>
                     </li>
                 </ul>
             </div>
@@ -108,7 +108,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main id="main-content">
+    <main id="main-content" role="main">
         {% block content %}{% endblock %}
     </main>
 
@@ -127,7 +127,7 @@
     {% endwith %}
 
     <!-- Footer -->
-    <footer class="footer mt-auto py-4">
+    <footer class="footer mt-auto py-4" role="contentinfo">
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
@@ -137,15 +137,15 @@
                     <p>Empowering accounting graduates across Australia with practical, job-ready skills.</p>
                 </div>
                 <div class="col-md-4">
-                    <h5>Contact Us</h5>
-                    <ul class="contact-info">
+                    <h5 id="footer-contact-heading">Contact Us</h5>
+                    <ul class="contact-info" aria-labelledby="footer-contact-heading">
                         <li><i class="fas fa-envelope" aria-hidden="true"></i> <a href="mailto:fatrainingservice@gmail.com">fatrainingservice@gmail.com</a></li>
                         <li><i class="fas fa-phone" aria-hidden="true"></i> <a href="tel:0449547715">0449 547 715</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h5>Follow Us</h5>
-                    <div class="social-icons">
+                    <h5 id="footer-social-heading">Follow Us</h5>
+                    <div class="social-icons" aria-labelledby="footer-social-heading">
                         <a href="https://www.instagram.com/future_accountants_cts?igsh=ZGUwY3FsNXFndDE4" target="_blank" rel="noopener" aria-label="Follow us on Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
                         <a href="https://www.facebook.com/people/Future-Accountants-Coaching-Training-Service/61574242315278/" target="_blank" rel="noopener" aria-label="Follow us on Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
                     </div>
