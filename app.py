@@ -395,6 +395,23 @@ def parse_referrer(referrer):
     except:
         return "unknown", None, None
 
+# WWW to non-WWW redirect (301 permanent redirect)
+@app.before_request
+def redirect_www_to_non_www():
+    """
+    Redirect www.futureaccountants.com.au to futureaccountants.com.au
+    with a 301 permanent redirect for better SEO
+    """
+    # Only apply in production environment
+    if os.environ.get('FLASK_ENV') == 'production':
+        # Check if the hostname starts with 'www.futureaccountants.com.au'
+        host = request.host
+        if host.startswith('www.futureaccountants.com.au'):
+            # Create the new URL with the non-www domain
+            url = request.url.replace('www.futureaccountants.com.au', 'futureaccountants.com.au', 1)
+            # Return a 301 permanent redirect to the non-www URL
+            return redirect(url, code=301)
+
 # Track page views before each request
 @app.before_request
 def track_page_view():
