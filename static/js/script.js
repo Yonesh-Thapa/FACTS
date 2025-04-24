@@ -250,17 +250,29 @@ function initCountdownTimer() {
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
             // Format the result with leading zeros for better formatting
-            const formattedTime = `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            const formattedDays = days.toString();
+            const formattedHours = hours.toString().padStart(2, '0');
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const formattedSeconds = seconds.toString().padStart(2, '0');
             
             // Create a more descriptive text for screen readers
             const ariaText = `${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds remaining until the Early Bird offer ends`;
             
-            // Update all countdown elements with accessible markup
+            // Update all countdown elements
             validElements.forEach(element => {
-                // Update with accessible structure
-                element.innerHTML = formattedTime;
+                // Check if element exists
+                if (!element) return;
+                
+                // Use fixed-width HTML for smoother updates
+                const countdownHTML = `<span class="countdown-timer"><span class="countdown-days">${formattedDays}</span>d <span class="countdown-hours">${formattedHours}</span>h <span class="countdown-minutes">${formattedMinutes}</span>m <span class="countdown-seconds">${formattedSeconds}</span>s</span>`;
+                
+                // Only update if content is different to reduce DOM operations
+                if (element.innerHTML !== countdownHTML) {
+                    element.innerHTML = countdownHTML;
+                }
+                
                 // Add ARIA attributes for accessibility
-                element.setAttribute('aria-live', 'polite');
+                element.setAttribute('aria-live', 'off'); // Changed to 'off' to prevent excessive announcements
                 element.setAttribute('aria-atomic', 'true');
                 element.setAttribute('role', 'timer');
                 element.setAttribute('aria-label', ariaText);
