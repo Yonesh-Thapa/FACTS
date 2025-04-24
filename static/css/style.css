@@ -1722,7 +1722,7 @@ hr {
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.05em;
     font-weight: bold;
-    color: inherit !important; /* Prevent color changes */
+    display: inline-block;
 }
 
 /* Fixed-width containers for each time unit to prevent layout shifts */
@@ -1731,13 +1731,35 @@ hr {
 .countdown-minutes,
 .countdown-seconds {
     display: inline-block;
-    width: 1.5em; /* Fixed width for single digits */
     text-align: center;
 }
 
+/* Fixed width for hours, minutes, seconds (always 2 digits) */
+.countdown-hours,
+.countdown-minutes,
+.countdown-seconds {
+    width: 1.5em;
+}
+
+/* Days can vary more in length */
 .countdown-days {
-    width: auto; /* Days can vary more in length */
+    width: auto;
     min-width: 1em;
+}
+
+/* Early Bird Offer Ends In... on hero section - white text */
+.hero-section .countdown-timer,
+.hero-section .countdown-timer span {
+    color: white !important;
+    font-weight: bold;
+}
+
+/* Blue timer on other sections */
+.early-bird-section .countdown-timer,
+.early-bird-section .countdown-timer span {
+    color: var(--primary-color) !important;
+    font-weight: bold;
+    font-size: 1.5rem;
 }
 
 .volume-toggle, .play-pause-btn {

@@ -64,8 +64,11 @@
                     
                     <div class="countdown-container mb-4">
                         <h4>Offer Ends In:</h4>
-                        <div id="pricing-countdown-timer" class="countdown-timer">
-                            Loading countdown...
+                        <div id="pricing-countdown-timer" class="countdown-timer" role="timer" aria-live="off">
+                            <span class="countdown-days">0</span>d 
+                            <span class="countdown-hours">00</span>h 
+                            <span class="countdown-minutes">00</span>m 
+                            <span class="countdown-seconds">00</span>s
                         </div>
                     </div>
                 </div>
@@ -257,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const timeRemaining = deadline - now;
             
             if (timeRemaining < 0) {
-                countdownElement.innerHTML = 'Offer has expired';
+                countdownElement.innerHTML = '<span class="countdown-expired">Offer has expired</span>';
                 return;
             }
             
@@ -267,8 +270,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Display the result
-            countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            // Format with leading zeros
+            const formattedDays = days.toString();
+            const formattedHours = hours.toString().padStart(2, '0');
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const formattedSeconds = seconds.toString().padStart(2, '0');
+            
+            // Update timer elements
+            const daysEl = countdownElement.querySelector('.countdown-days');
+            const hoursEl = countdownElement.querySelector('.countdown-hours');
+            const minutesEl = countdownElement.querySelector('.countdown-minutes');
+            const secondsEl = countdownElement.querySelector('.countdown-seconds');
+            
+            if (daysEl) daysEl.textContent = formattedDays;
+            if (hoursEl) hoursEl.textContent = formattedHours;
+            if (minutesEl) minutesEl.textContent = formattedMinutes;
+            if (secondsEl) secondsEl.textContent = formattedSeconds;
         }
     }
 });
