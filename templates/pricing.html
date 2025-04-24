@@ -246,6 +246,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set the deadline date
         const deadline = new Date('April 30, 2025 23:59:59').getTime();
         
+        // Set up cache to track previous values
+        let previousValue = '';
+        
+        // Set ARIA attributes once (not on every update)
+        countdownElement.setAttribute('aria-live', 'off');
+        countdownElement.setAttribute('aria-atomic', 'true');
+        countdownElement.setAttribute('role', 'timer');
+        
         // Update immediately
         updateTimer();
         
@@ -256,8 +264,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const now = new Date().getTime();
             const timeRemaining = deadline - now;
             
+            // Handle expired offer
             if (timeRemaining < 0) {
-                countdownElement.innerHTML = 'Offer has expired';
+                const expiredText = 'Offer has expired';
+                // Only update if content has changed
+                if (countdownElement.textContent !== expiredText) {
+                    countdownElement.textContent = expiredText;
+                    countdownElement.setAttribute('aria-label', 'The Early Bird offer has expired');
+                }
                 return;
             }
             
@@ -267,8 +281,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
-            // Display the result
-            countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            // Format the time display
+            const displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            
+            // Only update DOM if the content has changed
+            if (previousValue !== displayText) {
+                countdownElement.textContent = displayText;
+                previousValue = displayText;
+                
+                // Update ARIA label occasionally to reduce screen reader noise
+                if (seconds % 15 === 0) {
+                    const ariaText = `${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds remaining until the Early Bird offer ends`;
+                    countdownElement.setAttribute('aria-label', ariaText);
+                }
+            }
         }
     }
 });
