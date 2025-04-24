@@ -250,17 +250,29 @@ function initCountdownTimer() {
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             
             // Format the result with leading zeros for better formatting
-            const formattedTime = `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            const formattedDays = days.toString();
+            const formattedHours = hours.toString().padStart(2, '0');
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const formattedSeconds = seconds.toString().padStart(2, '0');
             
             // Create a more descriptive text for screen readers
             const ariaText = `${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds remaining until the Early Bird offer ends`;
             
-            // Update all countdown elements with accessible markup
+            // Update all countdown elements
             validElements.forEach(element => {
-                // Update with accessible structure
-                element.innerHTML = formattedTime;
+                // Check if element exists
+                if (!element) return;
+                
+                // Use fixed-width HTML for smoother updates
+                const countdownHTML = `<span class="countdown-timer"><span class="countdown-days">${formattedDays}</span>d <span class="countdown-hours">${formattedHours}</span>h <span class="countdown-minutes">${formattedMinutes}</span>m <span class="countdown-seconds">${formattedSeconds}</span>s</span>`;
+                
+                // Only update if content is different to reduce DOM operations
+                if (element.innerHTML !== countdownHTML) {
+                    element.innerHTML = countdownHTML;
+                }
+                
                 // Add ARIA attributes for accessibility
-                element.setAttribute('aria-live', 'polite');
+                element.setAttribute('aria-live', 'off'); // Changed to 'off' to prevent excessive announcements
                 element.setAttribute('aria-atomic', 'true');
                 element.setAttribute('role', 'timer');
                 element.setAttribute('aria-label', ariaText);
@@ -360,6 +372,20 @@ function initVideoAutoplay() {
     console.log('Video element found:', introVideo);
     console.log('Video source:', introVideo.querySelector('source')?.src);
     
+    // Add a dynamic timestamp to the video sources to prevent caching issues
+    const sources = introVideo.querySelectorAll('source');
+    sources.forEach(source => {
+        // Get current source and add a timestamp if not already present
+        let currentSrc = source.getAttribute('src');
+        if (currentSrc.indexOf('?') === -1) {
+            // No query parameters, add timestamp
+            source.setAttribute('src', `${currentSrc}?v=${Date.now()}`);
+        } else if (currentSrc.indexOf('v=') === -1) {
+            // Has query parameters but no version, add timestamp
+            source.setAttribute('src', `${currentSrc}&v=${Date.now()}`);
+        }
+    });
+    
     // Make sure HTML attributes are set properly
     introVideo.muted = true; // Must start muted to autoplay in most browsers
     introVideo.setAttribute('playsinline', ''); // Required for iOS
@@ -388,84 +414,149 @@ function initVideoAutoplay() {
     const volumeToggle = document.getElementById('volume-toggle');
     const videoControls = document.querySelector('.video-controls');
     
-    // Create a large play button overlay if autoplay might not work
+    // Create a large play button overlay for better visibility
     const videoContainer = introVideo.closest('.responsive-video-wrapper');
     if (videoContainer) {
+        // Remove any existing play button (in case of multiple initializations)
+        const existingButton = videoContainer.querySelector('.large-play-button');
+        if (existingButton) {
+            existingButton.remove();
+        }
+        
         const largePlayButton = document.createElement('div');
         largePlayButton.className = 'large-play-button';
         largePlayButton.innerHTML = '<i class="fas fa-play"></i>';
         largePlayButton.setAttribute('aria-label', 'Play video');
+        largePlayButton.setAttribute('role', 'button');
+        largePlayButton.setAttribute('tabindex', '0');
         
         // Add the large play button to the container
         videoContainer.appendChild(largePlayButton);
         
         // Set up click handler for the large play button
         largePlayButton.addEventListener('click', function() {
-            introVideo.play()
-                .then(() => {
-                    this.style.display = 'none';
-                    if (videoControls) videoControls.style.opacity = '0.6';
-                })
-                .catch(e => console.error('Play failed:', e));
+            // Force reload the video element before playing
+            introVideo.load();
+            
+            setTimeout(() => {
+                introVideo.play()
+                    .then(() => {
+                        console.log('Video playing from large button click');
+                        this.style.display = 'none';
+                        if (videoControls) videoControls.style.opacity = '0.6';
+                    })
+                    .catch(e => {
+                        console.error('Play failed from button click:', e);
+                        // Try once more with a user interaction event
+                        document.addEventListener('click', function playVideoOnce() {
+                            introVideo.play().catch(err => console.error('Final play attempt failed:', err));
+                            document.removeEventListener('click', playVideoOnce);
+                        }, { once: true });
+                    });
+            }, 50);
+        });
+        
+        // Also handle keyboard accessibility
+        largePlayButton.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
         });
     }
     
     // Add styling for the large play button
-    const style = document.createElement('style');
-    style.textContent = `
-        .large-play-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 122, 204, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            font-size: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 10;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .large-play-button:hover {
-            background-color: rgba(0, 122, 204, 1);
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-    `;
-    document.head.appendChild(style);
+    const styleId = 'video-controls-style';
+    if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .large-play-button {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 122, 204, 0.8);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 10;
+                transition: background-color 0.3s, transform 0.3s;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            }
+            .large-play-button:hover, .large-play-button:focus {
+                background-color: rgba(0, 122, 204, 1);
+                transform: translate(-50%, -50%) scale(1.1);
+                outline: none;
+            }
+            @media (max-width: 767px) {
+                .large-play-button {
+                    width: 60px;
+                    height: 60px;
+                    font-size: 24px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
     
-    // Force load the video
+    // Force reload the video
     introVideo.load();
     
-    // Try to play immediately (muted)
+    // Multiple approaches to ensure autoplay works across browsers
+    
+    // Approach 1: Standard autoplay
     const playPromise = introVideo.play();
     
     if (playPromise !== undefined) {
         playPromise
             .then(() => {
-                console.log('Video playing successfully (muted)');
+                console.log('Video playing successfully (standard autoplay)');
                 // Hide the large play button if autoplay works
                 const largePlayButton = document.querySelector('.large-play-button');
                 if (largePlayButton) largePlayButton.style.display = 'none';
             })
             .catch(error => {
-                console.error('Error playing video:', error);
-                // Make sure video controls are visible if autoplay fails
-                if (videoControls) videoControls.style.opacity = '1';
+                console.warn('Standard autoplay failed:', error);
                 
-                // Keep the large play button visible
-                const largePlayButton = document.querySelector('.large-play-button');
-                if (largePlayButton) largePlayButton.style.display = 'flex';
+                // Approach 2: Try playing again after a short delay
+                setTimeout(() => {
+                    introVideo.play()
+                        .then(() => {
+                            console.log('Video playing successfully (delayed autoplay)');
+                            const largePlayButton = document.querySelector('.large-play-button');
+                            if (largePlayButton) largePlayButton.style.display = 'none';
+                        })
+                        .catch(error2 => {
+                            console.warn('Delayed autoplay failed:', error2);
+                            // Make sure video controls are visible if autoplay fails
+                            if (videoControls) videoControls.style.opacity = '1';
+                            // Keep the large play button visible
+                            const largePlayButton = document.querySelector('.large-play-button');
+                            if (largePlayButton) largePlayButton.style.display = 'flex';
+                            
+                            // Approach 3: Use a browser interaction hack
+                            document.addEventListener('mousemove', function playVideoOnce() {
+                                if (introVideo.paused) {
+                                    introVideo.play().catch(e => console.error('Mouse interaction play failed:', e));
+                                }
+                                document.removeEventListener('mousemove', playVideoOnce);
+                            }, { once: true });
+                        });
+                }, 500);
             });
     }
     
     // Listen for video play and pause events to update button state
     introVideo.addEventListener('play', function() {
+        console.log('Video play event fired');
         const largePlayButton = document.querySelector('.large-play-button');
         if (largePlayButton) largePlayButton.style.display = 'none';
         
@@ -476,6 +567,7 @@ function initVideoAutoplay() {
     });
     
     introVideo.addEventListener('pause', function() {
+        console.log('Video pause event fired');
         const largePlayButton = document.querySelector('.large-play-button');
         if (largePlayButton) largePlayButton.style.display = 'flex';
         
@@ -485,14 +577,60 @@ function initVideoAutoplay() {
         }
     });
     
-    // Explicitly trigger a click event after a short delay to work around autoplay restrictions
-    setTimeout(() => {
-        // If video is not playing, try to simulate a user click
-        if (introVideo.paused) {
-            const largePlayButton = document.querySelector('.large-play-button');
-            if (largePlayButton) {
-                largePlayButton.click();
+    // Set up play/pause button functionality if it exists
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', function() {
+            if (introVideo.paused) {
+                introVideo.play()
+                    .then(() => console.log('Video played from control button'))
+                    .catch(e => console.error('Play from control button failed:', e));
+            } else {
+                introVideo.pause();
             }
+        });
+    }
+    
+    // Set up volume toggle functionality if it exists
+    if (volumeToggle) {
+        volumeToggle.addEventListener('click', function() {
+            introVideo.muted = !introVideo.muted;
+            if (introVideo.muted) {
+                volumeToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                volumeToggle.setAttribute('aria-label', 'Unmute video');
+            } else {
+                volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                volumeToggle.setAttribute('aria-label', 'Mute video');
+            }
+        });
+    }
+    
+    // Fallback: Try to start playback after page has been visible for a while
+    setTimeout(() => {
+        if (introVideo.paused) {
+            console.log('Final attempt to autoplay after timeout');
+            introVideo.play().catch(e => {
+                console.warn('Final autoplay attempt failed:', e);
+                // At this point we need user interaction, so make sure the play button is visible
+                const largePlayButton = document.querySelector('.large-play-button');
+                if (largePlayButton) {
+                    largePlayButton.style.display = 'flex';
+                    // Add a pulsing animation to draw attention
+                    largePlayButton.style.animation = 'pulse 2s infinite';
+                    // Add the keyframe animation if not added
+                    if (!document.getElementById('pulse-animation')) {
+                        const pulseStyle = document.createElement('style');
+                        pulseStyle.id = 'pulse-animation';
+                        pulseStyle.textContent = `
+                            @keyframes pulse {
+                                0% { transform: translate(-50%, -50%) scale(1); }
+                                50% { transform: translate(-50%, -50%) scale(1.1); }
+                                100% { transform: translate(-50%, -50%) scale(1); }
+                            }
+                        `;
+                        document.head.appendChild(pulseStyle);
+                    }
+                }
+            });
         }
-    }, 1000);
+    }, 2000);
 }
