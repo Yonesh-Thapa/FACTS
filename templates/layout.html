@@ -30,17 +30,16 @@
     <meta property="og:url" content="{{ request.url }}">
     <meta property="og:title" content="{% block og_title %}F.A.C.T.S - Future Accountants Coaching & Training Services{% endblock %}">
     <meta property="og:description" content="{% block og_description %}F.A.C.T.S helps accounting graduates gain job-ready skills with Xero, MYOB, and career preparation. Join our 8-week program and bridge the gap from graduation to employment.{% endblock %}">
-    <meta property="og:image" content="{{ url_for('static', filename='img/og-image.svg', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='images/logo/future_accountants_logo.png', _external=True) }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/svg+xml">
     <meta property="og:site_name" content="F.A.C.T.S">
     
     <!-- Twitter Card data (falls back to Open Graph) -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{% block twitter_title %}F.A.C.T.S - Future Accountants Coaching & Training Services{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}F.A.C.T.S helps accounting graduates gain job-ready skills with Xero, MYOB, and career preparation. Join our 8-week program and bridge the gap from graduation to employment.{% endblock %}">
-    <meta name="twitter:image" content="{{ url_for('static', filename='img/og-image.svg', _external=True) }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/logo/future_accountants_logo.png', _external=True) }}">
     
     <title>{% block title %}F.A.C.T.S - Accounting Training Australia & Xero Training{% endblock %}</title>
     
@@ -68,7 +67,7 @@
       "name": "Future Accountants Coaching and Training Service",
       "url": "{{ request.url_root }}",
       "logo": "{{ url_for('static', filename='images/logo/future_accountants_logo.png', _external=True) }}",
-      "image": "{{ url_for('static', filename='img/og-image.svg', _external=True) }}",
+      "image": "{{ url_for('static', filename='images/logo/future_accountants_logo.png', _external=True) }}",
       "email": "fatrainingservice@gmail.com",
       "telephone": "+61449547715",
       "address": {
