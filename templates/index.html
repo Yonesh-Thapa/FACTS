@@ -37,59 +37,33 @@
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <h2 class="section-title text-center mb-4">Meet Your Mentor</h2>
                 <div class="section-divider mx-auto mb-4"></div>
-                <div class="video-container">
-                    <div class="responsive-video-wrapper">
-                        <video id="intro-video" loop playsinline muted autoplay preload="auto" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}" crossorigin="anonymous">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=6" type="video/mp4">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}?v=6" type="video/quicktime">
-                            <track kind="subtitles" label="English" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
-                            Your browser does not support the video tag.
-                        </video>
-                        <!-- Large play button that appears if autoplay fails -->
-                        <div id="large-play-button" class="large-play-button">
+                <div class="mentor-video-container">
+                    <video id="mentor-video" 
+                           playsinline 
+                           muted 
+                           loop
+                           autoplay
+                           preload="auto"
+                           class="mentor-video"
+                           poster="{{ url_for('static', filename='images/tutor.jpg') }}">
+                        <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=7" type="video/mp4">
+                        <track kind="subtitles" label="English" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="mentor-video-overlay">
+                        <button id="mentor-play-btn" class="mentor-play-btn" aria-label="Play video">
                             <i class="fas fa-play"></i>
-                        </div>
-                        <div class="video-controls">
-                            <button id="cc-toggle" class="cc-toggle" aria-label="Enable captions">
-                                <i class="fas fa-closed-captioning"></i>
-                            </button>
-                            <button id="volume-toggle" class="volume-toggle" aria-label="Unmute video">
-                                <i class="fas fa-volume-mute"></i>
-                            </button>
-                            <button id="play-pause-btn" class="play-pause-btn" aria-label="Pause video">
-                                <i class="fas fa-pause"></i>
-                            </button>
-                        </div>
+                        </button>
+                    </div>
+                    <div class="mentor-video-controls">
+                        <button id="mentor-caption-btn" class="mentor-control-btn" aria-label="Toggle captions">
+                            <i class="fas fa-closed-captioning"></i>
+                        </button>
+                        <button id="mentor-mute-btn" class="mentor-control-btn" aria-label="Unmute video">
+                            <i class="fas fa-volume-mute"></i>
+                        </button>
                     </div>
                 </div>
-                <script>
-                    // Setup CC toggle for video captions
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const video = document.getElementById('intro-video');
-                        const ccToggle = document.getElementById('cc-toggle');
-                        
-                        if (video && ccToggle) {
-                            // Get the text track and initially disable it
-                            const track = video.textTracks[0];
-                            if (track) {
-                                track.mode = 'hidden'; // Start with captions disabled
-                                
-                                // Handle CC toggle
-                                ccToggle.addEventListener('click', function() {
-                                    if (track.mode === 'showing') {
-                                        track.mode = 'hidden';
-                                        ccToggle.innerHTML = '<i class="fas fa-closed-captioning"></i>';
-                                        ccToggle.setAttribute('aria-label', 'Enable captions');
-                                    } else {
-                                        track.mode = 'showing';
-                                        ccToggle.innerHTML = '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>';
-                                        ccToggle.setAttribute('aria-label', 'Disable captions');
-                                    }
-                                });
-                            }
-                        }
-                    });
-                </script>
             </div>
             
             <!-- Why Choose F.A.C.T.S Column -->

@@ -372,201 +372,151 @@ function initButtonTracking() {
  * Ensure video autoplay with sound works across browsers
  */
 function initVideoAutoplay() {
-    console.log('Initializing video autoplay');
-    const introVideo = document.getElementById('intro-video');
-    if (!introVideo) {
-        console.log('No video element found with id "intro-video"');
+    console.log('Initializing mentor video');
+    
+    // Get the mentor video element
+    const mentorVideo = document.getElementById('mentor-video');
+    if (!mentorVideo) {
+        console.log('Mentor video element not found');
         return;
     }
     
-    console.log('Video element found:', introVideo);
-    console.log('Video source:', introVideo.querySelector('source')?.src);
+    // Get control elements
+    const playBtn = document.getElementById('mentor-play-btn');
+    const captionBtn = document.getElementById('mentor-caption-btn');
+    const muteBtn = document.getElementById('mentor-mute-btn');
     
-    // Define force play function
-    function forcePlay() {
-        console.log('Force playing video');
+    // Enable video autoplay with multiple approaches for cross-browser compatibility
+    function setupAutoplay() {
+        // Ensure video has all required attributes for autoplay
+        mentorVideo.muted = true;
+        mentorVideo.defaultMuted = true;
+        mentorVideo.setAttribute('muted', '');
+        mentorVideo.setAttribute('playsinline', '');
+        mentorVideo.setAttribute('autoplay', '');
         
-        // Ensure proper settings for autoplay
-        introVideo.muted = true;
-        introVideo.defaultMuted = true;
-        introVideo.setAttribute('muted', '');
-        introVideo.setAttribute('playsinline', '');
+        // Force reload the video
+        mentorVideo.load();
         
-        // Use both the autoplay attribute and the play() method
-        introVideo.setAttribute('autoplay', '');
-        
-        // Try playing with promise handling
-        setTimeout(() => {
-            const playPromise = introVideo.play();
+        // Try to play with promise handling
+        try {
+            const playPromise = mentorVideo.play();
+            
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
-                    console.log('Autoplay failed:', error);
-                    // Show large play button on error
-                    const largePlayButton = document.getElementById('large-play-button');
-                    if (largePlayButton) {
-                        largePlayButton.style.display = 'flex';
-                    }
+                    console.log('Autoplay failed, will try again on user interaction:', error);
                 });
             }
-        }, 200);
-    }
-    
-    // Try to play immediately 
-    forcePlay();
-    
-    // Retry on user interaction - this should work in even the strictest browsers
-    document.addEventListener('click', function _autoplayHandler() {
-        forcePlay();
-        // Remove the click handler after one try
-        document.removeEventListener('click', _autoplayHandler);
-    }, { once: true });
-    
-    // Set up large play button if it exists
-    const largePlayButton = document.getElementById('large-play-button');
-    if (largePlayButton) {
-        largePlayButton.addEventListener('click', function() {
-            forcePlay();
-            largePlayButton.style.display = 'none';
-        });
-    }
-    
-    // Handle mobile device screen sizes
-    function updateVideoObjectFit() {
-        // In portrait orientation or on small screens, use cover instead of contain
-        if (window.innerWidth < 768 || window.innerHeight > window.innerWidth) {
-            introVideo.style.objectFit = 'cover';
-        } else {
-            introVideo.style.objectFit = 'contain';
+        } catch (e) {
+            console.log('Error during play attempt:', e);
         }
     }
     
-    // Apply initial object-fit setting
-    updateVideoObjectFit();
+    // Initialize video
+    setupAutoplay();
     
-    // Update on resize and orientation change
-    window.addEventListener('resize', updateVideoObjectFit);
-    window.addEventListener('orientationchange', updateVideoObjectFit);
-    
-    // Get the video controls elements
-    const playPauseBtn = document.getElementById('play-pause-btn');
-    const volumeToggle = document.getElementById('volume-toggle');
-    const videoControls = document.querySelector('.video-controls');
-    
-    // Handle volume toggle click events
-    if (volumeToggle) {
-        volumeToggle.addEventListener('click', function() {
-            introVideo.muted = !introVideo.muted;
-            if (introVideo.muted) {
-                volumeToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                volumeToggle.setAttribute('aria-label', 'Unmute video');
+    // Set up event listeners
+    if (playBtn) {
+        playBtn.addEventListener('click', function() {
+            if (mentorVideo.paused) {
+                mentorVideo.play();
             } else {
-                volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
-                volumeToggle.setAttribute('aria-label', 'Mute video');
+                mentorVideo.pause();
             }
         });
     }
     
-    // Handle play/pause button click events
-    if (playPauseBtn) {
-        playPauseBtn.addEventListener('click', function() {
-            if (introVideo.paused) {
-                introVideo.play()
-                    .then(() => {
-                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        playPauseBtn.setAttribute('aria-label', 'Pause video');
-                    })
-                    .catch(e => console.error('Play failed:', e));
-            } else {
-                introVideo.pause();
-                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                playPauseBtn.setAttribute('aria-label', 'Play video');
-            }
-        });
-    }
-    
-    // Add styling for the large play button
-    const style = document.createElement('style');
-    style.textContent = `
-        .large-play-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 122, 204, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            font-size: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 10;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .large-play-button:hover {
-            background-color: rgba(0, 122, 204, 1);
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Force load the video
-    introVideo.load();
-    
-    // Try to play immediately (muted)
-    const playPromise = introVideo.play();
-    
-    if (playPromise !== undefined) {
-        playPromise
-            .then(() => {
-                console.log('Video playing successfully (muted)');
-                // Hide the large play button if autoplay works
-                const largePlayButton = document.querySelector('.large-play-button');
-                if (largePlayButton) largePlayButton.style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error playing video:', error);
-                // Make sure video controls are visible if autoplay fails
-                if (videoControls) videoControls.style.opacity = '1';
+    if (captionBtn) {
+        captionBtn.addEventListener('click', function() {
+            // Toggle caption display
+            if (mentorVideo.textTracks && mentorVideo.textTracks.length > 0) {
+                const track = mentorVideo.textTracks[0];
+                track.mode = (track.mode === 'showing') ? 'hidden' : 'showing';
                 
-                // Keep the large play button visible
-                const largePlayButton = document.querySelector('.large-play-button');
-                if (largePlayButton) largePlayButton.style.display = 'flex';
-            });
+                // Update button appearance
+                if (track.mode === 'showing') {
+                    captionBtn.innerHTML = '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>';
+                    captionBtn.setAttribute('aria-label', 'Hide captions');
+                } else {
+                    captionBtn.innerHTML = '<i class="fas fa-closed-captioning"></i>';
+                    captionBtn.setAttribute('aria-label', 'Show captions');
+                }
+            }
+        });
     }
     
-    // Listen for video play and pause events to update button state
-    introVideo.addEventListener('play', function() {
-        const largePlayButton = document.querySelector('.large-play-button');
-        if (largePlayButton) largePlayButton.style.display = 'none';
-        
-        if (playPauseBtn) {
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            playPauseBtn.setAttribute('aria-label', 'Pause video');
-        }
-    });
-    
-    introVideo.addEventListener('pause', function() {
-        const largePlayButton = document.querySelector('.large-play-button');
-        if (largePlayButton) largePlayButton.style.display = 'flex';
-        
-        if (playPauseBtn) {
-            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            playPauseBtn.setAttribute('aria-label', 'Play video');
-        }
-    });
-    
-    // Explicitly trigger a click event after a short delay to work around autoplay restrictions
-    setTimeout(() => {
-        // If video is not playing, try to simulate a user click
-        if (introVideo.paused) {
-            const largePlayButton = document.querySelector('.large-play-button');
-            if (largePlayButton) {
-                largePlayButton.click();
+    if (muteBtn) {
+        muteBtn.addEventListener('click', function() {
+            // Toggle mute state
+            mentorVideo.muted = !mentorVideo.muted;
+            
+            // Update button appearance
+            if (mentorVideo.muted) {
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                muteBtn.setAttribute('aria-label', 'Unmute video');
+            } else {
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                muteBtn.setAttribute('aria-label', 'Mute video');
             }
+        });
+    }
+    
+    // Handle responsive behavior
+    function updateVideoFit() {
+        // Use "cover" on mobile, "contain" on desktop
+        if (window.innerWidth < 768) {
+            mentorVideo.style.objectFit = 'cover';
+        } else {
+            mentorVideo.style.objectFit = 'cover'; // Still using cover for consistency
         }
-    }, 1000);
+    }
+    
+    // Apply initial sizing
+    updateVideoFit();
+    
+    // Update on window resize
+    window.addEventListener('resize', updateVideoFit);
+    window.addEventListener('orientationchange', updateVideoFit);
+    
+    // Handle click anywhere on document to trigger play on browsers with strict autoplay policies
+    const documentClickHandler = function() {
+        if (mentorVideo.paused) {
+            mentorVideo.play().catch(err => {
+                console.log('Play attempt after user interaction failed:', err);
+            });
+        }
+        // Remove this handler after first use
+        document.removeEventListener('click', documentClickHandler);
+    };
+    
+    // Add the global click handler
+    document.addEventListener('click', documentClickHandler);
+    
+    // Listen for play/pause events to update UI
+    mentorVideo.addEventListener('play', function() {
+        if (playBtn) {
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            playBtn.setAttribute('aria-label', 'Pause video');
+        }
+    });
+    
+    mentorVideo.addEventListener('pause', function() {
+        if (playBtn) {
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            playBtn.setAttribute('aria-label', 'Play video');
+        }
+    });
+    
+    // Initialize captions as hidden by default
+    if (mentorVideo.textTracks && mentorVideo.textTracks.length > 0) {
+        mentorVideo.textTracks[0].mode = 'hidden';
+    }
+    
+    // For iOS compatibility - try playing on touchend
+    document.addEventListener('touchend', function iosTouchHandler() {
+        if (mentorVideo.paused) {
+            mentorVideo.play().catch(e => console.log('iOS touch play failed:', e));
+        }
+        document.removeEventListener('touchend', iosTouchHandler);
+    }, { once: true });
 }
