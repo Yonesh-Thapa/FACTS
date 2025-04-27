@@ -1641,75 +1641,73 @@ hr {
     border: none;
 }
 
-/* Video Component Styles */
-.video-wrapper {
+/* Video Container Styles */
+.video-container {
     position: relative;
     width: 100%;
     height: 0;
     padding-top: 56.25%; /* 16:9 aspect ratio */
-    border-radius: var(--border-radius);
+    border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     background-color: #000;
     margin-bottom: 20px;
 }
 
-.responsive-video {
+.intro-video {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    z-index: 1;
 }
 
-/* Play button overlay */
-.play-button-overlay {
+/* Large play button in the center */
+.large-play-button {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 2;
-}
-
-.big-play-button {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 80px;
     height: 80px;
     border-radius: 50%;
     background-color: rgba(0, 122, 204, 0.9);
     color: white;
-    border: none;
+    border: 3px solid white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 32px;
     cursor: pointer;
-    border: 3px solid white;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 3;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-.big-play-button:hover {
-    transform: scale(1.1);
-    background-color: var(--primary-color);
+.large-play-button:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    background-color: rgba(0, 122, 204, 1);
 }
 
-/* Simple video controls */
-.simple-video-controls {
+/* Video control buttons */
+.video-controls {
     position: absolute;
     bottom: 15px;
     right: 15px;
     display: flex;
     gap: 10px;
-    z-index: 3;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.control-button {
+.video-container:hover .video-controls {
+    opacity: 1;
+}
+
+.video-control-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1724,20 +1722,24 @@ hr {
     transition: all 0.2s ease;
 }
 
-.control-button:hover {
-    background-color: var(--primary-color);
+.video-control-btn:hover {
+    background-color: rgba(0, 122, 204, 1);
     transform: scale(1.1);
 }
 
-/* Media queries for responsive design */
+/* Responsive adjustments */
 @media (max-width: 767.98px) {
-    .big-play-button {
+    .video-container {
+        margin-bottom: 15px;
+    }
+    
+    .large-play-button {
         width: 60px;
         height: 60px;
         font-size: 24px;
     }
     
-    .control-button {
+    .video-control-btn {
         width: 36px;
         height: 36px;
         font-size: 14px;
@@ -1745,13 +1747,13 @@ hr {
 }
 
 @media (max-width: 480px) {
-    .big-play-button {
+    .large-play-button {
         width: 50px;
         height: 50px;
         font-size: 20px;
     }
     
-    .control-button {
+    .video-control-btn {
         width: 32px;
         height: 32px;
         font-size: 12px;

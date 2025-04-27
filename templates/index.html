@@ -37,141 +37,32 @@
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <h2 class="section-title text-center mb-4">Meet Your Mentor</h2>
                 <div class="section-divider mx-auto mb-4"></div>
-                <div class="video-wrapper">
-                    <!-- Video with poster image -->
-                    <video id="mentor-video" class="responsive-video" playsinline muted loop 
-                        poster="{{ url_for('static', filename='images/tutor.jpg') }}">
-                        <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=8" type="video/mp4">
+                <div class="video-container">
+                    <video id="intro-video" class="intro-video" muted autoplay playsinline loop
+                           poster="{{ url_for('static', filename='images/tutor.jpg') }}">
+                        <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=9" type="video/mp4">
                         <track kind="subtitles" label="English" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
                         Your browser does not support the video tag.
                     </video>
                     
-                    <!-- Big play button overlay -->
-                    <div class="play-button-overlay">
-                        <button id="big-play-button" class="big-play-button">
-                            <i class="fas fa-play"></i>
-                        </button>
+                    <!-- Play button overlay -->
+                    <div id="large-play-button" class="large-play-button">
+                        <i class="fas fa-play"></i>
                     </div>
                     
-                    <!-- Simple controls at bottom -->
-                    <div class="simple-video-controls">
-                        <button id="play-pause-button" class="control-button" aria-label="Play">
-                            <i class="fas fa-play"></i>
+                    <!-- Video controls -->
+                    <div class="video-controls">
+                        <button id="play-pause-btn" class="video-control-btn" aria-label="Pause video">
+                            <i class="fas fa-pause"></i>
                         </button>
-                        <button id="mute-button" class="control-button" aria-label="Unmute">
+                        <button id="volume-toggle" class="video-control-btn" aria-label="Unmute video">
                             <i class="fas fa-volume-mute"></i>
                         </button>
-                        <button id="cc-button" class="control-button" aria-label="Enable captions">
+                        <button id="caption-toggle" class="video-control-btn" aria-label="Show captions">
                             <i class="fas fa-closed-captioning"></i>
                         </button>
                     </div>
                 </div>
-                
-                <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const video = document.getElementById('mentor-video');
-                    const bigPlayBtn = document.getElementById('big-play-button');
-                    const playBtn = document.getElementById('play-pause-button');
-                    const muteBtn = document.getElementById('mute-button');
-                    const ccBtn = document.getElementById('cc-button');
-                    const overlay = document.querySelector('.play-button-overlay');
-                    
-                    // Function to start playing video
-                    function playVideo() {
-                        // Ensure video is muted for autoplay
-                        video.muted = true;
-                        
-                        // Try to play
-                        video.play().then(() => {
-                            // Success - hide the play button
-                            overlay.style.display = 'none';
-                            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                            playBtn.setAttribute('aria-label', 'Pause');
-                        }).catch(e => {
-                            // Autoplay failed - keep overlay visible
-                            overlay.style.display = 'flex';
-                            console.log("Autoplay prevented:", e);
-                        });
-                    }
-                    
-                    // Try autoplay immediately
-                    playVideo();
-                    
-                    // Big play button click
-                    bigPlayBtn.addEventListener('click', function() {
-                        playVideo();
-                    });
-                    
-                    // Play/pause button
-                    playBtn.addEventListener('click', function() {
-                        if (video.paused) {
-                            video.play();
-                            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                            playBtn.setAttribute('aria-label', 'Pause');
-                            overlay.style.display = 'none';
-                        } else {
-                            video.pause();
-                            playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                            playBtn.setAttribute('aria-label', 'Play');
-                            overlay.style.display = 'flex';
-                        }
-                    });
-                    
-                    // Mute/unmute button
-                    muteBtn.addEventListener('click', function() {
-                        video.muted = !video.muted;
-                        if (video.muted) {
-                            muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                            muteBtn.setAttribute('aria-label', 'Unmute');
-                        } else {
-                            muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                            muteBtn.setAttribute('aria-label', 'Mute');
-                        }
-                    });
-                    
-                    // Captions toggle
-                    ccBtn.addEventListener('click', function() {
-                        const track = video.textTracks[0];
-                        if (track) {
-                            track.mode = (track.mode === 'showing') ? 'hidden' : 'showing';
-                            if (track.mode === 'showing') {
-                                ccBtn.innerHTML = '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>';
-                                ccBtn.setAttribute('aria-label', 'Disable captions');
-                            } else {
-                                ccBtn.innerHTML = '<i class="fas fa-closed-captioning"></i>';
-                                ccBtn.setAttribute('aria-label', 'Enable captions');
-                            }
-                        }
-                    });
-                    
-                    // Update play/pause button when video state changes
-                    video.addEventListener('play', function() {
-                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        playBtn.setAttribute('aria-label', 'Pause');
-                        overlay.style.display = 'none';
-                    });
-                    
-                    video.addEventListener('pause', function() {
-                        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        playBtn.setAttribute('aria-label', 'Play');
-                        overlay.style.display = 'flex';
-                    });
-                    
-                    // Add touchend handler for iOS compatibility
-                    document.addEventListener('touchend', function() {
-                        if (video.paused) {
-                            playVideo();
-                        }
-                    }, { once: true });
-                    
-                    // Click anywhere on document to start playing (for browsers with strict autoplay)
-                    document.addEventListener('click', function() {
-                        if (video.paused) {
-                            playVideo();
-                        }
-                    }, { once: true });
-                });
-                </script>
             </div>
             
             <!-- Why Choose F.A.C.T.S Column -->

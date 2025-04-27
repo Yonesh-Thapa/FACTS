@@ -372,150 +372,156 @@ function initButtonTracking() {
  * Ensure video autoplay with sound works across browsers
  */
 function initVideoAutoplay() {
-    console.log('Initializing mentor video');
-    
-    // Get the mentor video element
-    const mentorVideo = document.getElementById('mentor-video');
-    if (!mentorVideo) {
-        console.log('Mentor video element not found');
+    console.log('Initializing video autoplay');
+    const introVideo = document.getElementById('intro-video');
+    if (!introVideo) {
+        console.log('No video element found with id "intro-video"');
         return;
     }
     
-    // Get control elements
-    const playBtn = document.getElementById('mentor-play-btn');
-    const captionBtn = document.getElementById('mentor-caption-btn');
-    const muteBtn = document.getElementById('mentor-mute-btn');
+    console.log('Video element found:', introVideo);
     
-    // Enable video autoplay with multiple approaches for cross-browser compatibility
-    function setupAutoplay() {
-        // Ensure video has all required attributes for autoplay
-        mentorVideo.muted = true;
-        mentorVideo.defaultMuted = true;
-        mentorVideo.setAttribute('muted', '');
-        mentorVideo.setAttribute('playsinline', '');
-        mentorVideo.setAttribute('autoplay', '');
+    // Define force play function
+    function forcePlay() {
+        console.log('Force playing video');
         
-        // Force reload the video
-        mentorVideo.load();
+        // Ensure proper settings for autoplay
+        introVideo.muted = true;
+        introVideo.defaultMuted = true;
+        introVideo.setAttribute('muted', '');
+        introVideo.setAttribute('playsinline', '');
+        introVideo.setAttribute('autoplay', '');
         
-        // Try to play with promise handling
-        try {
-            const playPromise = mentorVideo.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log('Autoplay failed, will try again on user interaction:', error);
-                });
-            }
-        } catch (e) {
-            console.log('Error during play attempt:', e);
-        }
-    }
-    
-    // Initialize video
-    setupAutoplay();
-    
-    // Set up event listeners
-    if (playBtn) {
-        playBtn.addEventListener('click', function() {
-            if (mentorVideo.paused) {
-                mentorVideo.play();
-            } else {
-                mentorVideo.pause();
-            }
-        });
-    }
-    
-    if (captionBtn) {
-        captionBtn.addEventListener('click', function() {
-            // Toggle caption display
-            if (mentorVideo.textTracks && mentorVideo.textTracks.length > 0) {
-                const track = mentorVideo.textTracks[0];
-                track.mode = (track.mode === 'showing') ? 'hidden' : 'showing';
-                
-                // Update button appearance
-                if (track.mode === 'showing') {
-                    captionBtn.innerHTML = '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>';
-                    captionBtn.setAttribute('aria-label', 'Hide captions');
-                } else {
-                    captionBtn.innerHTML = '<i class="fas fa-closed-captioning"></i>';
-                    captionBtn.setAttribute('aria-label', 'Show captions');
+        // Try playing with promise handling
+        const playPromise = introVideo.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Autoplay successful
+                console.log('Autoplay successful');
+                const largePlayButton = document.getElementById('large-play-button');
+                if (largePlayButton) {
+                    largePlayButton.style.display = 'none';
                 }
-            }
-        });
-    }
-    
-    if (muteBtn) {
-        muteBtn.addEventListener('click', function() {
-            // Toggle mute state
-            mentorVideo.muted = !mentorVideo.muted;
-            
-            // Update button appearance
-            if (mentorVideo.muted) {
-                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                muteBtn.setAttribute('aria-label', 'Unmute video');
-            } else {
-                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                muteBtn.setAttribute('aria-label', 'Mute video');
-            }
-        });
-    }
-    
-    // Handle responsive behavior
-    function updateVideoFit() {
-        // Use "cover" on mobile, "contain" on desktop
-        if (window.innerWidth < 768) {
-            mentorVideo.style.objectFit = 'cover';
-        } else {
-            mentorVideo.style.objectFit = 'cover'; // Still using cover for consistency
-        }
-    }
-    
-    // Apply initial sizing
-    updateVideoFit();
-    
-    // Update on window resize
-    window.addEventListener('resize', updateVideoFit);
-    window.addEventListener('orientationchange', updateVideoFit);
-    
-    // Handle click anywhere on document to trigger play on browsers with strict autoplay policies
-    const documentClickHandler = function() {
-        if (mentorVideo.paused) {
-            mentorVideo.play().catch(err => {
-                console.log('Play attempt after user interaction failed:', err);
+            }).catch(error => {
+                // Autoplay prevented by browser
+                console.log('Autoplay failed:', error);
+                console.error('Error playing video:', error);
+                
+                // Make sure the play button is visible
+                const largePlayButton = document.getElementById('large-play-button');
+                if (largePlayButton) {
+                    largePlayButton.style.display = 'flex';
+                }
             });
         }
-        // Remove this handler after first use
-        document.removeEventListener('click', documentClickHandler);
-    };
-    
-    // Add the global click handler
-    document.addEventListener('click', documentClickHandler);
-    
-    // Listen for play/pause events to update UI
-    mentorVideo.addEventListener('play', function() {
-        if (playBtn) {
-            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            playBtn.setAttribute('aria-label', 'Pause video');
-        }
-    });
-    
-    mentorVideo.addEventListener('pause', function() {
-        if (playBtn) {
-            playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            playBtn.setAttribute('aria-label', 'Play video');
-        }
-    });
-    
-    // Initialize captions as hidden by default
-    if (mentorVideo.textTracks && mentorVideo.textTracks.length > 0) {
-        mentorVideo.textTracks[0].mode = 'hidden';
     }
     
-    // For iOS compatibility - try playing on touchend
+    // Load and try to play immediately
+    introVideo.load();
+    forcePlay();
+    
+    // Get the control buttons
+    const largePlayButton = document.getElementById('large-play-button');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const volumeToggle = document.getElementById('volume-toggle');
+    const captionToggle = document.getElementById('caption-toggle');
+    
+    // Set up play button overlay
+    if (largePlayButton) {
+        largePlayButton.addEventListener('click', function() {
+            forcePlay();
+            largePlayButton.style.display = 'none';
+        });
+    }
+    
+    // Set up play/pause button
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', function() {
+            if (introVideo.paused) {
+                introVideo.play().then(() => {
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    playPauseBtn.setAttribute('aria-label', 'Pause video');
+                    if (largePlayButton) largePlayButton.style.display = 'none';
+                }).catch(e => console.error('Error playing video:', e));
+            } else {
+                introVideo.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playPauseBtn.setAttribute('aria-label', 'Play video');
+                if (largePlayButton) largePlayButton.style.display = 'flex';
+            }
+        });
+    }
+    
+    // Set up volume toggle
+    if (volumeToggle) {
+        volumeToggle.addEventListener('click', function() {
+            introVideo.muted = !introVideo.muted;
+            volumeToggle.innerHTML = introVideo.muted ? 
+                '<i class="fas fa-volume-mute"></i>' : 
+                '<i class="fas fa-volume-up"></i>';
+            volumeToggle.setAttribute('aria-label', 
+                introVideo.muted ? 'Unmute video' : 'Mute video');
+        });
+    }
+    
+    // Set up caption toggle
+    if (captionToggle && introVideo.textTracks && introVideo.textTracks.length > 0) {
+        const track = introVideo.textTracks[0];
+        track.mode = 'hidden'; // Start with captions off
+        
+        captionToggle.addEventListener('click', function() {
+            track.mode = (track.mode === 'showing') ? 'hidden' : 'showing';
+            captionToggle.innerHTML = track.mode === 'showing' ? 
+                '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>' : 
+                '<i class="fas fa-closed-captioning"></i>';
+            captionToggle.setAttribute('aria-label', 
+                track.mode === 'showing' ? 'Hide captions' : 'Show captions');
+        });
+    }
+    
+    // Update UI on video events
+    introVideo.addEventListener('play', function() {
+        if (playPauseBtn) {
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            playPauseBtn.setAttribute('aria-label', 'Pause video');
+        }
+        if (largePlayButton) largePlayButton.style.display = 'none';
+    });
+    
+    introVideo.addEventListener('pause', function() {
+        if (playPauseBtn) {
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            playPauseBtn.setAttribute('aria-label', 'Play video');
+        }
+        if (largePlayButton) largePlayButton.style.display = 'flex';
+    });
+    
+    // Handle responsive behavior
+    function updateVideoObjectFit() {
+        // Use cover for all screen sizes for consistent appearance
+        introVideo.style.objectFit = 'cover';
+    }
+    
+    // Apply the object-fit setting
+    updateVideoObjectFit();
+    
+    // Update on window resize and orientation change
+    window.addEventListener('resize', updateVideoObjectFit);
+    window.addEventListener('orientationchange', updateVideoObjectFit);
+    
+    // Try playing on any user interaction for browsers with strict autoplay policies
+    document.addEventListener('click', function userInteractionHandler() {
+        if (introVideo.paused) {
+            forcePlay();
+        }
+        // Remove this handler after first use
+        document.removeEventListener('click', userInteractionHandler);
+    }, { once: true });
+    
+    // For iOS compatibility specifically
     document.addEventListener('touchend', function iosTouchHandler() {
-        if (mentorVideo.paused) {
-            mentorVideo.play().catch(e => console.log('iOS touch play failed:', e));
+        if (introVideo.paused) {
+            forcePlay();
         }
         document.removeEventListener('touchend', iosTouchHandler);
     }, { once: true });
