@@ -405,21 +405,53 @@ def parse_referrer(referrer):
     except:
         return "unknown", None, None
 
-# WWW to non-WWW redirect (301 permanent redirect)
+# Domain handling middleware
 @app.before_request
-def redirect_www_to_non_www():
+def handle_domains():
     """
-    Redirect www.futureaccountants.com.au to futureaccountants.com.au
-    with a 301 permanent redirect for better SEO
+    Handle multiple domain scenarios:
+    1. For Replit deployments: Accept requests from the Replit domain
+    2. In production: Accept both www and non-www versions of the domain
+    3. Optionally: Standardize to one domain format (www or non-www) with redirect
     """
-    # Only apply in production environment
+    if request.method == 'OPTIONS':
+        # Skip for CORS preflight requests
+        return
+        
+    # Get the host from the request
+    host = request.host.lower()
+    
+    # Always allow Replit domains
+    if '.replit.app' in host or '.repl.co' in host:
+        return
+        
+    # Main domain handling logic
     if os.environ.get('FLASK_ENV') == 'production':
-        # Check if the hostname starts with 'www.futureaccountants.com.au'
-        host = request.host
-        if host.startswith('www.futureaccountants.com.au'):
-            # Create the new URL with the non-www domain
-            url = request.url.replace('www.futureaccountants.com.au', 'futureaccountants.com.au', 1)
-            # Return a 301 permanent redirect to the non-www URL
+        # Set your primary domain here
+        primary_domain = 'futureaccountants.com.au'
+        allowed_domains = [
+            primary_domain,
+            f'www.{primary_domain}'
+        ]
+        
+        # Skip for assets and API requests
+        if (request.path.startswith('/static/') or 
+            request.path == '/favicon.ico' or
+            request.path.startswith('/api/')):
+            return
+            
+        # Accept requests from all allowed domains
+        if host in allowed_domains:
+            # Allow both www and non-www versions to pass through
+            return
+            
+        # Handle unknown domains by redirecting to primary domain
+        if host not in allowed_domains:
+            # Create redirect URL using the primary domain
+            scheme = request.environ.get('HTTP_X_FORWARDED_PROTO', 'http')
+            url = f"{scheme}://{primary_domain}{request.path}"
+            if request.query_string:
+                url += f"?{request.query_string.decode('utf-8')}"
             return redirect(url, code=301)
 
 # Track page views before each request
