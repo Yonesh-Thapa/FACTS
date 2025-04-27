@@ -63,180 +63,32 @@
                     </div>
                 </div>
                 <script>
-                    // Ensure the video autoplays when the DOM is fully loaded
+                    // Setup CC toggle for video captions
                     document.addEventListener('DOMContentLoaded', function() {
-                        console.log('DOM fully loaded and parsed');
-                        setupVideoPlayer();
-                    });
-                    
-                    // Backup event listener in case DOMContentLoaded fires too early
-                    window.addEventListener('load', function() {
-                        console.log('Window loaded');
                         const video = document.getElementById('intro-video');
-                        if (video && (video.paused || !video.played.length)) {
-                            console.log('Video not playing after window load, trying again');
-                            setupVideoPlayer();
-                        }
-                    });
-                    
-                    function setupVideoPlayer() {
-                        console.log('Initializing video autoplay');
-                        const video = document.getElementById('intro-video');
-                        const volumeToggle = document.getElementById('volume-toggle');
-                        const playPauseBtn = document.getElementById('play-pause-btn');
                         const ccToggle = document.getElementById('cc-toggle');
                         
-                        if (!video || !volumeToggle || !playPauseBtn || !ccToggle) {
-                            console.log('Video elements not found');
-                            return;
-                        }
-                        
-                        console.log('Video element found:', video);
-                        console.log('Video source:', video.querySelector('source')?.src);
-                        
-                        // Force muted to ensure autoplay works on all browsers and devices
-                        video.muted = true;
-                        video.defaultMuted = true;
-                        video.setAttribute("muted", "");
-                        
-                        // Get the text track and initially disable it
-                        const track = video.textTracks[0];
-                        if (track) {
-                            track.mode = 'hidden'; // Start with captions disabled
-                        }
-                        
-                        // Handle CC toggle
-                        ccToggle.addEventListener('click', function() {
+                        if (video && ccToggle) {
+                            // Get the text track and initially disable it
+                            const track = video.textTracks[0];
                             if (track) {
-                                if (track.mode === 'showing') {
-                                    track.mode = 'hidden';
-                                    ccToggle.innerHTML = '<i class="fas fa-closed-captioning"></i>';
-                                    ccToggle.setAttribute('aria-label', 'Enable captions');
-                                } else {
-                                    track.mode = 'showing';
-                                    ccToggle.innerHTML = '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>';
-                                    ccToggle.setAttribute('aria-label', 'Disable captions');
-                                }
-                            }
-                        });
-                        
-                        // Handle volume toggle
-                        volumeToggle.addEventListener('click', function() {
-                            video.muted = !video.muted;
-                            if (video.muted) {
-                                volumeToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                                volumeToggle.setAttribute('aria-label', 'Unmute video');
-                            } else {
-                                volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
-                                volumeToggle.setAttribute('aria-label', 'Mute video');
-                            }
-                        });
-                        
-                        // Handle play/pause toggle
-                        playPauseBtn.addEventListener('click', function() {
-                            if (video.paused) {
-                                video.play()
-                                    .then(() => {
-                                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                                        playPauseBtn.setAttribute('aria-label', 'Pause video');
-                                    })
-                                    .catch(e => {
-                                        console.error('Play failed:', e);
-                                    });
-                            } else {
-                                video.pause();
-                                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                                playPauseBtn.setAttribute('aria-label', 'Play video');
-                            }
-                        });
-                        
-                        // Setup large play button
-                        const largePlayButton = document.getElementById('large-play-button');
-                        if (largePlayButton) {
-                            largePlayButton.addEventListener('click', function() {
-                                console.log('Large play button clicked');
-                                video.play()
-                                    .then(() => {
-                                        console.log('Play via large button successful');
-                                        this.style.display = 'none';
-                                    })
-                                    .catch(e => {
-                                        console.error('Play via large button failed:', e);
-                                    });
-                            });
-                        }
-                        
-                        // Update video pause/play event listeners to manage large play button
-                        video.addEventListener('pause', function() {
-                            if (largePlayButton) largePlayButton.style.display = 'flex';
-                            
-                            if (playPauseBtn) {
-                                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                                playPauseBtn.setAttribute('aria-label', 'Play video');
-                            }
-                        });
-                        
-                        video.addEventListener('play', function() {
-                            if (largePlayButton) largePlayButton.style.display = 'none';
-                            
-                            if (playPauseBtn) {
-                                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                                playPauseBtn.setAttribute('aria-label', 'Pause video');
-                            }
-                        });
-                        
-                        // Give a short delay to ensure all browser states are ready
-                        setTimeout(() => {
-                            // Add a click event to the document to trigger autoplay on first user interaction
-                            const autoplayHandler = function() {
-                                console.log('Attempting autoplay via user interaction');
-                                // Only try if the video is still paused
-                                if (video.paused) {
-                                    const playPromise = video.play();
-                                    
-                                    if (playPromise !== undefined) {
-                                        playPromise
-                                            .then(() => {
-                                                console.log('Autoplay via interaction successful');
-                                                if (largePlayButton) largePlayButton.style.display = 'none';
-                                            })
-                                            .catch(e => {
-                                                console.error('Autoplay via interaction failed:', e);
-                                                if (largePlayButton) largePlayButton.style.display = 'flex';
-                                            });
+                                track.mode = 'hidden'; // Start with captions disabled
+                                
+                                // Handle CC toggle
+                                ccToggle.addEventListener('click', function() {
+                                    if (track.mode === 'showing') {
+                                        track.mode = 'hidden';
+                                        ccToggle.innerHTML = '<i class="fas fa-closed-captioning"></i>';
+                                        ccToggle.setAttribute('aria-label', 'Enable captions');
+                                    } else {
+                                        track.mode = 'showing';
+                                        ccToggle.innerHTML = '<i class="fas fa-closed-captioning" style="opacity: 1;"></i>';
+                                        ccToggle.setAttribute('aria-label', 'Disable captions');
                                     }
-                                }
-                                // Remove this event listener after one use
-                                document.removeEventListener('click', autoplayHandler);
-                                document.removeEventListener('touchstart', autoplayHandler);
-                            };
-                            
-                            // Add listeners for both click and touch events
-                            document.addEventListener('click', autoplayHandler);
-                            document.addEventListener('touchstart', autoplayHandler);
-                            
-                            // Try to play the video with error handling - important for autoplay
-                            const playPromise = video.play();
-                            
-                            if (playPromise !== undefined) {
-                                playPromise
-                                    .then(() => {
-                                        console.log('Autoplay started successfully');
-                                        // If successful, remove the interaction handlers
-                                        document.removeEventListener('click', autoplayHandler);
-                                        document.removeEventListener('touchstart', autoplayHandler);
-                                        if (largePlayButton) largePlayButton.style.display = 'none';
-                                    })
-                                    .catch(e => {
-                                        console.log('Initial autoplay failed, user interaction needed:', e);
-                                        // Force controls to be visible if autoplay fails
-                                        document.querySelector('.video-controls').style.opacity = '1';
-                                        // Show the large play button
-                                        if (largePlayButton) largePlayButton.style.display = 'flex';
-                                    });
+                                });
                             }
-                        }, 300);
-                    }
+                        }
+                    });
                 </script>
             </div>
             
