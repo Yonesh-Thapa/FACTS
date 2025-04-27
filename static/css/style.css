@@ -1641,8 +1641,8 @@ hr {
     border: none;
 }
 
-/* Mentor Video Container */
-.mentor-video-container {
+/* Video Component Styles */
+.video-wrapper {
     position: relative;
     width: 100%;
     height: 0;
@@ -1651,21 +1651,20 @@ hr {
     overflow: hidden;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     background-color: #000;
+    margin-bottom: 20px;
 }
 
-/* Mentor Video Element */
-.mentor-video {
+.responsive-video {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: var(--border-radius);
 }
 
-/* Video Overlay for Play Button */
-.mentor-video-overlay {
+/* Play button overlay */
+.play-button-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -1674,55 +1673,43 @@ hr {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: 2;
 }
 
-.mentor-video-container:hover .mentor-video-overlay {
-    opacity: 1;
-}
-
-/* Large Play Button */
-.mentor-play-btn {
+.big-play-button {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background-color: rgba(0, 122, 204, 0.85);
+    background-color: rgba(0, 122, 204, 0.9);
     color: white;
-    border: 3px solid white;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30px;
+    font-size: 32px;
     cursor: pointer;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 3px solid white;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-.mentor-play-btn:hover {
-    background-color: rgba(0, 122, 204, 1);
+.big-play-button:hover {
     transform: scale(1.1);
+    background-color: var(--primary-color);
 }
 
-/* Video Controls */
-.mentor-video-controls {
+/* Simple video controls */
+.simple-video-controls {
     position: absolute;
     bottom: 15px;
     right: 15px;
     display: flex;
     gap: 10px;
     z-index: 3;
-    opacity: 0;
-    transition: opacity 0.3s ease;
 }
 
-.mentor-video-container:hover .mentor-video-controls {
-    opacity: 1;
-}
-
-.mentor-control-btn {
+.control-button {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1734,23 +1721,23 @@ hr {
     justify-content: center;
     font-size: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
-.mentor-control-btn:hover {
-    background-color: rgba(0, 122, 204, 1);
+.control-button:hover {
+    background-color: var(--primary-color);
     transform: scale(1.1);
 }
 
-/* Responsive Adjustments */
+/* Media queries for responsive design */
 @media (max-width: 767.98px) {
-    .mentor-play-btn {
+    .big-play-button {
         width: 60px;
         height: 60px;
         font-size: 24px;
     }
     
-    .mentor-control-btn {
+    .control-button {
         width: 36px;
         height: 36px;
         font-size: 14px;
@@ -1758,13 +1745,13 @@ hr {
 }
 
 @media (max-width: 480px) {
-    .mentor-play-btn {
+    .big-play-button {
         width: 50px;
         height: 50px;
         font-size: 20px;
     }
     
-    .mentor-control-btn {
+    .control-button {
         width: 32px;
         height: 32px;
         font-size: 12px;
