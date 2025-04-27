@@ -40,11 +40,15 @@
                 <div class="video-container">
                     <div class="responsive-video-wrapper">
                         <video id="intro-video" loop playsinline muted autoplay preload="auto" class="responsive-video" poster="{{ url_for('static', filename='images/tutor.jpg') }}" crossorigin="anonymous">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=5" type="video/mp4">
-                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}?v=5" type="video/quicktime">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=6" type="video/mp4">
+                            <source src="{{ url_for('static', filename='videos/intro_video.mov') }}?v=6" type="video/quicktime">
                             <track kind="subtitles" label="English" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
                             Your browser does not support the video tag.
                         </video>
+                        <!-- Large play button that appears if autoplay fails -->
+                        <div id="large-play-button" class="large-play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
                         <div class="video-controls">
                             <button id="cc-toggle" class="cc-toggle" aria-label="Enable captions">
                                 <i class="fas fa-closed-captioning"></i>
@@ -146,19 +150,71 @@
                             }
                         });
                         
-                        // Update button states when video state changes
+                        // Setup large play button
+                        const largePlayButton = document.getElementById('large-play-button');
+                        if (largePlayButton) {
+                            largePlayButton.addEventListener('click', function() {
+                                console.log('Large play button clicked');
+                                video.play()
+                                    .then(() => {
+                                        console.log('Play via large button successful');
+                                        this.style.display = 'none';
+                                    })
+                                    .catch(e => {
+                                        console.error('Play via large button failed:', e);
+                                    });
+                            });
+                        }
+                        
+                        // Update video pause/play event listeners to manage large play button
                         video.addEventListener('pause', function() {
-                            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                            playPauseBtn.setAttribute('aria-label', 'Play video');
+                            if (largePlayButton) largePlayButton.style.display = 'flex';
+                            
+                            if (playPauseBtn) {
+                                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                                playPauseBtn.setAttribute('aria-label', 'Play video');
+                            }
                         });
                         
                         video.addEventListener('play', function() {
-                            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                            playPauseBtn.setAttribute('aria-label', 'Pause video');
+                            if (largePlayButton) largePlayButton.style.display = 'none';
+                            
+                            if (playPauseBtn) {
+                                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                                playPauseBtn.setAttribute('aria-label', 'Pause video');
+                            }
                         });
                         
                         // Give a short delay to ensure all browser states are ready
                         setTimeout(() => {
+                            // Add a click event to the document to trigger autoplay on first user interaction
+                            const autoplayHandler = function() {
+                                console.log('Attempting autoplay via user interaction');
+                                // Only try if the video is still paused
+                                if (video.paused) {
+                                    const playPromise = video.play();
+                                    
+                                    if (playPromise !== undefined) {
+                                        playPromise
+                                            .then(() => {
+                                                console.log('Autoplay via interaction successful');
+                                                if (largePlayButton) largePlayButton.style.display = 'none';
+                                            })
+                                            .catch(e => {
+                                                console.error('Autoplay via interaction failed:', e);
+                                                if (largePlayButton) largePlayButton.style.display = 'flex';
+                                            });
+                                    }
+                                }
+                                // Remove this event listener after one use
+                                document.removeEventListener('click', autoplayHandler);
+                                document.removeEventListener('touchstart', autoplayHandler);
+                            };
+                            
+                            // Add listeners for both click and touch events
+                            document.addEventListener('click', autoplayHandler);
+                            document.addEventListener('touchstart', autoplayHandler);
+                            
                             // Try to play the video with error handling - important for autoplay
                             const playPromise = video.play();
                             
@@ -166,14 +222,20 @@
                                 playPromise
                                     .then(() => {
                                         console.log('Autoplay started successfully');
+                                        // If successful, remove the interaction handlers
+                                        document.removeEventListener('click', autoplayHandler);
+                                        document.removeEventListener('touchstart', autoplayHandler);
+                                        if (largePlayButton) largePlayButton.style.display = 'none';
                                     })
                                     .catch(e => {
                                         console.log('Initial autoplay failed, user interaction needed:', e);
                                         // Force controls to be visible if autoplay fails
                                         document.querySelector('.video-controls').style.opacity = '1';
+                                        // Show the large play button
+                                        if (largePlayButton) largePlayButton.style.display = 'flex';
                                     });
                             }
-                        }, 100);
+                        }, 300);
                     }
                 </script>
             </div>

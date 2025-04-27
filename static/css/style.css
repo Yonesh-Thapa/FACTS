@@ -1695,6 +1695,32 @@ hr {
     font-size: 16px;
 }
 
+/* Large play button overlay for browsers that block autoplay */
+.large-play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background-color: rgba(0, 122, 204, 0.8);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    display: none; /* Hidden by default, shown if autoplay fails */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    color: #fff;
+    font-size: 30px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.large-play-button:hover {
+    background-color: rgba(0, 122, 204, 1);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
 .volume-toggle:hover, .play-pause-btn:hover, .cc-toggle:hover {
     transform: scale(1.1);
     background-color: rgba(0, 122, 204, 1);
