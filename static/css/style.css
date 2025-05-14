@@ -1629,19 +1629,7 @@ hr {
     }
 }
 
-/* Video Container */
-.video-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-}
-
-.video-container iframe {
-    border: none;
-}
-
-/* Video Container Styles */
+/* Video Container Styles - Rebuilt for cross-platform compatibility */
 .video-container {
     position: relative;
     width: 100%;
@@ -1654,6 +1642,37 @@ hr {
     margin-bottom: 20px;
 }
 
+/* Video wrapper - helps manage stacking and positioning */
+.video-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Video poster image - shown until video plays */
+.video-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    transition: opacity 0.3s ease;
+}
+
+/* Hide poster when video is playing */
+.video-wrapper.playing .video-poster {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Video element styling */
 .intro-video {
     position: absolute;
     top: 0;
@@ -1662,10 +1681,11 @@ hr {
     height: 100%;
     object-fit: cover;
     z-index: 1;
+    background-color: #000;
 }
 
-/* Large play button in the center */
-.large-play-button {
+/* Play button styling - large button in center */
+.video-play-button {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1686,27 +1706,40 @@ hr {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-.large-play-button:hover {
+.video-play-button:hover {
     transform: translate(-50%, -50%) scale(1.1);
     background-color: rgba(0, 122, 204, 1);
 }
 
-/* Video control buttons */
+/* Hide play button when video is playing */
+.video-wrapper.playing .video-play-button {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Show play button when wrapper is hovered while playing */
+.video-wrapper.playing:hover .video-play-button {
+    opacity: 0.7;
+    pointer-events: auto;
+}
+
+/* Video controls container */
 .video-controls {
     position: absolute;
     bottom: 15px;
     right: 15px;
     display: flex;
     gap: 10px;
-    z-index: 2;
+    z-index: 4;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
-.video-container:hover .video-controls {
+.video-wrapper:hover .video-controls {
     opacity: 1;
 }
 
+/* Control buttons styling */
 .video-control-btn {
     width: 40px;
     height: 40px;
@@ -1720,11 +1753,17 @@ hr {
     font-size: 16px;
     cursor: pointer;
     transition: all 0.2s ease;
+    padding: 0;
 }
 
 .video-control-btn:hover {
     background-color: rgba(0, 122, 204, 1);
     transform: scale(1.1);
+}
+
+/* Active state for buttons */
+.video-control-btn.active {
+    background-color: #2ECC71;
 }
 
 /* Responsive adjustments */
@@ -1733,7 +1772,7 @@ hr {
         margin-bottom: 15px;
     }
     
-    .large-play-button {
+    .video-play-button {
         width: 60px;
         height: 60px;
         font-size: 24px;
@@ -1747,7 +1786,7 @@ hr {
 }
 
 @media (max-width: 480px) {
-    .large-play-button {
+    .video-play-button {
         width: 50px;
         height: 50px;
         font-size: 20px;
