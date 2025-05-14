@@ -1629,7 +1629,9 @@ hr {
     }
 }
 
-/* Video Container Styles - Rebuilt for cross-platform compatibility */
+/* Ultra-Compatible Cross-Platform Video Player Styles */
+
+/* Main container for the video player */
 .video-container {
     position: relative;
     width: 100%;
@@ -1637,43 +1639,82 @@ hr {
     padding-top: 56.25%; /* 16:9 aspect ratio */
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     background-color: #000;
     margin-bottom: 20px;
 }
 
-/* Video wrapper - helps manage stacking and positioning */
-.video-wrapper {
+/* The custom video player wrapper */
+.custom-video-player {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: #000;
 }
 
-/* Video poster image - shown until video plays */
-.video-poster {
+/* Video wrapper needed for proper positioning */
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Poster container and styling */
+.poster-container {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    z-index: 2;
+    z-index: 3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
     transition: opacity 0.3s ease;
 }
 
-/* Hide poster when video is playing */
-.video-wrapper.playing .video-poster {
+/* When the poster should be hidden */
+.poster-container.hidden {
     opacity: 0;
     pointer-events: none;
 }
 
-/* Video element styling */
-.intro-video {
+/* The poster image itself */
+.video-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Big play button in the middle of the poster */
+.play-icon-large {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(0, 122, 204, 0.9);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    border: 3px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.poster-container:hover .play-icon-large {
+    transform: scale(1.1);
+    background-color: rgba(0, 122, 204, 1);
+}
+
+/* The actual video element */
+.mentor-video {
     position: absolute;
     top: 0;
     left: 0;
@@ -1684,53 +1725,14 @@ hr {
     background-color: #000;
 }
 
-/* Play button styling - large button in center */
-.video-play-button {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-color: rgba(0, 122, 204, 0.9);
-    color: white;
-    border: 3px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    cursor: pointer;
-    z-index: 3;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-.video-play-button:hover {
-    transform: translate(-50%, -50%) scale(1.1);
-    background-color: rgba(0, 122, 204, 1);
-}
-
-/* Hide play button when video is playing */
-.video-wrapper.playing .video-play-button {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Show play button when wrapper is hovered while playing */
-.video-wrapper.playing:hover .video-play-button {
-    opacity: 0.7;
-    pointer-events: auto;
-}
-
-/* Video controls container */
+/* Controls container that appears on hover */
 .video-controls {
     position: absolute;
     bottom: 15px;
     right: 15px;
     display: flex;
     gap: 10px;
-    z-index: 4;
+    z-index: 5;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -1739,8 +1741,8 @@ hr {
     opacity: 1;
 }
 
-/* Control buttons styling */
-.video-control-btn {
+/* Individual control buttons */
+.control-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1756,13 +1758,13 @@ hr {
     padding: 0;
 }
 
-.video-control-btn:hover {
+.control-btn:hover {
     background-color: rgba(0, 122, 204, 1);
     transform: scale(1.1);
 }
 
 /* Active state for buttons */
-.video-control-btn.active {
+.control-btn.active {
     background-color: #2ECC71;
 }
 
@@ -1772,13 +1774,13 @@ hr {
         margin-bottom: 15px;
     }
     
-    .video-play-button {
+    .play-icon-large {
         width: 60px;
         height: 60px;
         font-size: 24px;
     }
     
-    .video-control-btn {
+    .control-btn {
         width: 36px;
         height: 36px;
         font-size: 14px;
@@ -1786,13 +1788,13 @@ hr {
 }
 
 @media (max-width: 480px) {
-    .video-play-button {
+    .play-icon-large {
         width: 50px;
         height: 50px;
         font-size: 20px;
     }
     
-    .video-control-btn {
+    .control-btn {
         width: 32px;
         height: 32px;
         font-size: 12px;

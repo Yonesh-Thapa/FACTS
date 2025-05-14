@@ -38,34 +38,44 @@
                 <h2 class="section-title text-center mb-4">Meet Your Mentor</h2>
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
-                    <!-- Video wrapper for better control -->
-                    <div id="video-wrapper" class="video-wrapper">
-                        <!-- Poster image displayed until video loads/plays -->
-                        <img id="video-poster" class="video-poster" src="{{ url_for('static', filename='images/tutor.jpg') }}" alt="Video thumbnail">
-                        
-                        <!-- Actual video element -->
-                        <video id="intro-video" class="intro-video" muted playsinline preload="metadata"
-                               data-src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=10">
-                            <track kind="subtitles" label="English" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
-                            Your browser does not support the video tag.
-                        </video>
-                        
-                        <!-- Simple play button that works across all devices -->
-                        <button id="video-play-button" class="video-play-button" aria-label="Play video">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        
-                        <!-- Simple video controls -->
-                        <div class="video-controls">
-                            <button id="video-mute-toggle" class="video-control-btn" aria-label="Unmute video">
-                                <i class="fas fa-volume-mute"></i>
-                            </button>
-                            <button id="video-caption-toggle" class="video-control-btn" aria-label="Show captions">
-                                <i class="fas fa-closed-captioning"></i>
-                            </button>
-                            <button id="video-fullscreen" class="video-control-btn" aria-label="Fullscreen">
-                                <i class="fas fa-expand"></i>
-                            </button>
+                    <div id="mentor-video-player" class="custom-video-player">
+                        <!-- This is a simplified video player structure -->
+                        <div class="video-wrapper">
+                            <!-- Poster image that shows initially -->
+                            <div class="poster-container">
+                                <img src="{{ url_for('static', filename='images/tutor.jpg') }}" alt="Mentor Thumbnail" class="video-poster">
+                                <div class="play-icon-large">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- The actual video element using inline attributes for maximum compatibility -->
+                            <video id="mentor-video" 
+                                   class="mentor-video"
+                                   src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=11"
+                                   poster="{{ url_for('static', filename='images/tutor.jpg') }}"
+                                   playsinline webkit-playsinline 
+                                   muted 
+                                   loop>
+                                <track kind="subtitles" label="English" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
+                                Your browser does not support HTML5 video.
+                            </video>
+                            
+                            <!-- Simple controls that appear when hovering -->
+                            <div class="video-controls">
+                                <button class="control-btn play-pause" aria-label="Play/Pause">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="control-btn mute-unmute" aria-label="Mute/Unmute">
+                                    <i class="fas fa-volume-mute"></i>
+                                </button>
+                                <button class="control-btn captions" aria-label="Toggle Captions">
+                                    <i class="fas fa-closed-captioning"></i>
+                                </button>
+                                <button class="control-btn fullscreen" aria-label="Fullscreen">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
