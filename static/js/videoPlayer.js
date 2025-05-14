@@ -33,45 +33,78 @@ function initializeMentorVideo() {
     
     // Play the video and handle the UI changes
     function playVideo() {
-        // Hide poster
-        if (posterContainer) {
-            posterContainer.classList.add('hidden');
+        try {
+            // iOS Safari specific optimization
+            if (isIOS()) {
+                // This helps on iOS Safari which is particularly strict
+                videoElement.setAttribute('autoplay', 'autoplay');
+                videoElement.setAttribute('playsinline', 'playsinline');
+                videoElement.setAttribute('webkit-playsinline', 'webkit-playsinline');
+                
+                // For iOS Safari, we need both the video to be muted and have user interaction
+                videoElement.muted = true;
+                videoElement.defaultMuted = true;
+                videoElement.setAttribute('muted', 'muted');
+            }
+            
+            // Hide poster
+            if (posterContainer) {
+                posterContainer.classList.add('hidden');
+            }
+            
+            // Force load (needed for some mobile browsers)
+            videoElement.load();
+            
+            // This plays the video with promise handling for cross-browser compatibility
+            const playPromise = videoElement.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Success - video is playing
+                    userInteracted = true;
+                    
+                    // Update play button icon
+                    if (playPauseBtn) {
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        playPauseBtn.setAttribute('aria-label', 'Pause');
+                    }
+                    
+                    console.log('Video playing successfully');
+                }).catch(error => {
+                    // Failed to play (common on mobile)
+                    console.error('Failed to play video:', error);
+                    
+                    // Show poster again
+                    if (posterContainer) {
+                        posterContainer.classList.remove('hidden');
+                    }
+                    
+                    // Update play button icon
+                    if (playPauseBtn) {
+                        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        playPauseBtn.setAttribute('aria-label', 'Play');
+                    }
+                    
+                    // iOS-specific fallback
+                    if (isIOS()) {
+                        console.log('Attempting iOS-specific video play method');
+                        
+                        // This is a special trick for iOS
+                        videoElement.controls = true;
+                        setTimeout(() => {
+                            videoElement.controls = false;
+                        }, 50);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Error in playVideo:', e);
         }
-        
-        // Ensure video is muted initially (required for autoplay)
-        videoElement.muted = true;
-        
-        // This plays the video with promise handling for cross-browser compatibility
-        const playPromise = videoElement.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                // Success - video is playing
-                userInteracted = true;
-                
-                // Update play button icon
-                if (playPauseBtn) {
-                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    playPauseBtn.setAttribute('aria-label', 'Pause');
-                }
-                
-                console.log('Video playing successfully');
-            }).catch(error => {
-                // Failed to play (common on mobile)
-                console.error('Failed to play video:', error);
-                
-                // Show poster again
-                if (posterContainer) {
-                    posterContainer.classList.remove('hidden');
-                }
-                
-                // Update play button icon
-                if (playPauseBtn) {
-                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    playPauseBtn.setAttribute('aria-label', 'Play');
-                }
-            });
-        }
+    }
+    
+    // Helper to detect iOS
+    function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     }
     
     // Pause the video and update UI
@@ -135,35 +168,46 @@ function initializeMentorVideo() {
     
     // Toggle fullscreen
     function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            // Enter fullscreen
-            if (videoPlayer.requestFullscreen) {
-                videoPlayer.requestFullscreen();
-            } else if (videoPlayer.webkitRequestFullscreen) { /* Safari */
-                videoPlayer.webkitRequestFullscreen();
-            } else if (videoPlayer.msRequestFullscreen) { /* IE11 */
-                videoPlayer.msRequestFullscreen();
+        try {
+            if (!document.fullscreenElement) {
+                // Use the video element itself for fullscreen, not the wrapper
+                // This is more reliable across browsers
+                if (videoElement.requestFullscreen) {
+                    videoElement.requestFullscreen();
+                } else if (videoElement.webkitRequestFullscreen) { /* Safari */
+                    videoElement.webkitRequestFullscreen();
+                } else if (videoElement.msRequestFullscreen) { /* IE11 */
+                    videoElement.msRequestFullscreen();
+                } else if (videoElement.webkitEnterFullscreen) { /* iOS Safari */
+                    videoElement.webkitEnterFullscreen();
+                }
+                
+                // Update button
+                if (fullscreenBtn) {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                    fullscreenBtn.setAttribute('aria-label', 'Exit Fullscreen');
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+                
+                // Update button
+                if (fullscreenBtn) {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                    fullscreenBtn.setAttribute('aria-label', 'Fullscreen');
+                }
             }
-            
-            // Update button
-            if (fullscreenBtn) {
-                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-                fullscreenBtn.setAttribute('aria-label', 'Exit Fullscreen');
-            }
-        } else {
-            // Exit fullscreen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) { /* Safari */
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { /* IE11 */
-                document.msExitFullscreen();
-            }
-            
-            // Update button
-            if (fullscreenBtn) {
-                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-                fullscreenBtn.setAttribute('aria-label', 'Fullscreen');
+        } catch (error) {
+            console.error('Fullscreen error:', error);
+            // Fallback for iOS: use the native video fullscreen
+            if (videoElement.webkitEnterFullscreen) {
+                videoElement.webkitEnterFullscreen();
             }
         }
     }
