@@ -187,7 +187,7 @@ function initBootstrapTooltips() {
 
 /**
  * Initialize countdown timer for early bird offer
- * Updated on April 11, 2025 to ensure accurate countdown to April 30, 2025
+ * Updated on May 14, 2025 to ensure accurate countdown to May 30, 2025
  */
 function initCountdownTimer() {
     console.log('Initializing countdown timer...');
@@ -210,8 +210,8 @@ function initCountdownTimer() {
         return;
     }
     
-    // Set the deadline date to April 30, 2025 - using explicit date format to avoid any confusion
-    const earlyBirdDeadline = new Date('2025-04-30T23:59:59');
+    // Set the deadline date to May 30, 2025 - using explicit date format to avoid any confusion
+    const earlyBirdDeadline = new Date('2025-05-30T23:59:59');
     const deadline = earlyBirdDeadline.getTime();
     console.log('Deadline set to:', earlyBirdDeadline.toLocaleString());
     
