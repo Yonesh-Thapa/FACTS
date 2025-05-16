@@ -1955,10 +1955,25 @@ def chat():
         
     except Exception as e:
         app.logger.error(f"Error using OpenAI API: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': 'An error occurred while processing your request.'
-        }), 500
+        
+        # Check if it's a quota error
+        if "quota" in str(e).lower() or "429" in str(e):
+            # Provide helpful canned response when API limit is reached
+            return jsonify({
+                'success': True,
+                'reply': "I'm currently experiencing high demand. Here's some information about F.A.C.T.S:\n\n" +
+                        "- 8-week online accounting program starting June 5, 2025\n" +
+                        "- Classes on Wed & Thu, 7:00-9:00 PM AEST\n" +
+                        "- Early bird price: A$1,500 (until May 30, 2025)\n" +
+                        "- Regular price: A$1,650\n" +
+                        "- Limited to 10 students per class\n\n" +
+                        "For more details, please browse our website or contact us at fatrainingservice@gmail.com."
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'An error occurred while processing your request.'
+            }), 500
 
 @app.route('/tasks/send-auto-reminders', methods=['GET'])
 def send_auto_reminders():

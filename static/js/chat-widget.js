@@ -123,8 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 typingIndicator.remove();
             }
             
-            // Add error message
-            addMessage("I'm having trouble connecting. Please check your internet connection and try again.", 'bot');
+            // Add more helpful error message
+            addMessage("I'm having trouble connecting to our service. This may be due to connection issues or high traffic. Please try again shortly.", 'bot');
             console.error("Chat fetch error:", error);
         })
         .finally(() => {
