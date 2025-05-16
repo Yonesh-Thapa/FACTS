@@ -22,7 +22,20 @@ function initializeMentorVideo() {
     
     // Safety check - if elements don't exist, exit
     if (!videoElement || !videoPlayer) {
-        console.log('Video elements not found');
+        console.log('Required video elements not found');
+        // Try alternate video element if it exists (for better compatibility)
+        const alternateVideo = document.querySelector('video#mentor-video');
+        if (alternateVideo) {
+            console.log('Found alternate video element, attempting to play');
+            try {
+                alternateVideo.muted = true;
+                alternateVideo.play().catch(err => {
+                    console.error('Failed to play video:', err);
+                });
+            } catch (e) {
+                console.error('Error in alternate video play:', e);
+            }
+        }
         return;
     }
     
