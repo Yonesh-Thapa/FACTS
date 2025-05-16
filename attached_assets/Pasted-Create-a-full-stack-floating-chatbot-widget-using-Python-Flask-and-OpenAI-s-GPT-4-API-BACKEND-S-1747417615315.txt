@@ -1,0 +1,44 @@
+Create a full-stack floating chatbot widget using Python Flask and OpenAI’s GPT-4 API.
+
+🔹 BACKEND SETUP (Flask):
+- Create `app.py` (or `main.py`) for the Flask server
+- Use environment variable `OPENAI_API_KEY` for authentication (I'll set it in Replit Secrets)
+- Add two routes:
+  1. `/` to render a base HTML page (or skip if integrating into existing site)
+  2. `/chat` (POST) to handle incoming messages from frontend
+     - Accepts JSON: `{ "message": "..." }`
+     - Uses OpenAI’s `ChatCompletion.create()` with model `"gpt-4"`
+     - Set system message:  
+       “You are the F.A.C.T.S Assistant. Help users learn about our accounting training programs, course structure, certification, pricing, schedules, and registration. Be clear, helpful, and professional.”
+     - Return JSON `{ "reply": "..." }`
+
+🔹 FRONTEND (Floating Chat Widget):
+- Create a floating chat bubble (bottom-right) on the page using HTML/CSS/JavaScript.
+- When clicked, it should slide up a chat window with:
+  - Scrollable chat history area
+  - Input field and send button
+- Style user and bot messages differently
+- On clicking send:
+  - Append user message to chat
+  - Send POST request to `/chat` route
+  - Show a loading spinner or "typing..."
+  - Append the response once received
+- Make sure it works on mobile and desktop
+
+🔹 FOLDER STRUCTURE:
+- `app.py` or `main.py` (Flask backend)
+- `templates/index.html` (embed the widget here)
+- `static/style.css` (for styling chat widget)
+- `static/chat.js` (handles front-end logic)
+
+🔹 EXTRA REQUIREMENTS:
+- Responsive design for smartphones and desktops
+- Minimal and clean aesthetic
+- Position: fixed bottom-right floating bubble with an icon (💬 or 🧮)
+- Add placeholder: “Ask me anything about F.A.C.T.S courses…”
+
+🔹 AFTER SETUP:
+- I will add `OPENAI_API_KEY` in Replit Secrets
+- This will be embedded into an existing website hosted on Replit (https://futureaccountants.com.au)
+
+Use only Flask + vanilla JS/CSS. Do not use React or frontend frameworks. Add code comments for clarity.

@@ -1863,6 +1863,85 @@ def admin_send_reminder(session_id):
     return redirect(url_for('admin_info_sessions'))
 
 # Automated reminder task (this would be called by a scheduler)
+@app.route('/chat', methods=['POST'])
+def chat():
+    """API endpoint for the chatbot"""
+    if not request.is_json:
+        return jsonify({
+            'success': False,
+            'error': 'Invalid request format. Expected JSON.'
+        }), 400
+    
+    # Get the message from the request
+    message = request.json.get('message', '')
+    if not message:
+        return jsonify({
+            'success': False,
+            'error': 'No message provided.'
+        }), 400
+        
+    # Log the request (without the full message for privacy)
+    app.logger.info(f"Chatbot request received from {request.remote_addr}")
+    
+    # Check if OpenAI API key is available
+    api_key = os.environ.get('OPENAI_API_KEY')
+    if not api_key:
+        return jsonify({
+            'success': False,
+            'error': 'OpenAI API key not configured.'
+        }), 500
+        
+    try:
+        # Import OpenAI here to avoid errors if library is not available
+        from openai import OpenAI
+        
+        client = OpenAI(api_key=api_key)
+        
+        # Create system message for the chatbot
+        system_message = """
+        You are the F.A.C.T.S Assistant. Help users learn about our accounting training programs, 
+        course structure, certification, pricing, schedules, and registration. 
+        Be clear, helpful, and professional.
+        
+        Key information:
+        - F.A.C.T.S stands for Future Accountants Coaching and Training Service
+        - We offer an 8-week accounting training program
+        - Classes are held online on Wednesdays & Thursdays, 7:00-9:00 PM AEST
+        - Next session starts June 5, 2025
+        - Early bird price is A$1,500 (available until May 30, 2025)
+        - Regular price is A$1,650
+        - Maximum class size is 10 students
+        - The program includes Xero and MYOB software training
+        - Contact email: fatrainingservice@gmail.com
+        - Contact phone: 0449 547 715
+        """
+        
+        # Make request to OpenAI
+        response = client.chat.completions.create(
+            model="gpt-4o",  # Using the latest GPT-4o model
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": message}
+            ],
+            temperature=0.7,
+            max_tokens=500
+        )
+        
+        # Get the reply from the response
+        reply = response.choices[0].message.content
+        
+        return jsonify({
+            'success': True,
+            'reply': reply
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error using OpenAI API: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'An error occurred while processing your request.'
+        }), 500
+
 @app.route('/tasks/send-auto-reminders', methods=['GET'])
 def send_auto_reminders():
     # This endpoint would be called by a scheduler (e.g., cron job) to automatically send reminders

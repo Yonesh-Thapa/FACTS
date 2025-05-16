@@ -58,6 +58,8 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chat Widget CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat-widget.css') }}">
     
     <!-- JSON-LD Structured Data for Organization -->
     <script type="application/ld+json">
@@ -199,6 +201,8 @@
     <script src="{{ url_for('static', filename='js/script.js', v=202505142035) }}" defer></script>
     <!-- Dedicated Video Player Script -->
     <script src="{{ url_for('static', filename='js/videoPlayer.js', v=202505142035) }}" defer></script>
+    <!-- Chat Widget Script -->
+    <script src="{{ url_for('static', filename='js/chat-widget.js', v=202505161745) }}" defer></script>
 
     {% block scripts %}{% endblock %}
 </body>
