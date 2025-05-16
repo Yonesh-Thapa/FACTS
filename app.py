@@ -11,6 +11,7 @@ import uuid
 import hashlib
 import re
 from urllib.parse import urlparse
+from utils.chatbot import get_chatbot_response
 
 # DEBUG MODE FLAG - Set to False to re-enable authentication
 DEBUG_MODE = False
