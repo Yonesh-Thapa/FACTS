@@ -1914,18 +1914,36 @@ def chat():
         - The program includes Xero and MYOB software training
         - Contact email: fatrainingservice@gmail.com
         - Contact phone: 0449 547 715
+
+        Course Content:
+        - Week 1: Fundamentals of Accounting, AI introduction, Cybersecurity basics
+        - Week 2: Accounts Receivable in Xero (quotes, invoices, payment collection)
+        - Week 3: Accounts Payable in Xero (supplier bills, batch payments, reconciliation)
+        - Week 4: Asset & Bank Management (registration, depreciation, reconciliations)
+        - Week 5: Payroll & Compliance (employee records, taxes, reporting)
+        - Week 6: Month-End and Reporting, BAS preparation, Excel training
+        - Week 7: Career Preparation Part 1 (resume, cover letters, LinkedIn profiles)
+        - Week 8: Career Preparation Part 2 (mock interviews, job search, ongoing support)
         """
         
         # Make request to OpenAI
-        response = client.chat.completions.create(
-            model="gpt-4o",  # Using the latest GPT-4o model
-            messages=[
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": message}
-            ],
-            temperature=0.7,
-            max_tokens=500
-        )
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",  # Using the latest GPT-4o model
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": message}
+                ],
+                temperature=0.7,
+                max_tokens=500
+            )
+            app.logger.info("OpenAI API call successful")
+        except Exception as openai_error:
+            app.logger.error(f"OpenAI API error details: {str(openai_error)}")
+            return jsonify({
+                'success': False,
+                'error': f"Error with OpenAI service: {str(openai_error)}"
+            }), 500
         
         # Get the reply from the response
         reply = response.choices[0].message.content
