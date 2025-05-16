@@ -119,6 +119,52 @@ def send_zoom_link_email(email):
     )
 
 
+def send_contact_notification(contact):
+    """
+    Send notification email to admin when a new contact form is submitted.
+    
+    Args:
+        contact: The Contact model instance containing form submission data
+        
+    Returns:
+        bool: True if email was sent successfully, False otherwise
+    """
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #007ACC; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0;">New Contact Form Submission</h1>
+        </div>
+        <div style="padding: 20px; border: 1px solid #ddd; border-top: none;">
+            <h3 style="color: #007ACC;">Contact Details:</h3>
+            <ul style="list-style-type: none; padding: 0;">
+                <li><strong>Name:</strong> {contact.name}</li>
+                <li><strong>Email:</strong> {contact.email}</li>
+                <li><strong>Phone:</strong> {contact.phone or 'Not provided'}</li>
+                <li><strong>Subject:</strong> {contact.subject or 'Not provided'}</li>
+                <li><strong>Interested in enrolling:</strong> {'Yes' if contact.interested else 'No'}</li>
+                <li><strong>Submitted:</strong> {contact.created_at.strftime('%Y-%m-%d %H:%M:%S UTC')}</li>
+            </ul>
+            
+            <h3 style="color: #007ACC;">Message:</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p>{contact.message}</p>
+            </div>
+            
+            <p>Please respond to this inquiry at your earliest convenience.</p>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+                <p>This is an automated notification from the F.A.C.T.S website.</p>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return send_email(
+        to_email="fatrainingservice@gmail.com",
+        subject=f"New Contact Form Submission: {contact.name}",
+        html_content=html_content
+    )
+
 def send_contact_confirmation_email(name, email, message, interested=False):
     """
     Send confirmation email for contact form submission.

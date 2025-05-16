@@ -694,7 +694,7 @@ def admin_logout():
 @app.route('/info-session-register', methods=['POST'])
 def collect_info_session_email():
     from models import InfoSessionEmail
-    from utils.email import send_info_session_confirmation
+    from utils.email import send_zoom_link_email
     
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
