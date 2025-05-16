@@ -11,7 +11,6 @@ import uuid
 import hashlib
 import re
 from urllib.parse import urlparse
-from utils.chatbot import get_chatbot_response
 
 # DEBUG MODE FLAG - Set to False to re-enable authentication
 DEBUG_MODE = False
@@ -1864,36 +1863,6 @@ def admin_send_reminder(session_id):
     return redirect(url_for('admin_info_sessions'))
 
 # Automated reminder task (this would be called by a scheduler)
-@app.route('/api/chatbot', methods=['POST'])
-def chatbot_api():
-    """API endpoint for the AI study assistant chatbot"""
-    # Check if the request is valid
-    if not request.is_json:
-        return jsonify({
-            'success': False,
-            'error': 'Invalid request format. Expected JSON.',
-            'content': None
-        }), 400
-    
-    # Get the message from the request
-    message = request.json.get('message', '')
-    if not message:
-        return jsonify({
-            'success': False,
-            'error': 'No message provided.',
-            'content': None
-        }), 400
-    
-    # Log the chatbot request (without storing the full message content for privacy)
-    app.logger.info(f"Chatbot request received from {request.remote_addr}")
-    
-    # Get a response from the chatbot
-    has_openai_key = bool(os.environ.get('OPENAI_API_KEY'))
-    response = get_chatbot_response(message, use_api=has_openai_key)
-    
-    # Return the response
-    return jsonify(response)
-
 @app.route('/tasks/send-auto-reminders', methods=['GET'])
 def send_auto_reminders():
     # This endpoint would be called by a scheduler (e.g., cron job) to automatically send reminders

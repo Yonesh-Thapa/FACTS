@@ -58,8 +58,6 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Chatbot CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
     
     <!-- JSON-LD Structured Data for Organization -->
     <script type="application/ld+json">
@@ -201,8 +199,6 @@
     <script src="{{ url_for('static', filename='js/script.js', v=202505142035) }}" defer></script>
     <!-- Dedicated Video Player Script -->
     <script src="{{ url_for('static', filename='js/videoPlayer.js', v=202505142035) }}" defer></script>
-    <!-- AI Study Assistant Chatbot Script -->
-    <script src="{{ url_for('static', filename='js/chatbot.js', v=202505161735) }}" defer></script>
 
     {% block scripts %}{% endblock %}
 </body>
