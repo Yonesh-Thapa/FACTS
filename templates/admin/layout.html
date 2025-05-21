@@ -400,6 +400,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_bookings') }}" {% if request.path == url_for('admin_bookings') %}class="active"{% endif %}>
+                    <i class="fas fa-calendar-check" aria-hidden="true"></i> Info Session Bookings
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_classes') }}" {% if request.path == url_for('admin_classes') or request.path.startswith('/admin/classes/') %}class="active"{% endif %}>
                     <i class="fas fa-calendar-alt" aria-hidden="true"></i> Class Sessions
                 </a>

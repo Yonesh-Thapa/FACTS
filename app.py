@@ -121,7 +121,11 @@ STATIC_PAGE_CACHE = 3600  # 1 hour in seconds
 
 @app.route('/')
 def index():
-    response = make_response(render_template('index.html'))
+    # Calculate tomorrow's date for the booking form
+    from datetime import datetime, timedelta
+    tomorrow_date = (datetime.utcnow() + timedelta(days=1)).strftime('%Y-%m-%d')
+    
+    response = make_response(render_template('index.html', tomorrow_date=tomorrow_date))
     # Set cache control headers
     response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
     return response
