@@ -193,16 +193,23 @@
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Set default date to tomorrow
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const dateInput = document.getElementById('date');
-        dateInput.min = tomorrow.toISOString().split('T')[0]; // Set min date to tomorrow
-        dateInput.value = tomorrow.toISOString().split('T')[0];
+    function copyCalendlyLink() {
+        const linkInput = document.getElementById('calendly-link');
+        linkInput.select();
+        document.execCommand('copy');
         
-        // Set default time to 7:00 PM
-        document.getElementById('time').value = '19:00';
-    });
+        // Show a temporary success message
+        const copyBtn = event.target.closest('button');
+        const originalHtml = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+        copyBtn.classList.add('btn-success');
+        copyBtn.classList.remove('btn-outline-secondary');
+        
+        setTimeout(function() {
+            copyBtn.innerHTML = originalHtml;
+            copyBtn.classList.remove('btn-success');
+            copyBtn.classList.add('btn-outline-secondary');
+        }, 2000);
+    }
 </script>
 {% endblock %}
