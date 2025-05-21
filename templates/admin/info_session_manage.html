@@ -11,71 +11,69 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Calendly Integration Management</h5>
+                        <h5 class="card-title mb-0">Create New Info Session</h5>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-success">
-                        <h4 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Automated with Calendly</h4>
-                        <p>Free sessions are now fully managed via Calendly, which provides the following benefits:</p>
-                        <ul>
-                            <li><strong>Automated scheduling</strong> - Users select their preferred time</li>
-                            <li><strong>Instant confirmations</strong> - No manual sending of links required</li>
-                            <li><strong>Automatic reminders</strong> - Attendees receive notifications before sessions</li>
-                            <li><strong>Calendar integration</strong> - Sessions appear in your calendar automatically</li>
-                            <li><strong>Reschedule option</strong> - Users can easily change their appointment if needed</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="card border-primary">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Calendly Setup</h5>
+                    <form action="{{ url_for('admin_manage_info_sessions') }}" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Session Title*</label>
+                                    <input type="text" class="form-control" id="title" name="title" required placeholder="e.g., Free Info Session: Accounting Career Pathways">
                                 </div>
-                                <div class="card-body">
-                                    <p>Your Calendly integration is active on the website in two places:</p>
-                                    <ol>
-                                        <li><strong>Inline embed</strong> on the homepage (Info Session section)</li>
-                                        <li><strong>Floating button</strong> that appears on all pages</li>
-                                    </ol>
-                                    <p class="mt-3">To modify your Calendly settings (available times, session length, questions):</p>
-                                    <a href="https://calendly.com/app/scheduled_events/user/me" target="_blank" class="btn btn-primary mt-2">
-                                        <i class="fas fa-external-link-alt me-1"></i> Manage in Calendly Dashboard
-                                    </a>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Brief description of what will be covered in this info session..."></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="date" class="form-label">Date*</label>
+                                            <input type="date" class="form-control" id="date" name="date" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="time" class="form-label">Time*</label>
+                                            <input type="time" class="form-control" id="time" name="time" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="duration" class="form-label">Duration (minutes)*</label>
+                                    <input type="number" class="form-control" id="duration" name="duration" min="15" max="180" value="60" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="zoom_link" class="form-label">Zoom Link*</label>
+                                    <input type="url" class="form-control" id="zoom_link" name="zoom_link" required placeholder="https://zoom.us/j/...">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="zoom_meeting_id" class="form-label">Zoom Meeting ID</label>
+                                    <input type="text" class="form-control" id="zoom_meeting_id" name="zoom_meeting_id" placeholder="123 456 7890">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="zoom_password" class="form-label">Zoom Password</label>
+                                    <input type="text" class="form-control" id="zoom_password" name="zoom_password" placeholder="abc123">
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                                    <label class="form-check-label" for="is_active">Active Session</label>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="col-md-6">
-                            <div class="card border-success">
-                                <div class="card-header bg-success text-white">
-                                    <h5 class="mb-0"><i class="fas fa-video me-2"></i>Free Info Session Link</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Your Calendly booking link for free info sessions:</p>
-                                    <div class="input-group mb-3">
-                                        <input type="text" class="form-control" value="https://calendly.com/facts-training/free-info-session" readonly id="calendly-link">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="copyCalendlyLink()">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </div>
-                                    <p>Share this link directly with potential students via email or social media.</p>
-                                    <div class="mt-3">
-                                        <a href="https://calendly.com/facts-training/free-info-session" target="_blank" class="btn btn-success">
-                                            <i class="fas fa-eye me-1"></i> View Booking Page
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> This info session will be used to send Zoom links to registered users. Make sure all required fields (*) are filled in correctly.
                         </div>
-                    </div>
-                    
-                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-1"></i> Create Info Session
+                        </button>
                         <a href="{{ url_for('admin_info_sessions') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-1"></i> Back to Info Session Overview
+                            <i class="fas fa-arrow-left me-1"></i> Back to Email Management
                         </a>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -193,23 +191,16 @@
 
 {% block scripts %}
 <script>
-    function copyCalendlyLink() {
-        const linkInput = document.getElementById('calendly-link');
-        linkInput.select();
-        document.execCommand('copy');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dateInput = document.getElementById('date');
+        dateInput.min = tomorrow.toISOString().split('T')[0]; // Set min date to tomorrow
+        dateInput.value = tomorrow.toISOString().split('T')[0];
         
-        // Show a temporary success message
-        const copyBtn = event.target.closest('button');
-        const originalHtml = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<i class="fas fa-check"></i>';
-        copyBtn.classList.add('btn-success');
-        copyBtn.classList.remove('btn-outline-secondary');
-        
-        setTimeout(function() {
-            copyBtn.innerHTML = originalHtml;
-            copyBtn.classList.remove('btn-success');
-            copyBtn.classList.add('btn-outline-secondary');
-        }, 2000);
-    }
+        // Set default time to 7:00 PM
+        document.getElementById('time').value = '19:00';
+    });
 </script>
 {% endblock %}

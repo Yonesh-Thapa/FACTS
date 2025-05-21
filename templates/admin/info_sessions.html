@@ -147,22 +147,42 @@
         <div class="col-lg-5">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Info Session Management</h5>
+                    <h5 class="card-title mb-0">Send Zoom Links to Signups</h5>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <h4 class="alert-heading"><i class="fas fa-calendar-alt me-2"></i>Automated with Calendly</h4>
-                        <p>Free sessions are now fully managed via Calendly. Users can book their preferred time slot directly from the website.</p>
-                        <p><strong>Benefits:</strong></p>
-                        <ul>
-                            <li>Automatic scheduling without manual intervention</li>
-                            <li>Attendees receive confirmation emails and reminders</li>
-                            <li>Calendar integration for better session management</li>
-                        </ul>
-                        <a href="https://calendly.com/facts-training/free-info-session" target="_blank" class="btn btn-primary mt-2">
-                            <i class="fas fa-external-link-alt me-1"></i> View Calendly Schedule
+                    {% if active_sessions %}
+                    <form action="{{ url_for('admin_send_zoom_links') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="session_id" class="form-label">Select Info Session</label>
+                            <select class="form-select" id="session_id" name="session_id" required>
+                                <option value="">-- Select Info Session --</option>
+                                {% for session in active_sessions %}
+                                <option value="{{ session.id }}">
+                                    {{ session.title }} - {{ session.date.strftime('%d %b %Y') }} at {{ session.time.strftime('%I:%M %p') }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="custom_message" class="form-label">Custom Message (Optional)</label>
+                            <textarea class="form-control" id="custom_message" name="custom_message" rows="3" placeholder="Add any custom message to include in the email..."></textarea>
+                        </div>
+                        <div class="alert alert-info small">
+                            <i class="fas fa-info-circle me-1"></i> This will send Zoom link emails to all registered emails that haven't received it yet.
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i> Send Zoom Links to All
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <h4 class="alert-heading">No Active Info Sessions</h4>
+                        <p>You need to create an info session before sending Zoom links.</p>
+                        <a href="{{ url_for('admin_manage_info_sessions') }}" class="btn btn-primary mt-2">
+                            <i class="fas fa-plus me-1"></i> Create Info Session
                         </a>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             
@@ -185,8 +205,15 @@
                             </div>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Calendly Integration
-                            <span class="badge bg-success rounded-pill">Active</span>
+                            Zoom Links
+                            <div>
+                                <span class="badge bg-success rounded-pill">{{ zoom_sent_count }} Sent</span>
+                                <span class="badge bg-secondary rounded-pill">{{ zoom_not_sent_count }} Not Sent</span>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Reminders
+                            <span class="badge bg-success rounded-pill">{{ reminder_sent_count }} Sent</span>
                         </li>
                     </ul>
                     <div class="mt-3">
@@ -201,34 +228,33 @@
 
     <div class="card mt-3">
         <div class="card-header">
-            <h5 class="card-title mb-0">Calendly Integration Guide</h5>
+            <h5 class="card-title mb-0">Info Session Email Management Guide</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <h6><i class="fas fa-calendar-alt me-2"></i>Calendly Advantages</h6>
+                    <h6><i class="fas fa-calendar-alt me-2"></i>Step 1: Create Info Session</h6>
                     <ul>
-                        <li>24/7 automated scheduling</li>
-                        <li>User can pick their preferred time</li>
-                        <li>Automatic confirmation emails</li>
+                        <li>Click "Manage Info Sessions"</li>
+                        <li>Add a new info session with date, time and Zoom details</li>
+                        <li>Set a clear title and description</li>
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h6><i class="fas fa-cog me-2"></i>Calendly Setup</h6>
+                    <h6><i class="fas fa-envelope me-2"></i>Step 2: Send Zoom Links</h6>
                     <ul>
-                        <li>Seamlessly integrated into website</li>
-                        <li>Inline widget on homepage</li>
-                        <li>Floating button on all pages</li>
-                        <li>Mobile-friendly design</li>
+                        <li>Select the info session from the dropdown</li> 
+                        <li>Add optional custom message</li>
+                        <li>Click "Send Zoom Links to All"</li>
+                        <li>Links only go to people who haven't received them</li>
                     </ul>
                 </div>
                 <div class="col-md-4">
-                    <h6><i class="fas fa-check-circle me-2"></i>Student Experience</h6>
+                    <h6><i class="fas fa-bell me-2"></i>Step 3: Automatic Reminders</h6>
                     <ul>
-                        <li>Easy one-click booking</li>
-                        <li>Automatic calendar invites</li>
-                        <li>SMS/Email reminders</li>
-                        <li>Rescheduling options</li>
+                        <li>System automatically sends reminders 1 hour before session</li>
+                        <li>Reminders only go to people who received Zoom links</li>
+                        <li>Track delivery status in email logs</li>
                     </ul>
                 </div>
             </div>

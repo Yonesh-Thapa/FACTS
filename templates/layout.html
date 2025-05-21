@@ -203,32 +203,6 @@
     <script src="{{ url_for('static', filename='js/videoPlayer.js', v=202505142035) }}" defer></script>
     <!-- Chat Widget Script -->
     <script src="{{ url_for('static', filename='js/chat-widget.js', v=202505161745) }}" defer></script>
-    
-    <!-- Calendly Floating Button Widget -->
-    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
-    <script>
-    window.onload = function() {
-        Calendly.initBadgeWidget({ 
-            url: 'https://calendly.com/facts-training/free-info-session',
-            text: 'Book a Free Info Session',
-            color: '#007AFF',
-            textColor: '#FFFFFF',
-            branding: false
-        });
-    }
-    </script>
-    
-    <!-- Calendly Inline Widget JS (only loads if inline widget is present) -->
-    <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.querySelector('.calendly-inline-widget')) {
-            var script = document.createElement('script');
-            script.src = "https://assets.calendly.com/assets/external/widget.js";
-            script.async = true;
-            document.head.appendChild(script);
-        }
-    });
-    </script>
 
     {% block scripts %}{% endblock %}
 </body>
