@@ -201,20 +201,24 @@
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
                 <div class="info-session-card p-4 rounded shadow-sm">
-                    <h2 class="section-title">Want to Attend Our Free Info Session?</h2>
+                    <h2 class="section-title">Book Your Free Info Session</h2>
                     <div class="section-divider"></div>
-                    <p class="lead mb-4">Learn more about our program, meet our instructor, and get your questions answered in our upcoming free information session.</p>
-                    <form id="infoSessionForm" action="{{ url_for('collect_info_session_email') }}" method="POST" class="info-session-form">
-                        <div class="input-group mb-3">
-                            <input type="email" class="form-control" id="infoSessionEmail" name="email" placeholder="Enter your email address" required>
-                            <button class="btn btn-primary" type="submit">Get Zoom Link</button>
+                    <p class="lead mb-3">Learn more about our program, meet our instructor, and get your questions answered in a personalized information session.</p>
+                    
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <!-- Feature Badges -->
+                            <div class="mb-3 d-flex justify-content-center flex-wrap">
+                                <span class="badge bg-primary m-1">Free 1-on-1 Session</span>
+                                <span class="badge bg-success m-1">No obligation</span>
+                                <span class="badge bg-info text-dark m-1">Flexible Scheduling</span>
+                                <span class="badge bg-warning text-dark m-1">Personalized Q&A</span>
+                            </div>
+                            
+                            <!-- Custom Booking Form -->
+                            {% from 'components/booking_form.html' import info_session_booking_form %}
+                            {{ info_session_booking_form() }}
                         </div>
-                        <small class="form-text text-muted">Leave your email to get a Zoom link for our next free info session.</small>
-                    </form>
-                    <div class="mt-3">
-                        <span class="badge bg-primary">Free</span>
-                        <span class="badge bg-success">No obligation</span>
-                        <span class="badge bg-info text-dark">Live Q&A</span>
                     </div>
                 </div>
             </div>

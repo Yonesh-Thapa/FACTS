@@ -1403,6 +1403,220 @@ def admin_delete_blog_post(post_id):
     flash('Blog post deleted successfully', 'success')
     return redirect(url_for('admin_blog'))
 
+# Admin Bookings Management
+@app.route('/admin/bookings', methods=['GET'])
+@login_required
+def admin_bookings():
+    """Admin route to manage info session bookings"""
+    from models import InfoSessionBooking
+    
+    # Get all bookings ordered by created date (newest first)
+    bookings = InfoSessionBooking.query.order_by(InfoSessionBooking.created_at.desc()).all()
+    
+    return render_template('admin/bookings.html', bookings=bookings)
+
+@app.route('/admin/booking/<int:booking_id>', methods=['GET'])
+@login_required
+def admin_get_booking(booking_id):
+    """Get details for a specific booking"""
+    from models import InfoSessionBooking
+    
+    booking = InfoSessionBooking.query.get_or_404(booking_id)
+    
+    # Return JSON response with booking details
+    return jsonify({
+        'success': True,
+        'booking': {
+            'id': booking.id,
+            'name': booking.name,
+            'email': booking.email,
+            'phone': booking.phone,
+            'preferred_date': booking.preferred_date.strftime('%Y-%m-%d'),
+            'preferred_time': booking.preferred_time.strftime('%H:%M'),
+            'formatted_date': booking.formatted_date,
+            'formatted_time': booking.formatted_time,
+            'comments': booking.comments,
+            'status': booking.status,
+            'created_at': booking.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'admin_notes': booking.admin_notes,
+            'zoom_link_sent': booking.zoom_link_sent
+        }
+    })
+
+@app.route('/admin/booking/<int:booking_id>/notes', methods=['POST'])
+@login_required
+def admin_update_booking_notes(booking_id):
+    """Update admin notes for a booking"""
+    from models import InfoSessionBooking
+    
+    booking = InfoSessionBooking.query.get_or_404(booking_id)
+    booking.admin_notes = request.form.get('admin_notes', '')
+    
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Notes updated successfully'
+    })
+
+@app.route('/admin/booking/<int:booking_id>/status', methods=['POST'])
+@login_required
+def admin_update_booking_status(booking_id):
+    """Update status for a booking"""
+    from models import InfoSessionBooking
+    
+    booking = InfoSessionBooking.query.get_or_404(booking_id)
+    new_status = request.form.get('status')
+    
+    if new_status in ['Pending', 'Contacted', 'Zoom Sent', 'Completed', 'Cancelled']:
+        booking.status = new_status
+        
+        # If status is changed to "Zoom Sent", update the zoom_link_sent flag
+        if new_status == 'Zoom Sent' and not booking.zoom_link_sent:
+            booking.zoom_link_sent = True
+            booking.zoom_link_sent_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Status updated to {new_status}'
+        })
+    
+    return jsonify({
+        'success': False,
+        'message': 'Invalid status'
+    })
+
+@app.route('/admin/booking/<int:booking_id>/delete', methods=['GET'])
+@login_required
+def admin_delete_booking(booking_id):
+    """Delete a booking"""
+    from models import InfoSessionBooking
+    
+    booking = InfoSessionBooking.query.get_or_404(booking_id)
+    
+    db.session.delete(booking)
+    db.session.commit()
+    
+    flash(f'Booking for {booking.name} has been deleted', 'success')
+    return redirect(url_for('admin_bookings'))
+
+@app.route('/admin/bookings/export', methods=['GET'])
+@login_required
+def admin_export_bookings():
+    """Export bookings data as CSV"""
+    from models import InfoSessionBooking
+    import csv
+    from io import StringIO
+    
+    # Get all bookings
+    bookings = InfoSessionBooking.query.order_by(InfoSessionBooking.created_at.desc()).all()
+    
+    # Create CSV file
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow(['ID', 'Name', 'Email', 'Phone', 'Preferred Date', 'Preferred Time', 
+                    'Comments', 'Status', 'Created At', 'Admin Notes', 'Zoom Link Sent', 'Zoom Link Sent At'])
+    
+    # Write data
+    for booking in bookings:
+        writer.writerow([
+            booking.id,
+            booking.name,
+            booking.email,
+            booking.phone,
+            booking.formatted_date,
+            booking.formatted_time,
+            booking.comments,
+            booking.status,
+            booking.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            booking.admin_notes,
+            'Yes' if booking.zoom_link_sent else 'No',
+            booking.zoom_link_sent_at.strftime('%Y-%m-%d %H:%M:%S') if booking.zoom_link_sent_at else ''
+        ])
+    
+    # Create response
+    response = make_response(output.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=bookings.csv'
+    response.headers['Content-type'] = 'text/csv'
+    
+    return response
+
+@app.route('/admin/send-zoom-link', methods=['POST'])
+@login_required
+def admin_send_zoom_link():
+    """Send zoom link to a booking contact"""
+    from models import InfoSessionBooking
+    from utils.email import send_zoom_link_email
+    
+    booking_id = request.form.get('booking_id')
+    email = request.form.get('email')
+    zoom_link = request.form.get('zoom_link')
+    zoom_meeting_id = request.form.get('zoom_meeting_id')
+    zoom_password = request.form.get('zoom_password')
+    session_date_str = request.form.get('session_date')
+    session_time_str = request.form.get('session_time')
+    
+    # Validate required fields
+    if not booking_id or not email or not zoom_link or not session_date_str or not session_time_str:
+        return jsonify({
+            'success': False,
+            'message': 'Please fill in all required fields'
+        })
+    
+    # Parse date and time
+    try:
+        session_date = datetime.strptime(session_date_str, '%Y-%m-%d').date()
+        session_time = datetime.strptime(session_time_str, '%H:%M').time()
+    except ValueError:
+        return jsonify({
+            'success': False,
+            'message': 'Invalid date or time format'
+        })
+    
+    # Get booking
+    booking = InfoSessionBooking.query.get(booking_id)
+    
+    if booking:
+        # Get recipient name
+        recipient_name = booking.name
+        
+        # Send zoom link email
+        email_success = send_zoom_link_email(
+            email=email,
+            name=recipient_name,
+            zoom_link=zoom_link,
+            zoom_meeting_id=zoom_meeting_id,
+            zoom_password=zoom_password,
+            session_date=session_date,
+            session_time=session_time
+        )
+        
+        if email_success:
+            # Update booking status and zoom link sent flag
+            booking.status = 'Zoom Sent'
+            booking.zoom_link_sent = True
+            booking.zoom_link_sent_at = datetime.utcnow()
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': f'Zoom link sent to {email}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Failed to send zoom link email'
+            })
+    
+    return jsonify({
+        'success': False,
+        'message': 'Booking not found'
+    })
+
 # Info Session Emails Admin
 @app.route('/admin/info-sessions')
 @login_required

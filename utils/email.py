@@ -54,23 +54,44 @@ def send_email(to_email, subject, html_content, bcc_email=None):
         return False
 
 
-def send_zoom_link_email(email):
+def send_zoom_link_email(email, name=None, zoom_link=None, zoom_meeting_id=None, zoom_password=None, session_date=None, session_time=None):
     """
     Send Zoom link email for info session.
     
     Args:
         email (str): Recipient's email address
+        name (str, optional): Recipient's name
+        zoom_link (str, optional): Zoom meeting link
+        zoom_meeting_id (str, optional): Zoom meeting ID
+        zoom_password (str, optional): Zoom meeting password
+        session_date (date, optional): Session date
+        session_time (time, optional): Session time
         
     Returns:
         bool: True if email was sent successfully, False otherwise
     """
-    # Get the most recent upcoming info session (this would be implemented with a database query)
-    # For now, using placeholder info
-    zoom_link = "https://us02web.zoom.us/j/88182222315?pwd=MGxNc1BZR2JHcE5mTWVZTUlUSmxMQT09"
-    zoom_meeting_id = "881 8222 2315"
-    zoom_password = "facts2024"
-    session_date = "June 1, 2025"
-    session_time = "7:00 PM AEST"
+    # Use provided parameters or defaults
+    if not zoom_link:
+        zoom_link = "https://us02web.zoom.us/j/88182222315?pwd=MGxNc1BZR2JHcE5mTWVZTUlUSmxMQT09"
+    
+    if not zoom_meeting_id:
+        zoom_meeting_id = "881 8222 2315"
+    
+    if not zoom_password:
+        zoom_password = "facts2024"
+    
+    # Format date and time if provided
+    if session_date and session_time:
+        formatted_date = session_date.strftime('%d %B, %Y')  # e.g., 21 May, 2025
+        formatted_time = session_time.strftime('%I:%M %p')   # e.g., 03:30 PM
+        session_date_str = formatted_date
+        session_time_str = f"{formatted_time} AEST"
+    else:
+        session_date_str = "June 1, 2025"
+        session_time_str = "7:00 PM AEST"
+    
+    # Use name if provided
+    greeting = f"Hi {name}," if name else "Hi there,"
     
     html_content = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -78,12 +99,12 @@ def send_zoom_link_email(email):
             <h1 style="margin: 0;">F.A.C.T.S Info Session</h1>
         </div>
         <div style="padding: 20px; border: 1px solid #ddd; border-top: none;">
-            <p>Hi there,</p>
-            <p>Thank you for requesting the Zoom link for our free info session! We're excited to have you join us.</p>
+            <p>{greeting}</p>
+            <p>Thank you for booking your free info session with Future Accountants Coaching & Training Services! We're excited to have you join us.</p>
             
             <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #007ACC;">Zoom Meeting Details:</h3>
-                <p><strong>Date & Time:</strong> {session_date} at {session_time}</p>
+                <p><strong>Date & Time:</strong> {session_date_str} at {session_time_str}</p>
                 <p><strong>Zoom Link:</strong> <a href="{zoom_link}">Click here to join the meeting</a></p>
                 <p><strong>Meeting ID:</strong> {zoom_meeting_id}</p>
                 <p><strong>Passcode:</strong> {zoom_password}</p>
