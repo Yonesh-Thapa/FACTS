@@ -1,0 +1,548 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Manage Info Session Bookings{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Info Session Bookings</h1>
+        
+        <div class="d-flex">
+            <button type="button" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm me-2" id="exportBookingsBtn">
+                <i class="fas fa-download fa-sm text-white-50 me-1"></i> Export Data
+            </button>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Bookings Table Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">All Bookings</h6>
+            
+            <!-- Filters -->
+            <div class="d-flex">
+                <div class="me-2">
+                    <select class="form-select form-select-sm" id="statusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="Zoom Sent">Zoom Sent</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div>
+                    <select class="form-select form-select-sm" id="dateFilter">
+                        <option value="all">All Dates</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if bookings %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="bookingsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Preferred Date</th>
+                            <th>Preferred Time</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr data-status="{{ booking.status }}" data-date="{{ booking.created_at.strftime('%Y-%m-%d') }}">
+                            <td>{{ booking.name }}</td>
+                            <td>
+                                <a href="mailto:{{ booking.email }}">{{ booking.email }}</a>
+                            </td>
+                            <td>{{ booking.phone }}</td>
+                            <td>{{ booking.formatted_date }}</td>
+                            <td>{{ booking.formatted_time }}</td>
+                            <td>
+                                <span class="status-badge badge {% if booking.status == 'Pending' %}bg-warning{% elif booking.status == 'Contacted' %}bg-info{% elif booking.status == 'Zoom Sent' %}bg-primary{% elif booking.status == 'Completed' %}bg-success{% elif booking.status == 'Cancelled' %}bg-danger{% endif %}">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td>{{ booking.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><button class="dropdown-item view-booking" data-booking-id="{{ booking.id }}"><i class="fas fa-eye fa-sm me-2"></i>View Details</button></li>
+                                        <li><button class="dropdown-item update-status" data-booking-id="{{ booking.id }}" data-status="Contacted"><i class="fas fa-check fa-sm me-2"></i>Mark as Contacted</button></li>
+                                        <li><button class="dropdown-item update-status" data-booking-id="{{ booking.id }}" data-status="Zoom Sent"><i class="fas fa-video fa-sm me-2"></i>Mark Zoom Sent</button></li>
+                                        <li><button class="dropdown-item update-status" data-booking-id="{{ booking.id }}" data-status="Completed"><i class="fas fa-calendar-check fa-sm me-2"></i>Mark Completed</button></li>
+                                        <li><button class="dropdown-item update-status" data-booking-id="{{ booking.id }}" data-status="Cancelled"><i class="fas fa-ban fa-sm me-2"></i>Mark Cancelled</button></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><button class="dropdown-item send-zoom" data-booking-id="{{ booking.id }}"><i class="fas fa-paper-plane fa-sm me-2"></i>Send Zoom Link</button></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><button class="dropdown-item text-danger delete-booking" data-booking-id="{{ booking.id }}"><i class="fas fa-trash fa-sm me-2"></i>Delete</button></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted mb-0">No bookings found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div class="modal fade" id="bookingDetailsModal" tabindex="-1" aria-labelledby="bookingDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookingDetailsModalLabel">Booking Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingDetailsContent">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+                <form id="bookingNotesForm" class="mt-3">
+                    <div class="form-group">
+                        <label for="adminNotes" class="form-label">Admin Notes</label>
+                        <textarea class="form-control" id="adminNotes" name="admin_notes" rows="3"></textarea>
+                    </div>
+                    <input type="hidden" id="bookingNoteId" name="booking_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveNotesBtn">Save Notes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Zoom Link Modal -->
+<div class="modal fade" id="sendZoomModal" tabindex="-1" aria-labelledby="sendZoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sendZoomModalLabel">Send Zoom Link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="sendZoomForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipientName" class="form-label">Recipient</label>
+                        <input type="text" class="form-control" id="recipientName" readonly>
+                        <input type="hidden" id="recipientEmail">
+                        <input type="hidden" id="zoomBookingId" name="booking_id">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="sessionDate" class="form-label">Session Date</label>
+                            <input type="date" class="form-control" id="sessionDate" name="session_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="sessionTime" class="form-label">Session Time</label>
+                            <input type="time" class="form-control" id="sessionTime" name="session_time" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="zoomLink" class="form-label">Zoom Meeting Link</label>
+                        <input type="url" class="form-control" id="zoomLink" name="zoom_link" placeholder="https://zoom.us/j/..." required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="zoomMeetingId" class="form-label">Meeting ID</label>
+                            <input type="text" class="form-control" id="zoomMeetingId" name="zoom_meeting_id" placeholder="123 4567 8901">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="zoomPassword" class="form-label">Meeting Password</label>
+                            <input type="text" class="form-control" id="zoomPassword" name="zoom_password" placeholder="abc123">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Zoom Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteBookingModal" tabindex="-1" aria-labelledby="deleteBookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteBookingModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this booking? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Table filtering
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const bookingsTable = document.getElementById('bookingsTable');
+    
+    function filterTable() {
+        const statusValue = statusFilter.value;
+        const dateValue = dateFilter.value;
+        
+        if (bookingsTable) {
+            const rows = bookingsTable.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const date = row.getAttribute('data-date');
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Set initial visibility
+                let visible = true;
+                
+                // Apply status filter
+                if (statusValue !== 'all' && status !== statusValue) {
+                    visible = false;
+                }
+                
+                // Apply date filter
+                if (dateValue !== 'all' && visible) {
+                    if (dateValue === 'today' && date !== today) {
+                        visible = false;
+                    } else if (dateValue === 'week') {
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        const weekAgoStr = weekAgo.toISOString().split('T')[0];
+                        if (date < weekAgoStr) {
+                            visible = false;
+                        }
+                    } else if (dateValue === 'month') {
+                        const monthAgo = new Date();
+                        monthAgo.setMonth(monthAgo.getMonth() - 1);
+                        const monthAgoStr = monthAgo.toISOString().split('T')[0];
+                        if (date < monthAgoStr) {
+                            visible = false;
+                        }
+                    }
+                }
+                
+                // Show or hide row
+                row.style.display = visible ? '' : 'none';
+            });
+        }
+    }
+    
+    // Add event listeners to filters
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterTable);
+    }
+    
+    if (dateFilter) {
+        dateFilter.addEventListener('change', filterTable);
+    }
+    
+    // View booking details
+    const viewButtons = document.querySelectorAll('.view-booking');
+    const bookingModal = document.getElementById('bookingDetailsModal');
+    const bookingContent = document.getElementById('bookingDetailsContent');
+    const adminNotes = document.getElementById('adminNotes');
+    const bookingNoteId = document.getElementById('bookingNoteId');
+    
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookingId = this.getAttribute('data-booking-id');
+            
+            // Show loading
+            bookingContent.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Loading booking details...</p></div>';
+            
+            // Get booking details
+            fetch(`/admin/booking/${bookingId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const booking = data.booking;
+                        
+                        // Format the content
+                        let content = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="font-weight-bold">Personal Details</h6>
+                                    <p><strong>Name:</strong> ${booking.name}</p>
+                                    <p><strong>Email:</strong> <a href="mailto:${booking.email}">${booking.email}</a></p>
+                                    <p><strong>Phone:</strong> ${booking.phone}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="font-weight-bold">Session Details</h6>
+                                    <p><strong>Date Requested:</strong> ${booking.formatted_date}</p>
+                                    <p><strong>Time Requested:</strong> ${booking.formatted_time}</p>
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-${booking.status === 'Pending' ? 'warning' : 
+                                            booking.status === 'Contacted' ? 'info' : 
+                                            booking.status === 'Zoom Sent' ? 'primary' : 
+                                            booking.status === 'Completed' ? 'success' : 'danger'}">
+                                            ${booking.status}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        if (booking.comments) {
+                            content += `
+                                <div class="mt-3">
+                                    <h6 class="font-weight-bold">Comments</h6>
+                                    <p>${booking.comments}</p>
+                                </div>
+                            `;
+                        }
+                        
+                        bookingContent.innerHTML = content;
+                        adminNotes.value = booking.admin_notes || '';
+                        bookingNoteId.value = booking.id;
+                        
+                        // Show the modal
+                        const modal = new bootstrap.Modal(bookingModal);
+                        modal.show();
+                    } else {
+                        bookingContent.innerHTML = '<div class="alert alert-danger">Error loading booking details.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    bookingContent.innerHTML = '<div class="alert alert-danger">Error loading booking details.</div>';
+                });
+        });
+    });
+    
+    // Save notes
+    const saveNotesBtn = document.getElementById('saveNotesBtn');
+    
+    if (saveNotesBtn) {
+        saveNotesBtn.addEventListener('click', function() {
+            const bookingId = bookingNoteId.value;
+            const notes = adminNotes.value;
+            
+            fetch(`/admin/booking/${bookingId}/notes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `admin_notes=${encodeURIComponent(notes)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close the modal
+                    bootstrap.Modal.getInstance(bookingModal).hide();
+                    
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        Notes updated successfully
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.card'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+    
+    // Update status
+    const statusButtons = document.querySelectorAll('.update-status');
+    
+    statusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookingId = this.getAttribute('data-booking-id');
+            const newStatus = this.getAttribute('data-status');
+            
+            fetch(`/admin/booking/${bookingId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `status=${encodeURIComponent(newStatus)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update status in the table
+                    const row = this.closest('tr');
+                    const statusCell = row.querySelector('.status-badge');
+                    
+                    statusCell.textContent = newStatus;
+                    statusCell.className = `status-badge badge bg-${newStatus === 'Pending' ? 'warning' : 
+                        newStatus === 'Contacted' ? 'info' : 
+                        newStatus === 'Zoom Sent' ? 'primary' : 
+                        newStatus === 'Completed' ? 'success' : 'danger'}`;
+                        
+                    row.setAttribute('data-status', newStatus);
+                    
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        Status updated to ${newStatus}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.card'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+    
+    // Send Zoom Link
+    const sendZoomButtons = document.querySelectorAll('.send-zoom');
+    const sendZoomModal = document.getElementById('sendZoomModal');
+    const recipientName = document.getElementById('recipientName');
+    const recipientEmail = document.getElementById('recipientEmail');
+    const zoomBookingId = document.getElementById('zoomBookingId');
+    
+    sendZoomButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookingId = this.getAttribute('data-booking-id');
+            const name = this.closest('tr').querySelector('td:first-child').textContent;
+            const email = this.closest('tr').querySelector('td:nth-child(2) a').textContent;
+            
+            recipientName.value = name;
+            recipientEmail.value = email;
+            zoomBookingId.value = bookingId;
+            
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('sessionDate').value = today;
+            
+            // Set a default time (6:00 PM)
+            document.getElementById('sessionTime').value = '18:00';
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(sendZoomModal);
+            modal.show();
+        });
+    });
+    
+    // Handle zoom form submission
+    const sendZoomForm = document.getElementById('sendZoomForm');
+    
+    if (sendZoomForm) {
+        sendZoomForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('email', recipientEmail.value);
+            
+            fetch('/admin/send-zoom-link', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close the modal
+                    bootstrap.Modal.getInstance(sendZoomModal).hide();
+                    
+                    // Update status in the table
+                    const bookingId = zoomBookingId.value;
+                    const tableRow = document.querySelector(`tr button.send-zoom[data-booking-id="${bookingId}"]`).closest('tr');
+                    const statusCell = tableRow.querySelector('.status-badge');
+                    
+                    statusCell.textContent = 'Zoom Sent';
+                    statusCell.className = 'status-badge badge bg-primary';
+                    tableRow.setAttribute('data-status', 'Zoom Sent');
+                    
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        Zoom link sent successfully to ${recipientEmail.value}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.card'));
+                } else {
+                    // Show error message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    sendZoomForm.insertBefore(alertDiv, sendZoomForm.firstChild);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+    
+    // Delete booking
+    const deleteButtons = document.querySelectorAll('.delete-booking');
+    const deleteModal = document.getElementById('deleteBookingModal');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bookingId = this.getAttribute('data-booking-id');
+            confirmDeleteBtn.href = `/admin/booking/${bookingId}/delete`;
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(deleteModal);
+            modal.show();
+        });
+    });
+    
+    // Export data
+    const exportBtn = document.getElementById('exportBookingsBtn');
+    
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            window.location.href = '/admin/bookings/export';
+        });
+    }
+});
+</script>
+{% endblock %}

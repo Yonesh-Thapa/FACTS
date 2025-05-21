@@ -165,6 +165,69 @@ def send_contact_notification(contact):
         html_content=html_content
     )
 
+def send_booking_confirmation_email(name, email, preferred_date, preferred_time):
+    """
+    Send confirmation email for info session booking.
+    
+    Args:
+        name (str): Recipient's name
+        email (str): Recipient's email address
+        preferred_date (date): The preferred booking date
+        preferred_time (time): The preferred booking time
+        
+    Returns:
+        bool: True if email was sent successfully, False otherwise
+    """
+    # Format date and time for display
+    formatted_date = preferred_date.strftime('%d %B, %Y')  # e.g., 21 May, 2025
+    formatted_time = preferred_time.strftime('%I:%M %p')   # e.g., 03:30 PM
+    
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #007ACC; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0;">Your Info Session Booking</h1>
+        </div>
+        <div style="padding: 20px; border: 1px solid #ddd; border-top: none;">
+            <p>Hi {name},</p>
+            <p>Thank you for booking a free information session with Future Accountants Coaching & Training Service!</p>
+            
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #007ACC;">Your Requested Session Details:</h3>
+                <p><strong>Date:</strong> {formatted_date}</p>
+                <p><strong>Time:</strong> {formatted_time} AEST</p>
+            </div>
+            
+            <p>Our team will review your request and get back to you shortly to confirm your session and provide the Zoom meeting details.</p>
+            
+            <p>During this free info session, you'll learn more about:</p>
+            <ul>
+                <li>Our 8-week comprehensive accounting training program</li>
+                <li>The practical skills you'll develop with Xero and MYOB</li>
+                <li>Career assistance and job placement support</li>
+                <li>Early bird discounts and enrollment process</li>
+            </ul>
+            
+            <p>If you have any questions before your session, feel free to reply to this email or call us at 0449 547 715.</p>
+            
+            <p>We look forward to speaking with you!</p>
+            
+            <p>Best regards,<br>The F.A.C.T.S Team</p>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+                <p>Future Accountants Coaching and Training Service (F.A.C.T.S)</p>
+                <p>Email: <a href="mailto:fatrainingservice@gmail.com">fatrainingservice@gmail.com</a> | Phone: 0449 547 715</p>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return send_email(
+        to_email=email,
+        subject="Your F.A.C.T.S Info Session Booking Confirmation",
+        html_content=html_content,
+        bcc_email="fatrainingservice@gmail.com"  # Send a copy to the admin
+    )
+
 def send_contact_confirmation_email(name, email, message, interested=False):
     """
     Send confirmation email for contact form submission.

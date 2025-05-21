@@ -691,6 +691,87 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 # Route for info session email collection
+@app.route('/book-info-session', methods=['POST'])
+def book_info_session():
+    """Route to handle booking info session submissions from the custom calendar system"""
+    from models import InfoSessionBooking
+    from utils.email import send_booking_confirmation_email
+    from datetime import datetime, date
+    
+    # Check if it's an AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
+    try:
+        # Extract form data
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        preferred_date_str = request.form.get('preferred_date', '').strip()
+        preferred_time_str = request.form.get('preferred_time', '').strip()
+        comments = request.form.get('comments', '').strip()
+        
+        # Validate required fields
+        if not name or not email or not phone or not preferred_date_str or not preferred_time_str:
+            if is_ajax:
+                return jsonify({'success': False, 'message': 'Please fill in all required fields'})
+            else:
+                flash('Please fill in all required fields', 'danger')
+                return redirect(url_for('index'))
+        
+        # Parse date and time
+        try:
+            preferred_date = datetime.strptime(preferred_date_str, '%Y-%m-%d').date()
+            preferred_time = datetime.strptime(preferred_time_str, '%H:%M').time()
+        except ValueError:
+            if is_ajax:
+                return jsonify({'success': False, 'message': 'Invalid date or time format'})
+            else:
+                flash('Invalid date or time format', 'danger')
+                return redirect(url_for('index'))
+        
+        # Create new booking
+        new_booking = InfoSessionBooking(
+            name=name,
+            email=email,
+            phone=phone,
+            preferred_date=preferred_date,
+            preferred_time=preferred_time,
+            comments=comments,
+            status='Pending'
+        )
+        
+        # Save to database
+        db.session.add(new_booking)
+        db.session.commit()
+        
+        # Send confirmation email
+        try:
+            send_booking_confirmation_email(name, email, preferred_date, preferred_time)
+            app.logger.info(f"Booking confirmation email sent to {email}")
+        except Exception as email_error:
+            # Log the error but don't fail the submission
+            app.logger.error(f"Error sending booking confirmation email: {str(email_error)}")
+        
+        # Return response
+        if is_ajax:
+            return jsonify({
+                'success': True, 
+                'message': 'Your booking has been submitted successfully!'
+            })
+        else:
+            flash('Your booking has been submitted successfully! We\'ll be in touch soon with your Zoom invite.', 'success')
+            return redirect(url_for('index'))
+    
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error processing info session booking: {str(e)}")
+        
+        if is_ajax:
+            return jsonify({'success': False, 'message': 'An error occurred. Please try again later.'})
+        else:
+            flash('An error occurred. Please try again later.', 'danger')
+            return redirect(url_for('index'))
+
 @app.route('/info-session-register', methods=['POST'])
 def collect_info_session_email():
     from models import InfoSessionEmail

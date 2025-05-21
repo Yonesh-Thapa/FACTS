@@ -6,6 +6,42 @@ from sqlalchemy import and_, func
 from slugify import slugify
 import json
 
+
+class InfoSessionBooking(db.Model):
+    """Model for storing info session bookings from the custom calendar system"""
+    __tablename__ = 'info_session_bookings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, index=True)
+    email = db.Column(db.String(100), nullable=False, index=True)
+    phone = db.Column(db.String(20), nullable=False)
+    preferred_date = db.Column(db.Date, nullable=False, index=True)
+    preferred_time = db.Column(db.Time, nullable=False)
+    comments = db.Column(db.Text)
+    status = db.Column(db.String(50), default='Pending', index=True)  # 'Pending', 'Contacted', 'Zoom Sent', 'Completed', 'Cancelled'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    zoom_link_sent = db.Column(db.Boolean, default=False)
+    zoom_link_sent_at = db.Column(db.DateTime)
+    admin_notes = db.Column(db.Text)
+    
+    def __repr__(self):
+        return f'<InfoSessionBooking {self.name} - {self.preferred_date}>'
+    
+    @property
+    def formatted_date(self):
+        """Return the preferred date formatted as DD/MM/YYYY"""
+        if self.preferred_date:
+            return self.preferred_date.strftime('%d/%m/%Y')
+        return "N/A"
+    
+    @property
+    def formatted_time(self):
+        """Return the preferred time formatted as HH:MM AM/PM"""
+        if self.preferred_time:
+            return self.preferred_time.strftime('%I:%M %p')
+        return "N/A"
+
 class Contact(db.Model):
     __tablename__ = 'contacts'
     
