@@ -1943,3 +1943,55 @@ hr {
 .coming-soon-container i {
     color: var(--primary-color);
 }
+
+/* =================
+   Calendly Styling
+   ================= */
+.calendly-embed-container {
+    margin-top: 2rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.calendly-embed-container h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Make Calendly responsive */
+.calendly-inline-widget {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Ensure Calendly badge doesn't overlap with chat bubble */
+.calendly-badge-widget {
+    left: 20px !important;
+    right: auto !important;
+    bottom: 20px !important;
+    z-index: 1005 !important; /* Lower than chat bubble */
+}
+
+/* Mobile responsiveness for Calendly */
+@media (max-width: 768px) {
+    .calendly-badge-widget {
+        bottom: 70px !important; /* Move up on mobile to avoid overlapping with the chat bubble */
+    }
+    
+    .calendly-embed-container {
+        margin-top: 1.5rem;
+    }
+    
+    .calendly-embed-container h3 {
+        font-size: 1.25rem;
+    }
+    
+    .calendly-inline-widget {
+        height: 580px !important; /* Slightly shorter on mobile */
+    }
+}
