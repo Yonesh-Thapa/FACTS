@@ -61,6 +61,11 @@
     <!-- Chat Widget CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat-widget.css') }}">
     
+    <!-- Site Settings for JavaScript -->
+    <script>
+        window.siteSettings = {{ site_settings | tojson }};
+    </script>
+    
     <!-- JSON-LD Structured Data for Organization -->
     <script type="application/ld+json">
     {

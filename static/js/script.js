@@ -288,8 +288,15 @@ function initCountdownTimer() {
         return;
     }
     
-    // Set the deadline date to May 30, 2025 - using explicit date format to avoid any confusion
-    const earlyBirdDeadline = new Date('2025-05-30T23:59:59');
+    // Get deadline from site settings or use default
+    let deadlineString = window.siteSettings?.early_bird_deadline || '2025-12-31T23:59:59';
+    
+    // Handle datetime format from database (convert space to T for JS Date parsing)
+    if (deadlineString.includes(' ') && !deadlineString.includes('T')) {
+        deadlineString = deadlineString.replace(' ', 'T');
+    }
+    
+    const earlyBirdDeadline = new Date(deadlineString);
     const deadline = earlyBirdDeadline.getTime();
     console.log('Deadline set to:', earlyBirdDeadline.toLocaleString());
     
