@@ -1647,6 +1647,42 @@ def admin_send_zoom_link():
         'message': 'Booking not found'
     })
 
+# Page Content Management
+@app.route('/admin/page-content', methods=['GET', 'POST'])
+@login_required
+def admin_page_content():
+    """Admin route to manage page-specific content"""
+    from models import SiteSetting
+    
+    if request.method == 'POST':
+        # Handle form submission to update settings
+        for key, value in request.form.items():
+            if key.startswith('setting_'):
+                setting_key = key.replace('setting_', '')
+                setting = SiteSetting.query.filter_by(key=setting_key).first()
+                
+                if setting:
+                    setting.value = value
+                    setting.updated_by = current_user.id
+                    setting.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        flash('Page content updated successfully', 'success')
+        return redirect(url_for('admin_page_content'))
+    
+    # Get page-specific settings
+    page_categories = ['home_page', 'about_page', 'program_page', 'pricing_page']
+    settings = SiteSetting.query.filter(SiteSetting.category.in_(page_categories)).order_by(SiteSetting.category, SiteSetting.key).all()
+    
+    # Group settings by category
+    settings_by_category = {}
+    for setting in settings:
+        if setting.category not in settings_by_category:
+            settings_by_category[setting.category] = []
+        settings_by_category[setting.category].append(setting)
+    
+    return render_template('admin/page_content.html', settings_by_category=settings_by_category)
+
 # Site Settings Management
 @app.route('/admin/settings', methods=['GET', 'POST'])
 @login_required
