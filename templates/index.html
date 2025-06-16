@@ -18,7 +18,7 @@
                 </div>
                 <p class="session-info">Next Session Starts {{ site_settings.next_session_start_date.strftime('%B %d, %Y') if site_settings.next_session_start_date else 'June 5, 2025' }} – {{ site_settings.session_days or 'Wed & Thu' }}, {{ site_settings.session_time or '7:00-9:00 PM AEST' }}</p>
                 <p class="class-size-note"><i class="fas fa-users"></i> Only {{ site_settings.max_class_size or '10' }} students per session for personalized attention.</p>
-                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg hero-cta">Apply Now – Secure Your Spot</a>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg hero-cta">{{ site_settings.hero_cta_text or 'Apply Now – Secure Your Spot' }}</a>
             </div>
             <div class="col-lg-6">
                 <div class="hero-image">
@@ -35,7 +35,7 @@
         <div class="row align-items-center">
             <!-- Video Column -->
             <div class="col-lg-6 mb-4 mb-lg-0">
-                <h2 class="section-title text-center mb-4">Meet Your Mentor</h2>
+                <h2 class="section-title text-center mb-4">{{ site_settings.mentor_section_title or 'Meet Your Mentor' }}</h2>
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
                     <div id="mentor-video-player" class="custom-video-player">
@@ -88,23 +88,23 @@
             
             <!-- Why Choose F.A.C.T.S Column -->
             <div class="col-lg-6">
-                <h2 class="section-title text-center mb-4">Why Choose F.A.C.T.S</h2>
+                <h2 class="section-title text-center mb-4">{{ site_settings.why_choose_title or 'Why Choose F.A.C.T.S?' }}</h2>
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="about-content">
                     <h3>Bridging the Gap from Graduation to Employment</h3>
-                    <p>Future Accountants Coaching and Training Service (F.A.C.T.S) helps accounting graduates gain the practical skills employers are looking for. We combine technical software training with career preparation to help you stand out in the job market.</p>
+                    <p>{{ site_settings.why_choose_description or 'F.A.C.T.S bridges the gap between your accounting education and real-world employment. Our comprehensive program combines practical software training, personalized career coaching, and job placement support to ensure you\'re ready for the workforce.' }}</p>
                     <div class="features-list">
                         <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
-                            <span>Industry expert instructor with real-world experience</span>
+                            <span>{{ site_settings.feature_1_title or 'Job-Ready Skills Training' }}: {{ site_settings.feature_1_description or 'Comprehensive training in Xero & MYOB' }}</span>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
-                            <span>Small class sizes for personalized attention</span>
+                            <span>{{ site_settings.feature_2_title or 'Small Class Sizes' }}: {{ site_settings.feature_2_description or 'Small class sizes for personalized attention' }}</span>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle"></i>
-                            <span>100% online, accessible from anywhere in Australia</span>
+                            <span>{{ site_settings.feature_3_title or '100% Online Access' }}: {{ site_settings.feature_3_description or '100% online, accessible from anywhere in Australia' }}</span>
                         </div>
                     </div>
                     <div class="mt-4">
@@ -122,7 +122,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-4">
-                <h2 class="section-title">Program Highlights</h2>
+                <h2 class="section-title">{{ site_settings.program_highlights_title or 'Program Highlights' }}</h2>
                 <div class="section-divider"></div>
             </div>
         </div>
@@ -132,8 +132,8 @@
                     <div class="highlight-icon">
                         <i class="fas fa-laptop-code"></i>
                     </div>
-                    <h3>Practical Software Training</h3>
-                    <p>Hands-on experience with Xero & MYOB</p>
+                    <h3>{{ site_settings.highlight_1_title or 'Practical Software Training' }}</h3>
+                    <p>{{ site_settings.highlight_1_description or 'Hands-on experience with Xero & MYOB' }}</p>
                 </div>
             </div>
             <div class="col-md-6 mb-4">
@@ -141,8 +141,8 @@
                     <div class="highlight-icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <h3>Live Instructor-Led Sessions</h3>
-                    <p>Interactive online classes with real-time feedback, questions, and discussions with our expert instructors.</p>
+                    <h3>{{ site_settings.highlight_2_title or 'Live Instructor-Led Sessions' }}</h3>
+                    <p>{{ site_settings.highlight_2_description or 'Interactive online classes with real-time feedback, questions, and discussions with our expert instructors.' }}</p>
                 </div>
             </div>
         </div>
@@ -152,8 +152,8 @@
                     <div class="highlight-icon">
                         <i class="fas fa-briefcase"></i>
                     </div>
-                    <h3>Job Placement Support</h3>
-                    <p>Resume workshops, LinkedIn profile optimization, and interview practice sessions to help you land your first accounting role.</p>
+                    <h3>{{ site_settings.highlight_3_title or 'Job Placement Support' }}</h3>
+                    <p>{{ site_settings.highlight_3_description or 'Resume workshops, LinkedIn profile optimization, and interview practice sessions to help you land your first accounting role.' }}</p>
                 </div>
             </div>
             <div class="col-md-6 mb-4">
@@ -161,8 +161,8 @@
                     <div class="highlight-icon">
                         <i class="fas fa-robot"></i>
                     </div>
-                    <h3>Future-Proof Skills (AI & Cybersecurity)</h3>
-                    <p>As part of our commitment to future-proofing your skills, we include an introduction to AI tools and cybersecurity basics within the program, making you more competitive in the modern job market.</p>
+                    <h3>{{ site_settings.highlight_4_title or 'Future-Proof Skills (AI & Cybersecurity)' }}</h3>
+                    <p>{{ site_settings.highlight_4_description or 'As part of our commitment to future-proofing your skills, we include an introduction to AI tools and cybersecurity basics within the program, making you more competitive in the modern job market.' }}</p>
                 </div>
             </div>
         </div>
@@ -201,9 +201,9 @@
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
                 <div class="info-session-card p-4 rounded shadow-sm">
-                    <h2 class="section-title">Book Your Free Info Session</h2>
+                    <h2 class="section-title">{{ site_settings.info_session_title or 'Join Our Free Info Session' }}</h2>
                     <div class="section-divider"></div>
-                    <p class="lead mb-3">Learn more about our program, meet our instructor, and get your questions answered in a personalized information session.</p>
+                    <p class="lead mb-3">{{ site_settings.info_session_description or 'Get all your questions answered and learn more about how F.A.C.T.S can help launch your accounting career.' }}</p>
                     
                     <div class="row">
                         <div class="col-lg-12">

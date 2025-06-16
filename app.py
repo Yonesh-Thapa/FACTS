@@ -1701,10 +1701,40 @@ def admin_seed_settings():
         ('early_bird_savings', '150', 'number', 'Early bird savings amount', 'pricing'),
         ('max_class_size', '10', 'number', 'Maximum students per class', 'pricing'),
         
-        # Content
-        ('hero_title', 'Launch Your Accounting Career with F.A.C.T.S', 'text', 'Main hero title', 'content'),
-        ('hero_subtitle', 'Job-Ready Online Training for Aspiring Accountants Across Australia', 'text', 'Hero subtitle', 'content'),
-        ('early_bird_banner_text', '🎉 Save $150 if you enroll by May 30 – Only 10 seats per session!', 'text', 'Early bird banner text', 'content'),
+        # Hero Section Content
+        ('hero_title', 'Launch Your Accounting Career with F.A.C.T.S', 'text', 'Main hero title', 'hero'),
+        ('hero_subtitle', 'Job-Ready Online Training for Aspiring Accountants Across Australia', 'text', 'Hero subtitle', 'hero'),
+        ('early_bird_banner_text', '🎉 Save $150 if you enroll by May 30 – Only 10 seats per session!', 'text', 'Early bird banner text', 'hero'),
+        ('hero_cta_text', 'Apply Now – Secure Your Spot', 'text', 'Hero call-to-action button text', 'hero'),
+        
+        # About/Why Choose Us Section
+        ('why_choose_title', 'Why Choose F.A.C.T.S?', 'text', 'Why choose us section title', 'about'),
+        ('why_choose_description', 'F.A.C.T.S bridges the gap between your accounting education and real-world employment. Our comprehensive program combines practical software training, personalized career coaching, and job placement support to ensure you\'re ready for the workforce.', 'text', 'Why choose us description', 'about'),
+        ('feature_1_title', 'Job-Ready Skills Training', 'text', 'First feature title', 'about'),
+        ('feature_1_description', 'Comprehensive training in Xero & MYOB', 'text', 'First feature description', 'about'),
+        ('feature_2_title', 'Small Class Sizes', 'text', 'Second feature title', 'about'),
+        ('feature_2_description', 'Small class sizes for personalized attention', 'text', 'Second feature description', 'about'),
+        ('feature_3_title', '100% Online Access', 'text', 'Third feature title', 'about'),
+        ('feature_3_description', '100% online, accessible from anywhere in Australia', 'text', 'Third feature description', 'about'),
+        
+        # Program Highlights Section
+        ('program_highlights_title', 'Program Highlights', 'text', 'Program highlights section title', 'program'),
+        ('highlight_1_title', 'Practical Software Training', 'text', 'First highlight title', 'program'),
+        ('highlight_1_description', 'Hands-on experience with Xero & MYOB', 'text', 'First highlight description', 'program'),
+        ('highlight_2_title', 'Live Instructor-Led Sessions', 'text', 'Second highlight title', 'program'),
+        ('highlight_2_description', 'Interactive online classes with real-time feedback, questions, and discussions with our expert instructors.', 'text', 'Second highlight description', 'program'),
+        ('highlight_3_title', 'Job Placement Support', 'text', 'Third highlight title', 'program'),
+        ('highlight_3_description', 'Resume workshops, LinkedIn profile optimization, and interview practice sessions to help you land your first accounting role.', 'text', 'Third highlight description', 'program'),
+        ('highlight_4_title', 'Future-Proof Skills (AI & Cybersecurity)', 'text', 'Fourth highlight title', 'program'),
+        ('highlight_4_description', 'As part of our commitment to future-proofing your skills, we include an introduction to AI tools and cybersecurity basics within the program, making you more competitive in the modern job market.', 'text', 'Fourth highlight description', 'program'),
+        
+        # Mentor Section
+        ('mentor_section_title', 'Meet Your Mentor', 'text', 'Mentor section title', 'mentor'),
+        
+        # Info Session Section
+        ('info_session_title', 'Join Our Free Info Session', 'text', 'Info session section title', 'info_session'),
+        ('info_session_description', 'Get all your questions answered and learn more about how F.A.C.T.S can help launch your accounting career.', 'text', 'Info session description', 'info_session'),
+        ('info_session_cta', 'Register for Free Info Session', 'text', 'Info session call-to-action text', 'info_session'),
         
         # Media
         ('hero_video_file', 'intro_video.mp4', 'text', 'Hero video filename', 'media'),
