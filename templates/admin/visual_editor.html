@@ -1,0 +1,504 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Visual Website Editor - F.A.C.T.S Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Visual Website Editor</h1>
+            <small class="text-muted">Preview your website and click on text to edit it directly</small>
+        </div>
+        <div>
+            <button id="editModeToggle" class="btn btn-primary me-2">
+                <i class="fas fa-edit me-2"></i>Enable Edit Mode
+            </button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Guide -->
+    <div class="alert alert-info mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h6 class="mb-1"><i class="fas fa-lightbulb me-2"></i>How to Use</h6>
+                <p class="mb-0 small">
+                    1. Click "Enable Edit Mode" above
+                    2. Hover over any text on your website to see edit areas
+                    3. Click on highlighted text to edit it
+                    4. Save your changes when done
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="badge bg-success">Live Preview</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Mode Toolbar -->
+    <div id="editToolbar" class="card shadow mb-4" style="display: none;">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-0 text-success">
+                        <i class="fas fa-mouse-pointer me-2"></i>Edit Mode Active
+                    </h5>
+                    <small class="text-muted">Click on any text element below to edit it directly</small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button id="saveAllChanges" class="btn btn-success me-2" style="display: none;">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    <button id="cancelEditing" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Website Preview Frame -->
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <div id="websitePreview" class="website-preview">
+                <!-- Live website content will be loaded here -->
+                <iframe id="previewFrame" 
+                        src="{{ url_for('index') }}" 
+                        width="100%" 
+                        height="800px" 
+                        frameborder="0"
+                        style="border-radius: 8px;">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Content
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="mb-3">
+                        <label for="contentKey" class="form-label">Content Key</label>
+                        <input type="text" class="form-control" id="contentKey" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contentDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="contentDescription" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contentValue" class="form-label">Content</label>
+                        <textarea class="form-control" id="contentValue" rows="4" placeholder="Enter your content here..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveContent">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.website-preview {
+    position: relative;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.editable-overlay {
+    position: absolute;
+    background: rgba(0, 123, 255, 0.1);
+    border: 2px dashed #007bff;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+}
+
+.editable-overlay:hover {
+    background: rgba(0, 123, 255, 0.2);
+    border-color: #0056b3;
+}
+
+.editable-overlay::after {
+    content: "Click to edit";
+    position: absolute;
+    top: -25px;
+    left: 0;
+    background: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.editable-overlay:hover::after {
+    opacity: 1;
+}
+
+.edit-highlight {
+    background: rgba(40, 167, 69, 0.2) !important;
+    border-color: #28a745 !important;
+}
+
+#previewFrame {
+    transition: all 0.3s ease;
+}
+
+.edit-mode-active #previewFrame {
+    pointer-events: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editModeToggle = document.getElementById('editModeToggle');
+    const editToolbar = document.getElementById('editToolbar');
+    const saveAllChanges = document.getElementById('saveAllChanges');
+    const cancelEditing = document.getElementById('cancelEditing');
+    const previewFrame = document.getElementById('previewFrame');
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    
+    let editMode = false;
+    let changes = {};
+    
+    // Editable content mapping
+    const editableContent = {
+        'hero_title': {
+            selector: '.hero-title h1, h1.hero-title',
+            key: 'home_hero_title',
+            description: 'Homepage Hero Title',
+            type: 'text'
+        },
+        'hero_subtitle': {
+            selector: '.hero-subtitle, .hero-content .lead',
+            key: 'home_hero_subtitle', 
+            description: 'Homepage Hero Subtitle',
+            type: 'textarea'
+        },
+        'early_bird_banner': {
+            selector: '.early-bird-banner, .alert-warning',
+            key: 'home_early_bird_banner',
+            description: 'Early Bird Banner Text',
+            type: 'textarea'
+        },
+        'why_choose_title': {
+            selector: 'h2:contains("Why Choose")',
+            key: 'home_why_choose_title',
+            description: 'Why Choose Section Title',
+            type: 'text'
+        },
+        'why_choose_description': {
+            selector: '.about-content p:first-of-type',
+            key: 'home_why_choose_description',
+            description: 'Why Choose Description',
+            type: 'textarea'
+        },
+        'feature_1': {
+            selector: '.feature-item:nth-child(1) span',
+            key: 'home_feature_1_title',
+            description: 'Feature 1 Title',
+            type: 'text'
+        },
+        'feature_2': {
+            selector: '.feature-item:nth-child(2) span',
+            key: 'home_feature_2_title',
+            description: 'Feature 2 Title',
+            type: 'text'
+        },
+        'feature_3': {
+            selector: '.feature-item:nth-child(3) span',
+            key: 'home_feature_3_title',
+            description: 'Feature 3 Title',
+            type: 'text'
+        },
+        'program_highlights_title': {
+            selector: '.program-highlights h2.section-title',
+            key: 'home_program_highlights_title',
+            description: 'Program Highlights Title',
+            type: 'text'
+        },
+        'highlight_1_title': {
+            selector: '.highlight-card:nth-child(1) h3',
+            key: 'home_highlight_1_title',
+            description: 'Program Highlight 1 Title',
+            type: 'text'
+        },
+        'highlight_1_desc': {
+            selector: '.highlight-card:nth-child(1) p',
+            key: 'home_highlight_1_desc',
+            description: 'Program Highlight 1 Description',
+            type: 'textarea'
+        },
+        'highlight_2_title': {
+            selector: '.highlight-card:nth-child(2) h3',
+            key: 'home_highlight_2_title',
+            description: 'Program Highlight 2 Title',
+            type: 'text'
+        },
+        'highlight_2_desc': {
+            selector: '.highlight-card:nth-child(2) p',
+            key: 'home_highlight_2_desc',
+            description: 'Program Highlight 2 Description',
+            type: 'textarea'
+        },
+        'highlight_3_title': {
+            selector: '.highlight-card:nth-child(3) h3',
+            key: 'home_highlight_3_title',
+            description: 'Program Highlight 3 Title',
+            type: 'text'
+        },
+        'highlight_3_desc': {
+            selector: '.highlight-card:nth-child(3) p',
+            key: 'home_highlight_3_desc',
+            description: 'Program Highlight 3 Description',
+            type: 'textarea'
+        },
+        'highlight_4_title': {
+            selector: '.highlight-card:nth-child(4) h3',
+            key: 'home_highlight_4_title',
+            description: 'Program Highlight 4 Title',
+            type: 'text'
+        },
+        'highlight_4_desc': {
+            selector: '.highlight-card:nth-child(4) p',
+            key: 'home_highlight_4_desc',
+            description: 'Program Highlight 4 Description',
+            type: 'textarea'
+        },
+        'info_session_title': {
+            selector: '.info-session-card h2.section-title',
+            key: 'home_info_session_title',
+            description: 'Info Session Title',
+            type: 'text'
+        },
+        'info_session_desc': {
+            selector: '.info-session-card .lead',
+            key: 'home_info_session_desc',
+            description: 'Info Session Description',
+            type: 'textarea'
+        }
+    };
+    
+    editModeToggle.addEventListener('click', function() {
+        editMode = !editMode;
+        toggleEditMode();
+    });
+    
+    cancelEditing.addEventListener('click', function() {
+        editMode = false;
+        toggleEditMode();
+        changes = {};
+    });
+    
+    function toggleEditMode() {
+        if (editMode) {
+            editModeToggle.innerHTML = '<i class="fas fa-eye me-2"></i>Preview Mode';
+            editModeToggle.className = 'btn btn-secondary me-2';
+            editToolbar.style.display = 'block';
+            enableEditMode();
+        } else {
+            editModeToggle.innerHTML = '<i class="fas fa-edit me-2"></i>Enable Edit Mode';
+            editModeToggle.className = 'btn btn-primary me-2';
+            editToolbar.style.display = 'none';
+            disableEditMode();
+        }
+    }
+    
+    function enableEditMode() {
+        previewFrame.onload = function() {
+            const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            
+            // Add jQuery-like contains functionality for cross-frame compatibility
+            function findElementsContaining(text, tagName = '*') {
+                const elements = frameDoc.querySelectorAll(tagName);
+                return Array.from(elements).filter(el => 
+                    el.textContent.includes(text) && 
+                    el.children.length === 0 // Only leaf nodes
+                );
+            }
+            
+            // Add click handlers to editable elements
+            Object.keys(editableContent).forEach(contentId => {
+                const config = editableContent[contentId];
+                let elements = [];
+                
+                // Handle special selectors
+                if (config.selector.includes(':contains(')) {
+                    const match = config.selector.match(/(.+):contains\("([^"]+)"\)/);
+                    if (match) {
+                        const tagName = match[1];
+                        const text = match[2];
+                        elements = findElementsContaining(text, tagName);
+                    }
+                } else {
+                    // Use regular querySelector
+                    elements = Array.from(frameDoc.querySelectorAll(config.selector));
+                }
+                
+                elements.forEach((element, index) => {
+                    if (!element) return;
+                    
+                    // Create edit overlay
+                    const overlay = frameDoc.createElement('div');
+                    overlay.className = 'edit-overlay';
+                    overlay.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        border: 2px dashed transparent;
+                        background: transparent;
+                        cursor: pointer;
+                        z-index: 9999;
+                        transition: all 0.2s ease;
+                        pointer-events: auto;
+                    `;
+                    
+                    // Position overlay relative to element
+                    element.style.position = element.style.position || 'relative';
+                    element.appendChild(overlay);
+                    
+                    // Add hover effects
+                    overlay.addEventListener('mouseover', function() {
+                        this.style.border = '2px dashed #007bff';
+                        this.style.background = 'rgba(0, 123, 255, 0.15)';
+                        
+                        // Add tooltip
+                        const tooltip = frameDoc.createElement('div');
+                        tooltip.className = 'edit-tooltip';
+                        tooltip.textContent = `Click to edit: ${config.description}`;
+                        tooltip.style.cssText = `
+                            position: absolute;
+                            top: -30px;
+                            left: 0;
+                            background: #007bff;
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            white-space: nowrap;
+                            z-index: 10000;
+                            pointer-events: none;
+                        `;
+                        this.appendChild(tooltip);
+                    });
+                    
+                    overlay.addEventListener('mouseout', function() {
+                        this.style.border = '2px dashed transparent';
+                        this.style.background = 'transparent';
+                        
+                        // Remove tooltip
+                        const tooltip = this.querySelector('.edit-tooltip');
+                        if (tooltip) tooltip.remove();
+                    });
+                    
+                    overlay.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openEditModal(config, element.textContent.trim());
+                    });
+                });
+            });
+        };
+        
+        // Reload frame to apply edit handlers
+        previewFrame.src = previewFrame.src;
+    }
+    
+    function disableEditMode() {
+        previewFrame.onload = null;
+        previewFrame.src = previewFrame.src;
+    }
+    
+    function openEditModal(config, currentValue) {
+        document.getElementById('contentKey').value = config.key;
+        document.getElementById('contentDescription').value = config.description;
+        document.getElementById('contentValue').value = currentValue;
+        editModal.show();
+    }
+    
+    document.getElementById('saveContent').addEventListener('click', function() {
+        const key = document.getElementById('contentKey').value;
+        const value = document.getElementById('contentValue').value;
+        
+        changes[key] = value;
+        
+        // Show save button if there are changes
+        if (Object.keys(changes).length > 0) {
+            saveAllChanges.style.display = 'inline-block';
+        }
+        
+        editModal.hide();
+        
+        // Update the preview
+        updatePreview(key, value);
+    });
+    
+    function updatePreview(key, value) {
+        const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+        
+        // Find and update the corresponding element
+        Object.keys(editableContent).forEach(contentId => {
+            const config = editableContent[contentId];
+            if (config.key === key) {
+                const elements = frameDoc.querySelectorAll(config.selector);
+                elements.forEach(element => {
+                    element.textContent = value;
+                    element.style.background = 'rgba(40, 167, 69, 0.2)';
+                    setTimeout(() => {
+                        element.style.background = 'transparent';
+                    }, 1000);
+                });
+            }
+        });
+    }
+    
+    saveAllChanges.addEventListener('click', function() {
+        // Send all changes to server
+        fetch('/admin/visual-editor/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(changes)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Changes saved successfully!');
+                changes = {};
+                saveAllChanges.style.display = 'none';
+                
+                // Reload the main website
+                previewFrame.src = previewFrame.src;
+            } else {
+                alert('Error saving changes: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error saving changes');
+        });
+    });
+});
+</script>
+{% endblock %}

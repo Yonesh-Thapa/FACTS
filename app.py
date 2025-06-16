@@ -1647,6 +1647,36 @@ def admin_send_zoom_link():
         'message': 'Booking not found'
     })
 
+# Visual Website Editor
+@app.route('/admin/visual-editor')
+@login_required
+def admin_visual_editor():
+    """Visual website editor interface"""
+    return render_template('admin/visual_editor.html')
+
+@app.route('/admin/visual-editor/save', methods=['POST'])
+@login_required
+def admin_visual_editor_save():
+    """Save changes from visual editor"""
+    from models import SiteSetting
+    
+    try:
+        changes = request.get_json()
+        
+        for key, value in changes.items():
+            setting = SiteSetting.query.filter_by(key=key).first()
+            if setting:
+                setting.value = value
+                setting.updated_by = current_user.id
+                setting.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Changes saved successfully'})
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+
 # Page Content Management
 @app.route('/admin/page-content', methods=['GET', 'POST'])
 @login_required

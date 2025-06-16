@@ -405,6 +405,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_visual_editor') }}" {% if request.path == url_for('admin_visual_editor') %}class="active"{% endif %}>
+                    <i class="fas fa-paint-brush" aria-hidden="true"></i> Visual Editor
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_page_content') }}" {% if request.path == url_for('admin_page_content') %}class="active"{% endif %}>
                     <i class="fas fa-file-alt" aria-hidden="true"></i> Page Content
                 </a>
