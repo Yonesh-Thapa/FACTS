@@ -8,16 +8,16 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="hero-title">Launch Your Accounting Career with F.A.C.T.S</h1>
-                <h2 class="hero-subtitle">Job-Ready Online Training for Aspiring Accountants Across Australia</h2>
+                <h1 class="hero-title">{{ site_settings.hero_title or 'Launch Your Accounting Career with F.A.C.T.S' }}</h1>
+                <h2 class="hero-subtitle">{{ site_settings.hero_subtitle or 'Job-Ready Online Training for Aspiring Accountants Across Australia' }}</h2>
                 <div class="early-bird-banner mb-3">
-                    <p>🎉 Save $150 if you enroll by May 30 – Only 10 seats per session!</p>
+                    <p>{{ site_settings.early_bird_banner_text or '🎉 Save $150 if you enroll by May 30 – Only 10 seats per session!' }}</p>
                 </div>
                 <div class="countdown-timer mb-3">
                     <p>⏳ Early Bird Offer Ends In: <span id="countdown-timer"></span></p>
                 </div>
-                <p class="session-info">Next Session Starts June 5, 2025 – Wed & Thu, 7:00-9:00 PM AEST</p>
-                <p class="class-size-note"><i class="fas fa-users"></i> Only 10 students per session for personalized attention.</p>
+                <p class="session-info">Next Session Starts {{ site_settings.next_session_start_date.strftime('%B %d, %Y') if site_settings.next_session_start_date else 'June 5, 2025' }} – {{ site_settings.session_days or 'Wed & Thu' }}, {{ site_settings.session_time or '7:00-9:00 PM AEST' }}</p>
+                <p class="class-size-note"><i class="fas fa-users"></i> Only {{ site_settings.max_class_size or '10' }} students per session for personalized attention.</p>
                 <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg hero-cta">Apply Now – Secure Your Spot</a>
             </div>
             <div class="col-lg-6">

@@ -109,6 +109,22 @@ def load_user(user_id):
     from models import Admin
     return Admin.query.get(int(user_id))
 
+# Global template function to load site settings
+@app.context_processor
+def inject_site_settings():
+    """Inject site settings into all templates"""
+    from models import SiteSetting
+    
+    try:
+        settings_query = SiteSetting.query.all()
+        settings = {}
+        for setting in settings_query:
+            settings[setting.key] = setting.parsed_value
+        return {'site_settings': settings}
+    except Exception:
+        # Return empty dict if database not ready or error occurs
+        return {'site_settings': {}}
+
 # Custom Jinja2 filters
 @app.template_filter('nl2br')
 def nl2br_filter(text):
@@ -1620,6 +1636,94 @@ def admin_send_zoom_link():
         'success': False,
         'message': 'Booking not found'
     })
+
+# Site Settings Management
+@app.route('/admin/settings', methods=['GET', 'POST'])
+@login_required
+def admin_settings():
+    """Admin route to manage site-wide settings"""
+    from models import SiteSetting
+    
+    if request.method == 'POST':
+        # Handle form submission to update settings
+        for key, value in request.form.items():
+            if key.startswith('setting_'):
+                setting_key = key.replace('setting_', '')
+                setting = SiteSetting.query.filter_by(key=setting_key).first()
+                
+                if setting:
+                    setting.value = value
+                    setting.updated_by = current_user.id
+                    setting.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        flash('Settings updated successfully', 'success')
+        return redirect(url_for('admin_settings'))
+    
+    # Get all settings organized by category
+    settings = SiteSetting.query.order_by(SiteSetting.category, SiteSetting.key).all()
+    
+    # Group settings by category
+    settings_by_category = {}
+    for setting in settings:
+        if setting.category not in settings_by_category:
+            settings_by_category[setting.category] = []
+        settings_by_category[setting.category].append(setting)
+    
+    return render_template('admin/settings.html', settings_by_category=settings_by_category)
+
+@app.route('/admin/settings/seed', methods=['POST'])
+@login_required
+def admin_seed_settings():
+    """Seed default settings"""
+    from models import SiteSetting
+    
+    default_settings = [
+        # Dates and Timers
+        ('early_bird_deadline', '2025-12-31 23:59:59', 'datetime', 'Early bird offer deadline', 'dates'),
+        ('next_session_start_date', '2025-07-01', 'date', 'Next session start date', 'dates'),
+        ('session_days', 'Wednesday and Thursday', 'text', 'Session days of the week', 'dates'),
+        ('session_time', '7:00-9:00 PM AEST', 'text', 'Session time', 'dates'),
+        
+        # Pricing
+        ('regular_price', '1650', 'number', 'Regular price in AUD', 'pricing'),
+        ('early_bird_price', '1500', 'number', 'Early bird price in AUD', 'pricing'),
+        ('early_bird_savings', '150', 'number', 'Early bird savings amount', 'pricing'),
+        ('max_class_size', '10', 'number', 'Maximum students per class', 'pricing'),
+        
+        # Content
+        ('hero_title', 'Launch Your Accounting Career with F.A.C.T.S', 'text', 'Main hero title', 'content'),
+        ('hero_subtitle', 'Job-Ready Online Training for Aspiring Accountants Across Australia', 'text', 'Hero subtitle', 'content'),
+        ('early_bird_banner_text', '🎉 Save $150 if you enroll by May 30 – Only 10 seats per session!', 'text', 'Early bird banner text', 'content'),
+        
+        # Media
+        ('hero_video_file', 'intro_video.mp4', 'text', 'Hero video filename', 'media'),
+        ('mentor_image', 'tutor.jpg', 'text', 'Mentor image filename', 'media'),
+        ('hero_image', 'classroom_accounting.jpg', 'text', 'Hero section image', 'media'),
+        
+        # Contact Info
+        ('contact_email', 'fatrainingservice@gmail.com', 'text', 'Contact email address', 'contact'),
+        ('contact_phone', '0449 547 715', 'text', 'Contact phone number', 'contact'),
+        ('instagram_handle', '@future_accountants_cts', 'text', 'Instagram handle', 'contact'),
+        ('facebook_url', 'https://www.facebook.com/people/Future-Accountants-Coaching-Training-Service/61574242315278/', 'text', 'Facebook page URL', 'contact'),
+    ]
+    
+    for key, value, value_type, description, category in default_settings:
+        existing = SiteSetting.query.filter_by(key=key).first()
+        if not existing:
+            setting = SiteSetting(
+                key=key,
+                value=value,
+                value_type=value_type,
+                description=description,
+                category=category,
+                updated_by=current_user.id
+            )
+            db.session.add(setting)
+    
+    db.session.commit()
+    flash('Default settings seeded successfully', 'success')
+    return redirect(url_for('admin_settings'))
 
 # Info Session Emails Admin
 @app.route('/admin/info-sessions')

@@ -405,6 +405,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_settings') }}" {% if request.path == url_for('admin_settings') %}class="active"{% endif %}>
+                    <i class="fas fa-cog" aria-hidden="true"></i> Site Settings
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_classes') }}" {% if request.path == url_for('admin_classes') or request.path.startswith('/admin/classes/') %}class="active"{% endif %}>
                     <i class="fas fa-calendar-alt" aria-hidden="true"></i> Class Sessions
                 </a>

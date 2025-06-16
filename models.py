@@ -7,6 +7,54 @@ from slugify import slugify
 import json
 
 
+class SiteSetting(db.Model):
+    """Model for storing site-wide settings that can be updated from admin"""
+    __tablename__ = 'site_settings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    value = db.Column(db.Text)
+    value_type = db.Column(db.String(20), default='text')  # text, date, datetime, number, boolean, json
+    description = db.Column(db.String(255))
+    category = db.Column(db.String(50), default='general')  # general, pricing, dates, content
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_by = db.Column(db.Integer, db.ForeignKey('admins.id'))
+    
+    def __repr__(self):
+        return f'<SiteSetting {self.key}: {self.value}>'
+    
+    @property
+    def parsed_value(self):
+        """Return the value parsed according to its type"""
+        if not self.value:
+            return None
+            
+        if self.value_type == 'date':
+            try:
+                return datetime.strptime(self.value, '%Y-%m-%d').date()
+            except ValueError:
+                return None
+        elif self.value_type == 'datetime':
+            try:
+                return datetime.strptime(self.value, '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                return None
+        elif self.value_type == 'number':
+            try:
+                return float(self.value) if '.' in self.value else int(self.value)
+            except ValueError:
+                return 0
+        elif self.value_type == 'boolean':
+            return self.value.lower() in ('true', '1', 'yes', 'on')
+        elif self.value_type == 'json':
+            try:
+                return json.loads(self.value)
+            except (json.JSONDecodeError, TypeError):
+                return {}
+        else:  # text
+            return self.value
+
+
 class InfoSessionBooking(db.Model):
     """Model for storing info session bookings from the custom calendar system"""
     __tablename__ = 'info_session_bookings'

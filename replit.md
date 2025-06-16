@@ -1,0 +1,104 @@
+# F.A.C.T.S - Future Accountants Coaching & Training Services
+
+## Overview
+
+F.A.C.T.S is a Flask-based educational platform providing an 8-week job-ready accounting training program for recent graduates in Australia. The application serves as both a marketing website and an administrative platform for managing course enrollments, info sessions, and student communications.
+
+## System Architecture
+
+### Backend Architecture
+- **Framework**: Flask 3.1.0 with SQLAlchemy ORM
+- **Database**: PostgreSQL with Psycopg2 for production deployment
+- **Authentication**: Flask-Login for admin access control
+- **Email Service**: SendGrid integration for automated communications
+- **File Structure**: Modular design with separate files for models, utilities, and API endpoints
+
+### Frontend Architecture
+- **Templates**: Jinja2 templating with a base layout system
+- **CSS Framework**: Bootstrap 5.3.x with custom CSS for brand styling
+- **JavaScript**: Vanilla JavaScript with modular components for video player, chatbot, and form interactions
+- **Responsive Design**: Mobile-first approach with CSS Grid and Flexbox
+
+### Database Schema
+The application uses SQLAlchemy models with the following key entities:
+- **InfoSessionBooking**: Stores customer inquiries and session preferences
+- **Contact**: General contact form submissions
+- Additional models referenced but not fully implemented (Admin, Class sessions, Blog posts)
+
+## Key Components
+
+### Core Application (`app.py`)
+- Flask application initialization with environment-based configuration
+- Database and extension setup (SQLAlchemy, Flask-Mail, Flask-Login)
+- Debug mode toggle for development
+- Session secret key management
+
+### Models (`models.py`)
+- InfoSessionBooking model with status tracking and date formatting
+- Contact model for general inquiries
+- Prepared structure for future Admin and Class management features
+
+### Utilities (`utils/`)
+- **Chatbot**: AI-powered study assistant with OpenAI integration and fallback responses
+- **Email**: SendGrid integration for automated email communications
+- **OpenAI**: GPT-4o integration for chatbot functionality
+
+### Templates
+- **Layout System**: Base template with SEO optimization and social media integration
+- **Page Templates**: Dedicated templates for home, about, program, pricing, contact, and blog
+- **Admin Interface**: Separate admin layout with dashboard, booking management, and analytics
+- **Component System**: Reusable components for forms, chatbot, and other UI elements
+
+## Data Flow
+
+1. **User Registration**: Info session bookings flow through contact forms to database storage
+2. **Email Automation**: Triggered confirmations and admin notifications via SendGrid
+3. **Admin Management**: Dashboard interface for reviewing bookings and managing communications
+4. **Chatbot Interaction**: Real-time AI assistance using OpenAI API with fallback to predefined responses
+5. **Content Management**: Blog system architecture prepared for future content creation
+
+## External Dependencies
+
+### Production Services
+- **SendGrid**: Email delivery service for customer communications
+- **OpenAI API**: GPT-4o integration for AI study assistant
+- **PostgreSQL**: Primary database for production deployment
+
+### Frontend Libraries
+- **Bootstrap 5.3.x**: UI framework for responsive design
+- **Font Awesome**: Icon library for visual elements
+- **Google Fonts**: Poppins font family for typography consistency
+
+### Python Dependencies
+- Flask ecosystem (Flask, Flask-SQLAlchemy, Flask-Login, Flask-Mail)
+- Database drivers (psycopg2-binary for PostgreSQL)
+- Email services (SendGrid)
+- AI integration (OpenAI)
+- Utility libraries (Slugify, Werkzeug)
+
+## Deployment Strategy
+
+### Production Environment
+- **Server**: Gunicorn WSGI server configured for autoscale deployment
+- **Platform**: Replit deployment with PostgreSQL database
+- **Process Management**: Configured for bind on 0.0.0.0:5000 with reload capability
+- **Environment Variables**: Separate configuration for production and development
+
+### Development Setup
+- **Local Development**: Flask development server with debug mode
+- **Database**: SQLite for development, PostgreSQL for production
+- **Asset Management**: Static files served directly through Flask
+- **Hot Reload**: Gunicorn configured with --reload for development
+
+### Security Considerations
+- Session secret key management through environment variables
+- Admin authentication system with password hashing
+- Email configuration separated from codebase
+- Debug mode properly configured for production safety
+
+## Changelog
+- June 16, 2025. Initial setup
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
