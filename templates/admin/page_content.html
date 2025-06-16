@@ -1,0 +1,217 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Page Content Management - F.A.C.T.S Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Page Content Management</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% if settings_by_category %}
+    <form method="POST" action="{{ url_for('admin_page_content') }}">
+        <!-- Page Navigation Tabs -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab">
+                            <i class="fas fa-home me-2"></i>Home Page
+                        </button>
+                        <button class="nav-link" id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about" type="button" role="tab">
+                            <i class="fas fa-info-circle me-2"></i>About Page
+                        </button>
+                        <button class="nav-link" id="nav-program-tab" data-bs-toggle="tab" data-bs-target="#nav-program" type="button" role="tab">
+                            <i class="fas fa-graduation-cap me-2"></i>Program Page
+                        </button>
+                        <button class="nav-link" id="nav-pricing-tab" data-bs-toggle="tab" data-bs-target="#nav-pricing" type="button" role="tab">
+                            <i class="fas fa-dollar-sign me-2"></i>Pricing Page
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="tab-content" id="nav-tabContent">
+            <!-- Home Page Tab -->
+            <div class="tab-pane fade show active" id="nav-home" role="tabpanel">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-home me-2"></i>Home Page Content</h5>
+                        <small class="text-muted">Control all text content that appears on your homepage</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for setting in settings_by_category.get('home_page', []) %}
+                            <div class="col-md-6 mb-3">
+                                <label for="setting_{{ setting.key }}" class="form-label">
+                                    <strong>{{ setting.description }}</strong>
+                                </label>
+                                {% if setting.type == 'textarea' %}
+                                <textarea class="form-control" 
+                                          id="setting_{{ setting.key }}" 
+                                          name="setting_{{ setting.key }}" 
+                                          rows="3" 
+                                          placeholder="Enter {{ setting.description.lower() }}">{{ setting.value }}</textarea>
+                                {% else %}
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="setting_{{ setting.key }}" 
+                                       name="setting_{{ setting.key }}" 
+                                       value="{{ setting.value }}"
+                                       placeholder="Enter {{ setting.description.lower() }}">
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Page Tab -->
+            <div class="tab-pane fade" id="nav-about" role="tabpanel">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Page Content</h5>
+                        <small class="text-muted">Control all text content that appears on your about page</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for setting in settings_by_category.get('about_page', []) %}
+                            <div class="col-md-6 mb-3">
+                                <label for="setting_{{ setting.key }}" class="form-label">
+                                    <strong>{{ setting.description }}</strong>
+                                </label>
+                                {% if setting.type == 'textarea' %}
+                                <textarea class="form-control" 
+                                          id="setting_{{ setting.key }}" 
+                                          name="setting_{{ setting.key }}" 
+                                          rows="3" 
+                                          placeholder="Enter {{ setting.description.lower() }}">{{ setting.value }}</textarea>
+                                {% else %}
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="setting_{{ setting.key }}" 
+                                       name="setting_{{ setting.key }}" 
+                                       value="{{ setting.value }}"
+                                       placeholder="Enter {{ setting.description.lower() }}">
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Page Tab -->
+            <div class="tab-pane fade" id="nav-program" role="tabpanel">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Program Page Content</h5>
+                        <small class="text-muted">Control all text content that appears on your program page</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for setting in settings_by_category.get('program_page', []) %}
+                            <div class="col-md-6 mb-3">
+                                <label for="setting_{{ setting.key }}" class="form-label">
+                                    <strong>{{ setting.description }}</strong>
+                                </label>
+                                {% if setting.type == 'textarea' %}
+                                <textarea class="form-control" 
+                                          id="setting_{{ setting.key }}" 
+                                          name="setting_{{ setting.key }}" 
+                                          rows="3" 
+                                          placeholder="Enter {{ setting.description.lower() }}">{{ setting.value }}</textarea>
+                                {% else %}
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="setting_{{ setting.key }}" 
+                                       name="setting_{{ setting.key }}" 
+                                       value="{{ setting.value }}"
+                                       placeholder="Enter {{ setting.description.lower() }}">
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Page Tab -->
+            <div class="tab-pane fade" id="nav-pricing" role="tabpanel">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Pricing Page Content</h5>
+                        <small class="text-muted">Control all text content that appears on your pricing page</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for setting in settings_by_category.get('pricing_page', []) %}
+                            <div class="col-md-6 mb-3">
+                                <label for="setting_{{ setting.key }}" class="form-label">
+                                    <strong>{{ setting.description }}</strong>
+                                </label>
+                                {% if setting.type == 'textarea' %}
+                                <textarea class="form-control" 
+                                          id="setting_{{ setting.key }}" 
+                                          name="setting_{{ setting.key }}" 
+                                          rows="3" 
+                                          placeholder="Enter {{ setting.description.lower() }}">{{ setting.value }}</textarea>
+                                {% else %}
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="setting_{{ setting.key }}" 
+                                       name="setting_{{ setting.key }}" 
+                                       value="{{ setting.value }}"
+                                       placeholder="Enter {{ setting.description.lower() }}">
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save me-2"></i>Save All Content Changes
+                </button>
+                <a href="{{ url_for('admin_settings') }}" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-cog me-2"></i>Other Settings
+                </a>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <div class="card shadow mb-4">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Page Content Found</h5>
+            <p class="text-muted mb-4">Click "Initialize Content" to set up page-specific content management.</p>
+            <form method="POST" action="{{ url_for('admin_seed_settings') }}" style="display: inline;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-seedling me-2"></i>Initialize Content
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
