@@ -97,8 +97,28 @@ The application uses SQLAlchemy models with the following key entities:
 - Debug mode properly configured for production safety
 
 ## Changelog
-- June 16, 2025. Initial setup
+- June 16, 2025: Initial setup
+- June 16, 2025: Implemented comprehensive admin content management system with dynamic site settings, countdown timer control, pricing management, and media upload functionality
+
+## Recent Changes
+
+### Admin Content Management System (June 16, 2025)
+- **Site Settings Model**: Created SiteSetting model for storing configurable website content
+- **Dynamic Content Control**: Admin can now update countdown timers, pricing, dates, text content, and media files
+- **File Upload System**: Integrated media upload functionality allowing direct file uploads from admin portal
+- **Real-time Updates**: Changes made in admin portal automatically reflect throughout the website
+- **Organized Categories**: Settings grouped by category (Dates, Pricing, Content, Media, Contact)
+- **Media Preview**: Admin can preview uploaded images and videos before publishing
+- **Automatic File Management**: Uploaded files are automatically organized into appropriate directories
+
+### Key Features Implemented
+- Dynamic countdown timer that uses admin-controlled deadline dates
+- Real-time pricing updates across all website pages
+- Homepage content control (titles, subtitles, banners, session information)
+- Media management with upload, preview, and automatic integration
+- Global settings injection into all templates for seamless content updates
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Admin portal requirements: Complete backend control over website content including dates, timers, text, photos, and videos with automatic website updates.

@@ -22,7 +22,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="hero-image">
-                    <img src="{{ url_for('static', filename='images/classroom_accounting.jpg') }}" alt="Accounting Education Classroom" class="img-fluid">
+                    <img src="{{ url_for('static', filename='images/' + (site_settings.hero_image or 'classroom_accounting.jpg')) }}" alt="Accounting Education Classroom" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
                         <div class="video-wrapper">
                             <!-- Poster image that shows initially -->
                             <div class="poster-container">
-                                <img src="{{ url_for('static', filename='images/tutor.jpg') }}" alt="Mentor Thumbnail" class="video-poster">
+                                <img src="{{ url_for('static', filename='images/' + (site_settings.mentor_image or 'tutor.jpg')) }}" alt="Mentor Thumbnail" class="video-poster">
                                 <div class="play-icon-large">
                                     <i class="fas fa-play"></i>
                                 </div>
@@ -52,8 +52,8 @@
                             <!-- The actual video element using inline attributes for maximum compatibility -->
                             <video id="mentor-video" 
                                    class="mentor-video"
-                                   src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=12"
-                                   poster="{{ url_for('static', filename='images/tutor.jpg') }}"
+                                   src="{{ url_for('static', filename='videos/' + (site_settings.hero_video_file or 'intro_video.mp4')) }}?v=12"
+                                   poster="{{ url_for('static', filename='images/' + (site_settings.mentor_image or 'tutor.jpg')) }}"
                                    playsinline 
                                    webkit-playsinline 
                                    x5-playsinline
