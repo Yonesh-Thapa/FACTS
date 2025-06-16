@@ -73,9 +73,22 @@
                         
                         {% if setting.key in ['hero_video_file', 'mentor_image', 'hero_image'] %}
                         <div class="mt-2">
-                            <small class="text-muted">
+                            <div class="d-flex gap-2 align-items-center">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openFileUpload('{{ setting.key }}')">
+                                    <i class="fas fa-upload me-1"></i>Upload File
+                                </button>
+                                {% if setting.value %}
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="previewMedia('{{ setting.key }}', '{{ setting.value }}')">
+                                    <i class="fas fa-eye me-1"></i>Preview
+                                </button>
+                                {% endif %}
+                            </div>
+                            <input type="file" id="upload_{{ setting.key }}" style="display: none;" 
+                                   accept="{% if 'video' in setting.key %}video/*{% else %}image/*{% endif %}"
+                                   onchange="uploadFile('{{ setting.key }}')">
+                            <small class="text-muted d-block mt-1">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Upload files to <code>static/{% if 'video' in setting.key %}videos{% else %}images{% endif %}/</code> folder
+                                Supported formats: {% if 'video' in setting.key %}MP4, WebM, MOV{% else %}PNG, JPG, WebP, SVG{% endif %}
                             </small>
                         </div>
                         {% endif %}
@@ -164,6 +177,140 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function() {
             localStorage.removeItem(draftKey);
         });
+    }
+    
+    // File upload functions
+    window.openFileUpload = function(settingKey) {
+        document.getElementById('upload_' + settingKey).click();
+    };
+    
+    window.uploadFile = function(settingKey) {
+        const fileInput = document.getElementById('upload_' + settingKey);
+        const file = fileInput.files[0];
+        
+        if (!file) return;
+        
+        // Show loading state
+        const uploadBtn = document.querySelector(`button[onclick="openFileUpload('${settingKey}')"]`);
+        const originalText = uploadBtn.innerHTML;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Uploading...';
+        uploadBtn.disabled = true;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('setting_key', settingKey);
+        
+        fetch('/admin/upload-media', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the input field with the new filename
+                document.getElementById('setting_' + settingKey).value = data.filename;
+                
+                // Show success message
+                showAlert('success', data.message);
+                
+                // Add preview button if it doesn't exist
+                const buttonContainer = uploadBtn.parentElement;
+                let previewBtn = buttonContainer.querySelector(`button[onclick*="previewMedia"]`);
+                if (!previewBtn) {
+                    previewBtn = document.createElement('button');
+                    previewBtn.type = 'button';
+                    previewBtn.className = 'btn btn-sm btn-outline-secondary';
+                    previewBtn.innerHTML = '<i class="fas fa-eye me-1"></i>Preview';
+                    buttonContainer.appendChild(previewBtn);
+                }
+                previewBtn.onclick = () => previewMedia(settingKey, data.filename);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            showAlert('danger', 'Upload failed: ' + error.message);
+        })
+        .finally(() => {
+            // Restore button state
+            uploadBtn.innerHTML = originalText;
+            uploadBtn.disabled = false;
+            fileInput.value = ''; // Clear file input
+        });
+    };
+    
+    window.previewMedia = function(settingKey, filename) {
+        if (!filename) return;
+        
+        const isVideo = settingKey.includes('video');
+        const basePath = isVideo ? '/static/videos/' : '/static/images/';
+        const fullUrl = basePath + filename;
+        
+        // Create modal for preview
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'mediaPreviewModal';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Media Preview: ${filename}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        ${isVideo ? 
+                            `<video controls style="max-width: 100%; max-height: 400px;">
+                                <source src="${fullUrl}" type="video/mp4">
+                                Your browser does not support video playback.
+                             </video>` :
+                            `<img src="${fullUrl}" style="max-width: 100%; max-height: 400px;" alt="${filename}">`
+                        }
+                        <div class="mt-3">
+                            <p class="text-muted">File: ${filename}</p>
+                            <a href="${fullUrl}" target="_blank" class="btn btn-outline-primary">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if any
+        const existingModal = document.getElementById('mediaPreviewModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        document.body.appendChild(modal);
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Clean up when modal is hidden
+        modal.addEventListener('hidden.bs.modal', () => {
+            modal.remove();
+        });
+    };
+    
+    function showAlert(type, message) {
+        const alertContainer = document.querySelector('.container-fluid');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insert after the header
+        const header = alertContainer.querySelector('.d-sm-flex');
+        header.parentNode.insertBefore(alert, header.nextSibling);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
     }
 });
 </script>

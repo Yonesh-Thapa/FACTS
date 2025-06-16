@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail
+from werkzeug.utils import secure_filename
 import uuid
 import hashlib
 import re
@@ -92,6 +93,15 @@ app.config['SECONDARY_ADMIN_EMAIL'] = os.environ.get('SECONDARY_ADMIN_EMAIL', ''
 
 # For testing email functionality
 app.config['TESTING_EMAIL_ENABLED'] = (os.environ.get('FLASK_ENV') != 'production')
+
+# File upload configuration
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['UPLOAD_FOLDER'] = 'static'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'mp4', 'webm', 'ogg', 'avi', 'mov'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Initialize the app with the extensions
 db.init_app(app)
@@ -1724,6 +1734,68 @@ def admin_seed_settings():
     db.session.commit()
     flash('Default settings seeded successfully', 'success')
     return redirect(url_for('admin_settings'))
+
+@app.route('/admin/upload-media', methods=['POST'])
+@login_required
+def admin_upload_media():
+    """Handle media file uploads from admin panel"""
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file selected'})
+    
+    file = request.files['file']
+    setting_key = request.form.get('setting_key')
+    
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No file selected'})
+    
+    if not setting_key:
+        return jsonify({'success': False, 'message': 'Setting key not provided'})
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        
+        # Determine upload directory based on file type
+        file_ext = filename.rsplit('.', 1)[1].lower()
+        if file_ext in {'mp4', 'webm', 'ogg', 'avi', 'mov'}:
+            upload_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'videos')
+        else:
+            upload_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'images')
+        
+        # Create directory if it doesn't exist
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save file with unique name to prevent conflicts
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        name, ext = os.path.splitext(filename)
+        unique_filename = f"{name}_{timestamp}{ext}"
+        file_path = os.path.join(upload_dir, unique_filename)
+        
+        try:
+            file.save(file_path)
+            
+            # Update the site setting with the new filename
+            from models import SiteSetting
+            setting = SiteSetting.query.filter_by(key=setting_key).first()
+            
+            if setting:
+                setting.value = unique_filename
+                setting.updated_by = current_user.id
+                setting.updated_at = datetime.utcnow()
+                db.session.commit()
+                
+                return jsonify({
+                    'success': True, 
+                    'message': f'File uploaded successfully',
+                    'filename': unique_filename,
+                    'url': f"/static/{'videos' if file_ext in {'mp4', 'webm', 'ogg', 'avi', 'mov'} else 'images'}/{unique_filename}"
+                })
+            else:
+                return jsonify({'success': False, 'message': 'Setting not found'})
+                
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'Upload failed: {str(e)}'})
+    
+    return jsonify({'success': False, 'message': 'Invalid file type'})
 
 # Info Session Emails Admin
 @app.route('/admin/info-sessions')
