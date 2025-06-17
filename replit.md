@@ -102,6 +102,13 @@ The application uses SQLAlchemy models with the following key entities:
 
 ## Recent Changes
 
+### Visual Website Editor & Content Management (June 16-17, 2025)
+- **Page-by-Page Content Management**: Created organized admin interface where content is managed by individual pages (Home, About, Program, Pricing)
+- **Visual Website Editor**: Built website builder-style interface where admin can preview website and click directly on text elements to edit them
+- **Click-to-Edit Functionality**: Live preview with edit overlays, tooltips, and real-time content updates
+- **Clean Branding**: Removed old logo references and implemented clean "F.A.C.T.S" text branding throughout the site
+- **Comprehensive Admin Tools**: Multiple content management options including visual editor, page-specific content management, and traditional settings
+
 ### Admin Content Management System (June 16, 2025)
 - **Site Settings Model**: Created SiteSetting model for storing configurable website content
 - **Dynamic Content Control**: Admin can now update countdown timers, pricing, dates, text content, and media files
@@ -112,11 +119,14 @@ The application uses SQLAlchemy models with the following key entities:
 - **Automatic File Management**: Uploaded files are automatically organized into appropriate directories
 
 ### Key Features Implemented
+- Visual website editor with click-to-edit functionality for intuitive content management
+- Page-by-page content organization for easier navigation and editing
 - Dynamic countdown timer that uses admin-controlled deadline dates
 - Real-time pricing updates across all website pages
 - Homepage content control (titles, subtitles, banners, session information)
 - Media management with upload, preview, and automatic integration
 - Global settings injection into all templates for seamless content updates
+- Clean text-based branding without unauthorized logo usage
 
 ## User Preferences
 
