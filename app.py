@@ -649,38 +649,7 @@ def add_cache_headers(response):
 # Admin routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    # Normal authentication flow (auth reinstated per client request)
-    # Authentication bypassing code has been commented out but preserved
-    '''
-    # If DEBUG_MODE is enabled, automatically log in as admin
-    if DEBUG_MODE:
-        from models import Admin
-        # Get the first admin user or create one if none exists
-        user = Admin.query.first()
-        
-        if not user:
-            # This is just a safety check - in practice, the admin should already exist
-            from werkzeug.security import generate_password_hash
-            app.logger.info("Creating temporary admin user for DEBUG_MODE")
-            user = Admin(
-                username="admin",
-                email="admin@example.com"
-            )
-            user.password_hash = generate_password_hash("admin123")
-            db.session.add(user)
-            db.session.commit()
-        
-        # Force login without checking password
-        login_user(user)
-        flash('DEBUG MODE: Auto-login successful!', 'warning')
-        
-        # Redirect to admin dashboard immediately
-        next_page = request.args.get('next')
-        if next_page and next_page.startswith('/'):
-            return redirect(next_page)
-        
-        return redirect(url_for('admin_dashboard'))
-    '''
+    # Secure authentication flow - no hardcoded credentials
     
     if current_user.is_authenticated:
         return redirect(url_for('admin_dashboard'))

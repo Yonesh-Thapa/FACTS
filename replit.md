@@ -92,9 +92,10 @@ The application uses SQLAlchemy models with the following key entities:
 
 ### Security Considerations
 - Session secret key management through environment variables
-- Admin authentication system with password hashing
+- Admin authentication system with password hashing - no hardcoded credentials
 - Email configuration separated from codebase
 - Debug mode properly configured for production safety
+- Hardcoded admin credentials removed from codebase for enhanced security
 
 ## Changelog
 - June 16, 2025: Initial setup
