@@ -2,16 +2,29 @@
 
 {% block title %}Visual Website Editor - F.A.C.T.S Admin{% endblock %}
 
+{% block head %}
+    {{ super() }}
+    <!-- Bootstrap 5 CSS for website content -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">Visual Website Editor</h1>
-            <small class="text-muted">Preview your website and click on text to edit it directly</small>
+            <small class="text-muted">Edit your live website content directly - all changes sync instantly</small>
         </div>
         <div>
             <button id="editModeToggle" class="btn btn-primary me-2">
                 <i class="fas fa-edit me-2"></i>Enable Edit Mode
+            </button>
+            <button id="saveAllChanges" class="btn btn-success me-2" style="display: none;">
+                <i class="fas fa-save me-2"></i>Save All Changes
             </button>
             <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
@@ -19,20 +32,19 @@
         </div>
     </div>
 
-    <!-- Quick Guide -->
-    <div class="alert alert-info mb-4">
+    <!-- Real-time Status -->
+    <div class="alert alert-success mb-4">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h6 class="mb-1"><i class="fas fa-lightbulb me-2"></i>How to Use</h6>
+                <h6 class="mb-1"><i class="fas fa-broadcast-tower me-2"></i>Live Content Editor</h6>
                 <p class="mb-0 small">
-                    1. Click "Enable Edit Mode" above
-                    2. Hover over any text on your website to see edit areas
-                    3. Click on highlighted text to edit it
-                    4. Save your changes when done
+                    You're viewing real website content. Enable Edit Mode to add click-to-edit overlays on every section.
                 </p>
             </div>
             <div class="col-md-4 text-end">
-                <span class="badge bg-success">Live Preview</span>
+                <span class="badge bg-success">
+                    <i class="fas fa-circle text-success" style="font-size: 8px;"></i> Real-Time Sync Active
+                </span>
             </div>
         </div>
     </div>
@@ -45,7 +57,7 @@
                     <h5 class="mb-0 text-success">
                         <i class="fas fa-mouse-pointer me-2"></i>Edit Mode Active
                     </h5>
-                    <small class="text-muted">Click on any text element below to edit it directly</small>
+                    <small class="text-muted">Click on any highlighted element to edit it. Changes save automatically.</small>
                 </div>
                 <div class="col-md-4 text-end">
                     <button id="saveAllChanges" class="btn btn-success me-2" style="display: none;">
@@ -59,18 +71,187 @@
         </div>
     </div>
 
-    <!-- Website Preview Frame -->
+    <!-- Real Website Content with Edit Overlays -->
     <div class="card shadow">
         <div class="card-body p-0">
             <div id="websitePreview" class="website-preview">
-                <!-- Live website content will be loaded here -->
-                <iframe id="previewFrame" 
-                        src="{{ url_for('index') }}" 
-                        width="100%" 
-                        height="800px" 
-                        frameborder="0"
-                        style="border-radius: 8px;">
-                </iframe>
+                <!-- Real website content with edit capabilities -->
+                <div id="realWebsiteContent" class="real-website-content">
+                    <!-- Hero Section -->
+                    <section class="hero-section bg-primary text-white py-5" data-edit-section="hero">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <h1 class="display-4 fw-bold mb-4" 
+                                        data-content-key="hero_title" 
+                                        data-content-type="text">
+                                        {{ site_settings.hero_title or 'Launch Your Accounting Career in 8 Weeks' }}
+                                    </h1>
+                                    <p class="lead mb-4" 
+                                       data-content-key="hero_subtitle" 
+                                       data-content-type="text">
+                                        {{ site_settings.hero_subtitle or 'Job-ready training for recent graduates in Australia' }}
+                                    </p>
+                                    <div class="mb-4">
+                                        <div class="countdown-container">
+                                            <h5 class="text-white mb-3" 
+                                                data-content-key="countdown_title" 
+                                                data-content-type="text">
+                                                {{ site_settings.countdown_title or 'Early Bird Ends In:' }}
+                                            </h5>
+                                            <div id="countdown-timer" class="countdown-timer text-center">
+                                                <!-- Countdown will be populated by JS -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="hero-buttons">
+                                        <a href="{{ url_for('contact') }}" class="btn btn-light btn-lg me-3">
+                                            Start Your Journey
+                                        </a>
+                                        <span class="text-white-50 small">
+                                            Next Session: {{ site_settings.next_session_date or 'June 5, 2025' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <img src="{{ url_for('static', filename='images/' + (site_settings.hero_image or 'future-accountant-hero.jpg')) }}" 
+                                         alt="Future Accountants Training" 
+                                         class="img-fluid rounded shadow"
+                                         data-content-key="hero_image" 
+                                         data-content-type="image">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Program Overview -->
+                    <section class="program-section py-5" data-edit-section="program">
+                        <div class="container">
+                            <div class="text-center mb-5">
+                                <h2 class="section-title" 
+                                    data-content-key="program_title" 
+                                    data-content-type="text">
+                                    {{ site_settings.program_title or 'Your Path to Accounting Success' }}
+                                </h2>
+                                <p class="lead text-muted" 
+                                   data-content-key="program_subtitle" 
+                                   data-content-type="text">
+                                    {{ site_settings.program_subtitle or 'Comprehensive 8-week training program designed for recent graduates' }}
+                                </p>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-4">
+                                    <div class="feature-card text-center p-4">
+                                        <div class="feature-icon mb-3">
+                                            <i class="fas fa-graduation-cap fa-3x text-primary"></i>
+                                        </div>
+                                        <h4 data-content-key="feature1_title" data-content-type="text">
+                                            {{ site_settings.feature1_title or 'Expert Training' }}
+                                        </h4>
+                                        <p data-content-key="feature1_description" data-content-type="text">
+                                            {{ site_settings.feature1_description or 'Learn from industry professionals with years of experience' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <div class="feature-card text-center p-4">
+                                        <div class="feature-icon mb-3">
+                                            <i class="fas fa-briefcase fa-3x text-success"></i>
+                                        </div>
+                                        <h4 data-content-key="feature2_title" data-content-type="text">
+                                            {{ site_settings.feature2_title or 'Job-Ready Skills' }}
+                                        </h4>
+                                        <p data-content-key="feature2_description" data-content-type="text">
+                                            {{ site_settings.feature2_description or 'Practical skills that employers are looking for' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <div class="feature-card text-center p-4">
+                                        <div class="feature-icon mb-3">
+                                            <i class="fas fa-users fa-3x text-info"></i>
+                                        </div>
+                                        <h4 data-content-key="feature3_title" data-content-type="text">
+                                            {{ site_settings.feature3_title or 'Career Support' }}
+                                        </h4>
+                                        <p data-content-key="feature3_description" data-content-type="text">
+                                            {{ site_settings.feature3_description or 'Ongoing support to help you land your dream job' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Pricing Section -->
+                    <section class="pricing-section bg-light py-5" data-edit-section="pricing">
+                        <div class="container">
+                            <div class="text-center mb-5">
+                                <h2 class="section-title" 
+                                    data-content-key="pricing_title" 
+                                    data-content-type="text">
+                                    {{ site_settings.pricing_title or 'Investment in Your Future' }}
+                                </h2>
+                            </div>
+                            
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8">
+                                    <div class="pricing-card bg-white rounded shadow p-5 text-center">
+                                        <div class="pricing-header mb-4">
+                                            <h3 class="fw-bold" 
+                                                data-content-key="pricing_plan_name" 
+                                                data-content-type="text">
+                                                {{ site_settings.pricing_plan_name or '8-Week Intensive Program' }}
+                                            </h3>
+                                            <div class="pricing-amount">
+                                                <span class="currency">A$</span>
+                                                <span class="price" 
+                                                      data-content-key="early_bird_price" 
+                                                      data-content-type="price">
+                                                    {{ site_settings.early_bird_price or '1500' }}
+                                                </span>
+                                                <span class="period">/course</span>
+                                            </div>
+                                            <small class="text-muted">
+                                                Early Bird Special (Regular: A$<span data-content-key="regular_price" data-content-type="price">{{ site_settings.regular_price or '1650' }}</span>)
+                                            </small>
+                                        </div>
+                                        
+                                        <div class="pricing-features mb-4">
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <i class="fas fa-check text-success me-2"></i>
+                                                    8 weeks of intensive training
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fas fa-check text-success me-2"></i>
+                                                    Wednesday & Thursday evenings
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fas fa-check text-success me-2"></i>
+                                                    7:00-9:00 PM AEST
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fas fa-check text-success me-2"></i>
+                                                    Industry expert mentorship
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fas fa-check text-success me-2"></i>
+                                                    Job placement assistance
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                                            Secure Your Spot
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
     </div>
@@ -165,6 +346,148 @@
 .edit-mode-active #previewFrame {
     pointer-events: none;
 }
+
+/* Real Website Content Styling */
+.real-website-content {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.real-website-content .hero-section {
+    background: linear-gradient(135deg, #007ACC 0%, #0056b3 100%);
+    color: white;
+    padding: 4rem 0;
+}
+
+.real-website-content .display-4 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.real-website-content .lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+
+.real-website-content .btn {
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.real-website-content .btn-light {
+    background-color: white;
+    color: #007ACC;
+    border: none;
+}
+
+.real-website-content .btn-light:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.real-website-content .btn-primary {
+    background: linear-gradient(135deg, #007ACC 0%, #0056b3 100%);
+    border: none;
+    color: white;
+}
+
+.real-website-content .btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.real-website-content .section-title {
+    font-size: 2.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.real-website-content .feature-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: none;
+    height: 100%;
+}
+
+.real-website-content .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.real-website-content .pricing-card {
+    border-radius: 20px;
+    border: 2px solid #e9ecef;
+}
+
+.real-website-content .pricing-amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #007ACC;
+    line-height: 1;
+}
+
+.real-website-content .currency {
+    font-size: 1.5rem;
+    vertical-align: top;
+}
+
+.real-website-content .period {
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
+.real-website-content .countdown-timer {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.real-website-content .img-fluid {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+.real-website-content .bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.real-website-content .text-primary {
+    color: #007ACC !important;
+}
+
+.real-website-content .text-success {
+    color: #28a745 !important;
+}
+
+.real-website-content .text-info {
+    color: #17a2b8 !important;
+}
+
+.real-website-content .text-muted {
+    color: #6c757d !important;
+}
+
+/* Edit overlay hover effects */
+.real-website-content [data-content-key] {
+    transition: all 0.2s ease;
+}
+
+.real-website-content [data-content-key]:hover {
+    outline: 2px dashed #007ACC;
+    background-color: rgba(0, 122, 204, 0.05);
+}
 </style>
 
 <script>
@@ -172,31 +495,320 @@ document.addEventListener('DOMContentLoaded', function() {
     const editModeToggle = document.getElementById('editModeToggle');
     const editToolbar = document.getElementById('editToolbar');
     const saveAllChanges = document.getElementById('saveAllChanges');
-    const cancelEditing = document.getElementById('cancelEditing');
-    const previewFrame = document.getElementById('previewFrame');
+    const realWebsiteContent = document.getElementById('realWebsiteContent');
     const editModal = new bootstrap.Modal(document.getElementById('editModal'));
     
     let editMode = false;
-    let changes = {};
+    let pendingChanges = {};
     
-    // Editable content mapping
-    const editableContent = {
-        'hero_title': {
-            selector: '.hero-title h1, h1.hero-title',
-            key: 'home_hero_title',
-            description: 'Homepage Hero Title',
-            type: 'text'
-        },
-        'hero_subtitle': {
-            selector: '.hero-subtitle, .hero-content .lead',
-            key: 'home_hero_subtitle', 
-            description: 'Homepage Hero Subtitle',
-            type: 'textarea'
-        },
-        'early_bird_banner': {
-            selector: '.early-bird-banner, .alert-warning',
-            key: 'home_early_bird_banner',
-            description: 'Early Bird Banner Text',
+    // Initialize real-time sync connection
+    if (window.realtimeSync) {
+        console.log('Real-time sync available for visual editor');
+    }
+    
+    // Toggle Edit Mode
+    editModeToggle.addEventListener('click', function() {
+        editMode = !editMode;
+        toggleEditMode(editMode);
+    });
+    
+    function toggleEditMode(enabled) {
+        if (enabled) {
+            editModeToggle.innerHTML = '<i class="fas fa-times me-2"></i>Exit Edit Mode';
+            editModeToggle.classList.remove('btn-primary');
+            editModeToggle.classList.add('btn-danger');
+            editToolbar.style.display = 'block';
+            saveAllChanges.style.display = 'inline-block';
+            addEditOverlays();
+        } else {
+            editModeToggle.innerHTML = '<i class="fas fa-edit me-2"></i>Enable Edit Mode';
+            editModeToggle.classList.remove('btn-danger');
+            editModeToggle.classList.add('btn-primary');
+            editToolbar.style.display = 'none';
+            saveAllChanges.style.display = 'none';
+            removeEditOverlays();
+        }
+    }
+    
+    function addEditOverlays() {
+        // Add overlays to all editable elements
+        const editableElements = realWebsiteContent.querySelectorAll('[data-content-key]');
+        
+        editableElements.forEach(element => {
+            if (!element.classList.contains('edit-overlay-added')) {
+                element.classList.add('edit-overlay-added');
+                element.style.position = 'relative';
+                element.style.cursor = 'pointer';
+                element.style.border = '2px dashed transparent';
+                element.style.transition = 'all 0.2s ease';
+                
+                // Add hover effects
+                element.addEventListener('mouseenter', function() {
+                    this.style.border = '2px dashed #007ACC';
+                    this.style.backgroundColor = 'rgba(0, 122, 204, 0.1)';
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    this.style.border = '2px dashed transparent';
+                    this.style.backgroundColor = 'transparent';
+                });
+                
+                // Add click to edit
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openEditModal(this);
+                });
+                
+                // Add edit icon overlay
+                const editIcon = document.createElement('div');
+                editIcon.className = 'edit-icon-overlay';
+                editIcon.innerHTML = '<i class="fas fa-edit"></i>';
+                editIcon.style.cssText = `
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    background: #007ACC;
+                    color: white;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    opacity: 0;
+                    transition: opacity 0.2s ease;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                
+                element.appendChild(editIcon);
+                
+                // Show edit icon on hover
+                element.addEventListener('mouseenter', function() {
+                    editIcon.style.opacity = '1';
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    editIcon.style.opacity = '0';
+                });
+            }
+        });
+    }
+    
+    function removeEditOverlays() {
+        const editableElements = realWebsiteContent.querySelectorAll('.edit-overlay-added');
+        
+        editableElements.forEach(element => {
+            element.classList.remove('edit-overlay-added');
+            element.style.border = '';
+            element.style.backgroundColor = '';
+            element.style.cursor = '';
+            element.style.position = '';
+            
+            // Remove edit icons
+            const editIcon = element.querySelector('.edit-icon-overlay');
+            if (editIcon) {
+                editIcon.remove();
+            }
+            
+            // Remove event listeners (clone and replace to remove all listeners)
+            const newElement = element.cloneNode(true);
+            element.parentNode.replaceChild(newElement, element);
+        });
+    }
+    
+    function openEditModal(element) {
+        const contentKey = element.getAttribute('data-content-key');
+        const contentType = element.getAttribute('data-content-type') || 'text';
+        
+        // Populate modal
+        document.getElementById('contentKey').value = contentKey;
+        document.getElementById('contentDescription').value = getContentDescription(contentKey);
+        
+        // Get current content based on type
+        let currentContent = '';
+        if (contentType === 'image') {
+            currentContent = element.src || element.getAttribute('src') || '';
+        } else {
+            currentContent = element.textContent || element.innerHTML || '';
+        }
+        
+        document.getElementById('contentValue').value = currentContent;
+        
+        // Store current element reference
+        editModal._currentElement = element;
+        editModal._contentKey = contentKey;
+        editModal._contentType = contentType;
+        
+        editModal.show();
+    }
+    
+    function getContentDescription(key) {
+        const descriptions = {
+            'hero_title': 'Main homepage title',
+            'hero_subtitle': 'Homepage subtitle text',
+            'countdown_title': 'Countdown timer title',
+            'program_title': 'Program section title',
+            'program_subtitle': 'Program section subtitle',
+            'feature1_title': 'First feature title',
+            'feature1_description': 'First feature description',
+            'feature2_title': 'Second feature title',
+            'feature2_description': 'Second feature description',
+            'feature3_title': 'Third feature title',
+            'feature3_description': 'Third feature description',
+            'pricing_title': 'Pricing section title',
+            'pricing_plan_name': 'Pricing plan name',
+            'early_bird_price': 'Early bird price',
+            'regular_price': 'Regular price',
+            'hero_image': 'Hero section image'
+        };
+        
+        return descriptions[key] || `Edit ${key.replace(/_/g, ' ')}`;
+    }
+    
+    // Save Content
+    document.getElementById('saveContent').addEventListener('click', function() {
+        const contentKey = document.getElementById('contentKey').value;
+        const contentValue = document.getElementById('contentValue').value;
+        const element = editModal._currentElement;
+        const contentType = editModal._contentType;
+        
+        // Update the element immediately
+        if (contentType === 'image') {
+            element.src = contentValue;
+        } else {
+            element.textContent = contentValue;
+        }
+        
+        // Store change for batch saving
+        pendingChanges[contentKey] = {
+            key: contentKey,
+            value: contentValue,
+            type: contentType
+        };
+        
+        // Save immediately to backend
+        saveContentToBackend(contentKey, contentValue);
+        
+        editModal.hide();
+        
+        // Show success feedback
+        showNotification('Content updated successfully!', 'success');
+    });
+    
+    function saveContentToBackend(key, value) {
+        fetch('/admin/portal/update_content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                updates: [{
+                    key: key,
+                    value: value
+                }]
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Content saved to backend:', key);
+                
+                // Broadcast update via real-time sync
+                if (window.realtimeSync && window.realtimeSync.broadcastContentUpdate) {
+                    window.realtimeSync.broadcastContentUpdate([{
+                        key: key,
+                        value: value
+                    }]);
+                }
+            } else {
+                console.error('Failed to save content:', data.error);
+                showNotification('Failed to save content: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving content:', error);
+            showNotification('Error saving content', 'error');
+        });
+    }
+    
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} notification-toast`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remove after delay
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }, 3000);
+    }
+    
+    // Save All Changes
+    if (saveAllChanges) {
+        saveAllChanges.addEventListener('click', function() {
+            if (Object.keys(pendingChanges).length === 0) {
+                showNotification('No changes to save', 'info');
+                return;
+            }
+            
+            const updates = Object.values(pendingChanges);
+            
+            fetch('/admin/portal/update_content', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ updates: updates })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    pendingChanges = {};
+                    showNotification('All changes saved successfully!', 'success');
+                    
+                    // Broadcast updates via real-time sync
+                    if (window.realtimeSync && window.realtimeSync.broadcastContentUpdate) {
+                        window.realtimeSync.broadcastContentUpdate(updates);
+                    }
+                } else {
+                    showNotification('Failed to save changes: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving changes:', error);
+                showNotification('Error saving changes', 'error');
+            });
+        });
+    }
             type: 'textarea'
         },
         'why_choose_title': {
