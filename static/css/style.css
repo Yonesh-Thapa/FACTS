@@ -1947,3 +1947,270 @@ hr {
 .coming-soon-container i {
     color: var(--primary-color);
 }
+
+/* =====================
+   Enhanced Video Player Styles
+   ===================== */
+
+/* Video loading indicator */
+.video-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Video error state */
+.video-error {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    text-align: center;
+    border-radius: 12px;
+}
+
+.video-error .error-content {
+    padding: 2rem;
+    max-width: 300px;
+}
+
+.video-error .error-content i {
+    font-size: 3rem;
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+.video-error .error-content h5 {
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.video-error .error-content p {
+    margin-bottom: 1.5rem;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.video-error .retry-btn {
+    color: white;
+    border-color: white;
+    background: transparent;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.video-error .retry-btn:hover {
+    background-color: white;
+    color: #000;
+}
+
+/* Video fallback content */
+.video-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #007ACC 0%, #0056b3 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    z-index: 2;
+    border-radius: 12px;
+}
+
+.video-fallback h4 {
+    margin-bottom: 1rem;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.video-fallback p {
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+}
+
+.video-fallback a {
+    color: white;
+    text-decoration: underline;
+}
+
+.video-fallback a:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Improved video player focus states for accessibility */
+.custom-video-player:focus-visible {
+    outline: 3px solid #007ACC;
+    outline-offset: 2px;
+    border-radius: 12px;
+}
+
+.poster-container:focus-visible {
+    outline: 3px solid #007ACC;
+    outline-offset: 2px;
+    border-radius: 12px;
+}
+
+.control-btn:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(0, 122, 204, 0.5);
+}
+
+/* Enhanced video controls for better visibility */
+.video-controls {
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.3) 20%, rgba(0, 0, 0, 0.5) 100%);
+    padding: 10px 15px;
+    border-radius: 8px 0 0 8px;
+}
+
+/* Improved poster container hover effects */
+.poster-container {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.poster-container:hover {
+    transform: scale(1.02);
+}
+
+.poster-container:active {
+    transform: scale(0.98);
+}
+
+/* Loading state for poster image */
+.video-poster {
+    transition: opacity 0.3s ease;
+}
+
+.video-poster[src=""] {
+    opacity: 0;
+}
+
+/* Enhanced play button with better accessibility */
+.play-icon-large {
+    transition: all 0.3s ease;
+}
+
+.play-icon-large:focus {
+    outline: 2px solid white;
+    outline-offset: 4px;
+}
+
+/* Better video element styling */
+.mentor-video {
+    border-radius: 12px;
+    background: #000;
+}
+
+/* Enhanced responsive design for video */
+@media (max-width: 575.98px) {
+    .video-loading .spinner-border {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .video-error .error-content {
+        padding: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .video-error .error-content i {
+        font-size: 2rem;
+    }
+    
+    .video-fallback {
+        padding: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .video-fallback h4 {
+        font-size: 1rem;
+    }
+    
+    .play-icon-large {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    .control-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+    
+    .video-controls {
+        padding: 8px 12px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .control-btn {
+        border-width: 3px;
+        font-weight: bold;
+    }
+    
+    .play-icon-large {
+        border-width: 4px;
+        font-weight: bold;
+    }
+    
+    .video-error {
+        background: rgba(0, 0, 0, 0.95);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .poster-container,
+    .control-btn,
+    .play-icon-large,
+    .video-poster {
+        transition: none;
+    }
+    
+    .poster-container:hover {
+        transform: none;
+    }
+    
+    .control-btn:hover {
+        transform: none;
+    }
+}
+
+/* Dark mode video player support */
+@media (prefers-color-scheme: dark) {
+    .video-error .error-content {
+        background: rgba(0, 0, 0, 0.95);
+    }
+    
+    .video-fallback {
+        background: linear-gradient(135deg, #004080 0%, #003366 100%);
+    }
+}

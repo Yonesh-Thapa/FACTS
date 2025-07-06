@@ -38,47 +38,136 @@
                 <h2 class="section-title text-center mb-4">{{ site_settings.mentor_section_title or 'Meet Your Mentor' }}</h2>
                 <div class="section-divider mx-auto mb-4"></div>
                 <div class="video-container">
-                    <div id="mentor-video-player" class="custom-video-player">
-                        <!-- This is a simplified video player structure -->
+                    <div id="mentor-video-player" class="custom-video-player" tabindex="0" role="application" aria-label="Video player for mentor introduction">
                         <div class="video-wrapper">
-                            <!-- Poster image that shows initially -->
-                            <div class="poster-container">
-                                <img src="{{ url_for('static', filename='images/' + (site_settings.mentor_image or 'tutor.jpg')) }}" alt="Mentor Thumbnail" class="video-poster">
-                                <div class="play-icon-large">
+                            <!-- Poster image overlay - always visible initially -->
+                            <div class="poster-container" role="button" tabindex="0" aria-label="Play mentor introduction video">
+                                {% if site_settings.mentor_image %}
+                                <img src="{{ url_for('static', filename='images/' + site_settings.mentor_image) }}" 
+                                     alt="Meet your mentor - {{ site_settings.mentor_name or 'F.A.C.T.S Instructor' }}" 
+                                     class="video-poster"
+                                     onerror="this.src='{{ url_for('static', filename='images/tutor.jpg') }}'; this.onerror=null;">
+                                {% else %}
+                                <img src="{{ url_for('static', filename='images/tutor.jpg') }}" 
+                                     alt="Meet your F.A.C.T.S Instructor" 
+                                     class="video-poster">
+                                {% endif %}
+                                
+                                <div class="play-icon-large" aria-hidden="true">
                                     <i class="fas fa-play"></i>
+                                </div>
+                                
+                                <!-- Loading indicator for when video is loading -->
+                                <div class="video-loading" style="display: none;" aria-label="Video loading">
+                                    <div class="spinner-border text-light" role="status">
+                                        <span class="visually-hidden">Loading video...</span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <!-- The actual video element using inline attributes for maximum compatibility -->
+                            <!-- Video element with comprehensive fallbacks -->
                             <video id="mentor-video" 
                                    class="mentor-video"
-                                   src="{{ url_for('static', filename='videos/' + (site_settings.hero_video_file or 'intro_video.mp4')) }}?v=12"
-                                   poster="{{ url_for('static', filename='images/' + (site_settings.mentor_image or 'tutor.jpg')) }}"
+                                   preload="metadata"
                                    playsinline 
                                    webkit-playsinline 
                                    x5-playsinline
+                                   x5-video-player-type="h5"
+                                   x5-video-player-fullscreen="true"
                                    autoplay 
                                    muted 
-                                   loop>
-                                <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v=12" type="video/mp4">
-                                <track kind="subtitles" label="English" srclang="en" src="{{ url_for('static', filename='videos/captions/mymentor.vtt') }}">
-                                Your browser does not support HTML5 video.
+                                   loop
+                                   controlslist="nodownload nofullscreen noremoteplayback"
+                                   disablepictureinpicture
+                                   aria-label="Mentor introduction video"
+                                   {% if site_settings.mentor_image %}
+                                   poster="{{ url_for('static', filename='images/' + site_settings.mentor_image) }}"
+                                   {% else %}
+                                   poster="{{ url_for('static', filename='images/tutor.jpg') }}"
+                                   {% endif %}>
+                                
+                                <!-- Primary video source with dynamic backend path -->
+                                {% if site_settings.mentor_video_file %}
+                                <source src="{{ url_for('static', filename='videos/' + site_settings.mentor_video_file) }}?v={{ range(1000, 9999) | random }}" type="video/mp4">
+                                {% endif %}
+                                
+                                <!-- Fallback video sources -->
+                                <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v={{ range(1000, 9999) | random }}" type="video/mp4">
+                                <source src="{{ url_for('static', filename='videos/mentor_intro.mp4') }}?v={{ range(1000, 9999) | random }}" type="video/mp4">
+                                
+                                <!-- WebM fallback for better compression on supported browsers -->
+                                {% if site_settings.mentor_video_webm %}
+                                <source src="{{ url_for('static', filename='videos/' + site_settings.mentor_video_webm) }}?v={{ range(1000, 9999) | random }}" type="video/webm">
+                                {% endif %}
+                                
+                                <!-- Captions track -->
+                                {% if site_settings.mentor_captions_file %}
+                                <track kind="subtitles" 
+                                       label="English" 
+                                       srclang="en" 
+                                       src="{{ url_for('static', filename='videos/captions/' + site_settings.mentor_captions_file) }}"
+                                       default>
+                                {% else %}
+                                <track kind="subtitles" 
+                                       label="English" 
+                                       srclang="en" 
+                                       src="{{ url_for('static', filename='videos/captions/mentor.vtt') }}">
+                                {% endif %}
+                                
+                                <!-- Fallback content for unsupported browsers -->
+                                <div class="video-fallback">
+                                    <h4>Video Not Supported</h4>
+                                    <p>Your browser doesn't support HTML5 video. Please <a href="https://browsehappy.com/" target="_blank" rel="noopener">update your browser</a> for the best experience.</p>
+                                    {% if site_settings.mentor_image %}
+                                    <img src="{{ url_for('static', filename='images/' + site_settings.mentor_image) }}" 
+                                         alt="Meet your mentor" 
+                                         class="img-fluid mt-3"
+                                         onerror="this.style.display='none';">
+                                    {% endif %}
+                                </div>
                             </video>
                             
-                            <!-- Simple controls that appear when hovering -->
-                            <div class="video-controls">
-                                <button class="control-btn play-pause" aria-label="Play/Pause">
-                                    <i class="fas fa-play"></i>
+                            <!-- Custom video controls with full accessibility -->
+                            <div class="video-controls" role="toolbar" aria-label="Video controls">
+                                <button class="control-btn play-pause" 
+                                        type="button"
+                                        aria-label="Play video"
+                                        title="Play/Pause (Space or K)">
+                                    <i class="fas fa-play" aria-hidden="true"></i>
                                 </button>
-                                <button class="control-btn mute-unmute" aria-label="Mute/Unmute">
-                                    <i class="fas fa-volume-mute"></i>
+                                
+                                <button class="control-btn mute-unmute" 
+                                        type="button"
+                                        aria-label="Unmute video"
+                                        title="Mute/Unmute (M)">
+                                    <i class="fas fa-volume-mute" aria-hidden="true"></i>
                                 </button>
-                                <button class="control-btn captions" aria-label="Toggle Captions">
-                                    <i class="fas fa-closed-captioning"></i>
+                                
+                                <button class="control-btn captions" 
+                                        type="button"
+                                        aria-label="Toggle captions"
+                                        title="Toggle Captions (C)">
+                                    <i class="fas fa-closed-captioning" aria-hidden="true"></i>
                                 </button>
-                                <button class="control-btn fullscreen" aria-label="Fullscreen">
-                                    <i class="fas fa-expand"></i>
+                                
+                                <button class="control-btn fullscreen" 
+                                        type="button"
+                                        aria-label="Enter fullscreen"
+                                        title="Fullscreen (F)">
+                                    <i class="fas fa-expand" aria-hidden="true"></i>
                                 </button>
+                            </div>
+                            
+                            <!-- Error message container -->
+                            <div class="video-error" style="display: none;" role="alert">
+                                <div class="error-content">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <h5>Video Unavailable</h5>
+                                    <p>We're having trouble loading the video. Please refresh the page or try again later.</p>
+                                    <button class="btn btn-sm btn-outline-light retry-btn" type="button">
+                                        <i class="fas fa-redo"></i> Retry
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,45 +1,448 @@
 /**
- * Universal Video Player Implementation
- * Works reliably on all major browsers and mobile devices
- * Supports autoplay even on strict platforms (iOS, Safari)
+ * Production-Ready Video Player Implementation
+ * Meets all requirements for autoplay, cross-browser compatibility, and error handling
  */
 
-// Initialize when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the mentor video player
-    initializeMentorVideo();
-});
-
-function initializeMentorVideo() {
-    // Get all the elements we need
-    const videoPlayer = document.getElementById('mentor-video-player');
-    const videoElement = document.getElementById('mentor-video');
-    const posterContainer = videoPlayer?.querySelector('.poster-container');
-    const playPauseBtn = videoPlayer?.querySelector('.play-pause');
-    const muteUnmuteBtn = videoPlayer?.querySelector('.mute-unmute');
-    const captionsBtn = videoPlayer?.querySelector('.captions');
-    const fullscreenBtn = videoPlayer?.querySelector('.fullscreen');
+class MentorVideoPlayer {
+    constructor() {
+        this.videoPlayer = null;
+        this.videoElement = null;
+        this.posterContainer = null;
+        this.controls = {};
+        this.isPlaying = false;
+        this.isMuted = true;
+        this.captionsEnabled = false;
+        this.retryCount = 0;
+        this.maxRetries = 3;
+        
+        this.init();
+    }
     
-    // Safety check - if elements don't exist, exit
-    if (!videoElement || !videoPlayer) {
-        console.log('Required video elements not found');
-        // Try alternate video element if it exists (for better compatibility)
-        const alternateVideo = document.querySelector('video#mentor-video');
-        if (alternateVideo) {
-            console.log('Found alternate video element, attempting to play');
-            try {
-                // Ensure video is muted for autoplay to work
-                alternateVideo.muted = true;
-                alternateVideo.defaultMuted = true;
-                alternateVideo.volume = 0;
-                
-                // Force load the video
-                alternateVideo.load();
-                
-                // Attempt to play
-                const playPromise = alternateVideo.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
+    init() {
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setupPlayer());
+        } else {
+            this.setupPlayer();
+        }
+    }
+    
+    setupPlayer() {
+        try {
+            this.findElements();
+            if (!this.validateElements()) {
+                console.warn('Video player elements not found, skipping initialization');
+                return;
+            }
+            
+            this.setupVideoElement();
+            this.setupControls();
+            this.setupEventListeners();
+            this.attemptAutoplay();
+        } catch (error) {
+            console.error('Error setting up video player:', error);
+        }
+    }
+    
+    findElements() {
+        this.videoPlayer = document.getElementById('mentor-video-player');
+        this.videoElement = document.getElementById('mentor-video');
+        this.posterContainer = this.videoPlayer?.querySelector('.poster-container');
+        
+        // Find control buttons
+        this.controls = {
+            playPause: this.videoPlayer?.querySelector('.play-pause'),
+            muteUnmute: this.videoPlayer?.querySelector('.mute-unmute'),
+            captions: this.videoPlayer?.querySelector('.captions'),
+            fullscreen: this.videoPlayer?.querySelector('.fullscreen')
+        };
+    }
+    
+    validateElements() {
+        return this.videoElement && this.videoPlayer && this.posterContainer;
+    }
+    
+    setupVideoElement() {
+        // Configure video for optimal autoplay compatibility
+        this.videoElement.muted = true;
+        this.videoElement.defaultMuted = true;
+        this.videoElement.volume = 0;
+        this.videoElement.playsInline = true;
+        this.videoElement.setAttribute('playsinline', '');
+        this.videoElement.setAttribute('webkit-playsinline', '');
+        this.videoElement.setAttribute('x5-playsinline', '');
+        
+        // Preload metadata for faster startup
+        this.videoElement.preload = 'metadata';
+        
+        // Set up video event listeners
+        this.videoElement.addEventListener('loadedmetadata', () => this.onVideoLoaded());
+        this.videoElement.addEventListener('canplay', () => this.onVideoCanPlay());
+        this.videoElement.addEventListener('play', () => this.onVideoPlay());
+        this.videoElement.addEventListener('pause', () => this.onVideoPause());
+        this.videoElement.addEventListener('ended', () => this.onVideoEnded());
+        this.videoElement.addEventListener('error', (e) => this.onVideoError(e));
+        this.videoElement.addEventListener('loadstart', () => this.onVideoLoadStart());
+        this.videoElement.addEventListener('stalled', () => this.onVideoStalled());
+    }
+    
+    setupControls() {
+        // Play/Pause control
+        if (this.controls.playPause) {
+            this.controls.playPause.addEventListener('click', () => this.togglePlayPause());
+            this.controls.playPause.setAttribute('aria-label', 'Play video');
+        }
+        
+        // Mute/Unmute control
+        if (this.controls.muteUnmute) {
+            this.controls.muteUnmute.addEventListener('click', () => this.toggleMute());
+            this.controls.muteUnmute.setAttribute('aria-label', 'Unmute video');
+        }
+        
+        // Captions control
+        if (this.controls.captions) {
+            this.controls.captions.addEventListener('click', () => this.toggleCaptions());
+            this.controls.captions.setAttribute('aria-label', 'Toggle captions');
+        }
+        
+        // Fullscreen control
+        if (this.controls.fullscreen) {
+            this.controls.fullscreen.addEventListener('click', () => this.toggleFullscreen());
+            this.controls.fullscreen.setAttribute('aria-label', 'Enter fullscreen');
+        }
+        
+        // Initial control states
+        this.updateControlStates();
+    }
+    
+    setupEventListeners() {
+        // Poster click to play
+        if (this.posterContainer) {
+            this.posterContainer.addEventListener('click', () => this.handlePosterClick());
+        }
+        
+        // Keyboard accessibility
+        this.videoPlayer.addEventListener('keydown', (e) => this.handleKeydown(e));
+        
+        // Fullscreen change events
+        document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+        document.addEventListener('webkitfullscreenchange', () => this.onFullscreenChange());
+        document.addEventListener('mozfullscreenchange', () => this.onFullscreenChange());
+        document.addEventListener('MSFullscreenChange', () => this.onFullscreenChange());
+    }
+    
+    attemptAutoplay() {
+        if (!this.videoElement.src) {
+            console.warn('No video source provided');
+            return;
+        }
+        
+        // Load the video first
+        this.videoElement.load();
+        
+        // Attempt autoplay after a short delay to ensure proper loading
+        setTimeout(() => {
+            const playPromise = this.videoElement.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        console.log('Autoplay succeeded');
+                        this.onAutoplaySuccess();
+                    })
+                    .catch((error) => {
+                        console.log('Autoplay failed:', error.message);
+                        this.onAutoplayFailed();
+                    });
+            } else {
+                // Older browsers without promise support
+                setTimeout(() => {
+                    if (this.videoElement.paused) {
+                        this.onAutoplayFailed();
+                    } else {
+                        this.onAutoplaySuccess();
+                    }
+                }, 500);
+            }
+        }, 100);
+    }
+    
+    onAutoplaySuccess() {
+        this.hidePoster();
+        this.isPlaying = true;
+        this.updateControlStates();
+    }
+    
+    onAutoplayFailed() {
+        this.showPoster();
+        this.isPlaying = false;
+        this.updateControlStates();
+        
+        // Retry autoplay up to maxRetries times
+        if (this.retryCount < this.maxRetries) {
+            this.retryCount++;
+            setTimeout(() => this.attemptAutoplay(), 1000 * this.retryCount);
+        }
+    }
+    
+    handlePosterClick() {
+        this.playVideo();
+    }
+    
+    playVideo() {
+        const playPromise = this.videoElement.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    this.hidePoster();
+                    this.isPlaying = true;
+                    this.updateControlStates();
+                })
+                .catch((error) => {
+                    console.error('Failed to play video:', error);
+                });
+        }
+    }
+    
+    pauseVideo() {
+        this.videoElement.pause();
+        this.isPlaying = false;
+        this.updateControlStates();
+    }
+    
+    togglePlayPause() {
+        if (this.videoElement.paused) {
+            this.playVideo();
+        } else {
+            this.pauseVideo();
+        }
+    }
+    
+    toggleMute() {
+        this.videoElement.muted = !this.videoElement.muted;
+        this.isMuted = this.videoElement.muted;
+        this.updateControlStates();
+    }
+    
+    toggleCaptions() {
+        const tracks = this.videoElement.textTracks;
+        if (tracks.length > 0) {
+            const track = tracks[0];
+            if (track.mode === 'showing') {
+                track.mode = 'hidden';
+                this.captionsEnabled = false;
+            } else {
+                track.mode = 'showing';
+                this.captionsEnabled = true;
+            }
+            this.updateControlStates();
+        }
+    }
+    
+    toggleFullscreen() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+            !document.mozFullScreenElement && !document.msFullscreenElement) {
+            this.enterFullscreen();
+        } else {
+            this.exitFullscreen();
+        }
+    }
+    
+    enterFullscreen() {
+        const element = this.videoElement;
+        
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        }
+    }
+    
+    exitFullscreen() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+    
+    showPoster() {
+        if (this.posterContainer) {
+            this.posterContainer.style.display = 'flex';
+        }
+    }
+    
+    hidePoster() {
+        if (this.posterContainer) {
+            this.posterContainer.style.display = 'none';
+        }
+    }
+    
+    updateControlStates() {
+        // Update play/pause button
+        if (this.controls.playPause) {
+            const icon = this.controls.playPause.querySelector('i');
+            if (icon) {
+                icon.className = this.isPlaying ? 'fas fa-pause' : 'fas fa-play';
+            }
+            this.controls.playPause.setAttribute('aria-label', this.isPlaying ? 'Pause video' : 'Play video');
+        }
+        
+        // Update mute/unmute button
+        if (this.controls.muteUnmute) {
+            const icon = this.controls.muteUnmute.querySelector('i');
+            if (icon) {
+                icon.className = this.isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+            }
+            this.controls.muteUnmute.setAttribute('aria-label', this.isMuted ? 'Unmute video' : 'Mute video');
+        }
+        
+        // Update captions button
+        if (this.controls.captions) {
+            this.controls.captions.classList.toggle('active', this.captionsEnabled);
+        }
+    }
+    
+    handleKeydown(event) {
+        switch (event.key) {
+            case ' ':
+            case 'k':
+                event.preventDefault();
+                this.togglePlayPause();
+                break;
+            case 'm':
+                event.preventDefault();
+                this.toggleMute();
+                break;
+            case 'f':
+                event.preventDefault();
+                this.toggleFullscreen();
+                break;
+            case 'c':
+                event.preventDefault();
+                this.toggleCaptions();
+                break;
+        }
+    }
+    
+    // Video event handlers
+    onVideoLoaded() {
+        console.log('Video metadata loaded');
+    }
+    
+    onVideoCanPlay() {
+        console.log('Video can play');
+        this.hideVideoLoading();
+    }
+    
+    onVideoPlay() {
+        this.isPlaying = true;
+        this.hidePoster();
+        this.updateControlStates();
+    }
+    
+    onVideoPause() {
+        this.isPlaying = false;
+        this.updateControlStates();
+    }
+    
+    onVideoEnded() {
+        this.isPlaying = false;
+        this.updateControlStates();
+        // For looping videos, this shouldn't trigger, but handle it gracefully
+    }
+    
+    onVideoError(event) {
+        console.error('Video error:', event);
+        this.showVideoError();
+        this.isPlaying = false;
+        this.updateControlStates();
+    }
+    
+    showVideoError() {
+        const errorElement = this.videoPlayer.querySelector('.video-error');
+        if (errorElement) {
+            errorElement.style.display = 'flex';
+            
+            // Set up retry button
+            const retryBtn = errorElement.querySelector('.retry-btn');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', () => this.retryVideo());
+            }
+        }
+    }
+    
+    hideVideoError() {
+        const errorElement = this.videoPlayer.querySelector('.video-error');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
+    }
+    
+    retryVideo() {
+        this.hideVideoError();
+        this.retryCount = 0;
+        this.videoElement.load();
+        this.attemptAutoplay();
+    }
+    
+    onVideoLoadStart() {
+        console.log('Video load started');
+    }
+    
+    onVideoStalled() {
+        console.log('Video loading stalled');
+        this.showVideoLoading();
+    }
+    
+    showVideoLoading() {
+        const loadingElement = this.posterContainer?.querySelector('.video-loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'flex';
+        }
+    }
+    
+    hideVideoLoading() {
+        const loadingElement = this.posterContainer?.querySelector('.video-loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
+    }
+    
+    onFullscreenChange() {
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                               document.mozFullScreenElement || document.msFullscreenElement);
+        
+        if (this.controls.fullscreen) {
+            const icon = this.controls.fullscreen.querySelector('i');
+            if (icon) {
+                icon.className = isFullscreen ? 'fas fa-compress' : 'fas fa-expand';
+            }
+            this.controls.fullscreen.setAttribute('aria-label', isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen');
+        }
+    }
+}
+
+// Initialize the video player
+let mentorVideoPlayer;
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        mentorVideoPlayer = new MentorVideoPlayer();
+    });
+} else {
+    mentorVideoPlayer = new MentorVideoPlayer();
+}
                         console.log('Video autoplay successful');
                     }).catch(err => {
                         console.error('Failed to play video:', err);
