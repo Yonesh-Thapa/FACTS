@@ -28,10 +28,23 @@ function initializeMentorVideo() {
         if (alternateVideo) {
             console.log('Found alternate video element, attempting to play');
             try {
+                // Ensure video is muted for autoplay to work
                 alternateVideo.muted = true;
-                alternateVideo.play().catch(err => {
-                    console.error('Failed to play video:', err);
-                });
+                alternateVideo.defaultMuted = true;
+                alternateVideo.volume = 0;
+                
+                // Force load the video
+                alternateVideo.load();
+                
+                // Attempt to play
+                const playPromise = alternateVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Video autoplay successful');
+                    }).catch(err => {
+                        console.error('Failed to play video:', err);
+                    });
+                }
             } catch (e) {
                 console.error('Error in alternate video play:', e);
             }
@@ -255,10 +268,21 @@ function initializeMentorVideo() {
     // Handle clicking on the video itself
     videoElement.addEventListener('click', togglePlayPause);
     
+    // Ensure video is muted for autoplay compliance
+    videoElement.muted = true;
+    videoElement.defaultMuted = true;
+    videoElement.volume = 0;
+    videoElement.setAttribute('muted', 'muted');
+    
     // Try to play automatically, will work on desktop
     try {
+        console.log('Initializing video autoplay');
         // Delay slightly to ensure everything's loaded
-        setTimeout(playVideo, 300);
+        setTimeout(() => {
+            // Double-check muted state before autoplay
+            videoElement.muted = true;
+            playVideo();
+        }, 300);
     } catch (e) {
         console.error('Initial autoplay failed:', e);
     }
