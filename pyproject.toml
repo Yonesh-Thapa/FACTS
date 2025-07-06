@@ -20,4 +20,5 @@ dependencies = [
     "python-slugify>=8.0.4",
     "slugify>=0.0.1",
     "openai>=1.78.1",
+    "flask-socketio>=5.5.1",
 ]

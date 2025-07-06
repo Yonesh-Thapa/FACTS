@@ -1,0 +1,137 @@
+TASK:
+Build an advanced, production-ready admin portal for my Replit-hosted website that allows in-place, live editing of every section, tab, menu, and block on the public site. The admin portal must visually match the real site, support full navigation, and every change must update the live site instantly (no delays, no simulation). Follow these requirements with zero exceptions:
+
+1. Folder Structure (Frontend & Backend)
+bash
+Copy
+Edit
+/admin/                   # All admin portal UI code
+  AdminDashboard.jsx
+  LivePreviewPanel.jsx
+  EditableBlock.jsx
+  EditMenu.jsx
+  EditPricing.jsx
+  VersionHistory.jsx
+  AuthGuard.jsx
+  ... (other admin-only components)
+
+/components/              # Shared UI components between site & admin
+
+/backend/                 # Backend API, authentication, versioning
+  api/
+    getContent.js
+    updateContent.js
+    versioning.js
+    auth.js
+  models/
+    contentModel.js
+    userModel.js
+  utils/
+    websocket.js
+    logger.js
+  ...
+
+/public/                  # Public website files
+
+/data/                    # All actual content, as JSON or DB
+  siteContent.json
+  menu.json
+  pricing.json
+  versionHistory.json
+2. Functional Requirements
+A. Admin Portal UI
+Exact Replica:
+The admin portal must display a full, real-time preview of the live website (via iframe or embedded component) with identical navigation, menus, pages, and blocks.
+
+Navigation:
+All site menus, tabs, and internal links must work exactly as on the public site.
+
+B. Edit-in-Place Controls
+Overlay Edit Icons:
+Every editable block (text, images, pricing, schedules, menus) must have visible edit/drag/delete controls in admin mode only.
+
+Click-to-Edit:
+Clicking any block instantly switches it to an inline editor (rich text for text, image uploader for images, drag-and-drop for menus).
+
+Drag/Drop:
+Allow reordering and moving sections, menus, and blocks with instant visual feedback.
+
+C. Live Real-Time Updates
+Instant Save:
+When an admin saves changes, the backend must immediately update the live site’s content (use WebSocket or API + component reload—no cron jobs, no delays).
+
+No Placeholder Data:
+All edits and previews must be on real, production data. Absolutely NO simulation or dummy content at any stage.
+
+D. Version Control & Undo
+Version Snapshots:
+Every edit is saved as a new version.
+Admin must be able to view change history, undo, and rollback any content/version with a single click.
+
+Change Indicator:
+Highlight unsaved changes and confirm when edits are live.
+
+E. Authentication & Security
+Secure /admin Route:
+All admin routes must be protected by robust authentication and role-based authorization (no open endpoints, no default credentials).
+
+User Audit Trail:
+All edits must log the admin’s username, timestamp, and action in a persistent audit log.
+
+F. Mobile & Responsive
+Admin portal and preview must be fully responsive and usable on mobile/tablet.
+
+G. Error Handling
+Display clear, user-friendly error messages for all API failures, auth issues, or data conflicts.
+
+3. Technical & Coding Standards
+No minimal code or boilerplate: all code must be full-featured, robust, and ready for production.
+
+No static HTML or hardcoding: every UI must fetch and display real content from backend or database.
+
+Use modular, readable code with well-separated components and clear naming.
+
+All changes to data/content must be atomic (no partial writes, no corrupt states).
+
+Use WebSockets or instant API updates for real-time live sync between admin and site.
+
+Test all major browsers and device sizes.
+
+Document all API endpoints, component props, and data schemas in-code.
+
+4. Sample Stack
+Frontend: React (or Next.js) with context/store for state management, Tailwind or MUI for styling.
+
+Backend: Node.js (Express or Fastify) or Python (Flask or FastAPI) on Replit.
+
+Database: JSON files (for small sites), SQLite, or MongoDB (all supported on Replit).
+
+Auth: JWT or session-based, password securely stored and required for all admin actions.
+
+Real-time: WebSocket for instant sync, or poll/update API if not possible.
+
+5. Sample UI Workflow
+Login: Admin signs in via secure form.
+
+Portal Loads: Site preview displays in admin; all blocks show edit controls.
+
+Navigation: Admin browses as user would; selects a section to edit.
+
+Edit Block: Admin clicks edit icon; inline editor appears for that block (text, image, menu, price, etc).
+
+Save: On save, backend updates real content and triggers instant update to live site.
+
+Versioning: Change is snapshotted; admin can undo/redo or view all version history.
+
+Logout: End admin session, all controls hidden.
+
+6. Zero Compromise and Strictness
+NO placeholders, demo/sample code, or hardcoded content.
+
+NO exposed endpoints or open admin.
+
+NO minimal/partial code—every component and endpoint must be production-ready.
+
+NO UI discrepancies between admin preview and real site.
+
+NO edit or preview lag—all changes must sync instantly and fully.

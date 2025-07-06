@@ -1,0 +1,998 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Live Website Editor - F.A.C.T.S Admin{% endblock %}
+
+{% block admin_content %}
+<div class="live-editor-container">
+    <!-- Admin Control Panel -->
+    <div class="admin-control-panel">
+        <div class="control-header">
+            <h2>Live Website Editor</h2>
+            <div class="control-actions">
+                <button id="toggleEditMode" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Mode: <span id="editModeStatus">ON</span>
+                </button>
+                <button id="saveAll" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save All Changes
+                </button>
+                <button id="previewMode" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i> Preview Mode
+                </button>
+                <button id="versionHistory" class="btn btn-info">
+                    <i class="fas fa-history"></i> Version History
+                </button>
+            </div>
+        </div>
+        
+        <!-- Edit Panel -->
+        <div class="edit-panel" id="editPanel">
+            <div class="panel-tabs">
+                <button class="tab-btn active" data-tab="content">Content</button>
+                <button class="tab-btn" data-tab="layout">Layout</button>
+                <button class="tab-btn" data-tab="media">Media</button>
+                <button class="tab-btn" data-tab="settings">Settings</button>
+            </div>
+            
+            <!-- Content Tab -->
+            <div class="tab-content active" id="contentTab">
+                <div class="content-editor">
+                    <div class="editor-section">
+                        <h4>Text Content</h4>
+                        <div id="textContentList">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="editor-section">
+                        <h4>Images & Media</h4>
+                        <div id="mediaContentList">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Layout Tab -->
+            <div class="tab-content" id="layoutTab">
+                <div class="layout-editor">
+                    <h4>Page Structure</h4>
+                    <div id="layoutControls">
+                        <!-- Layout controls -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Media Tab -->
+            <div class="tab-content" id="mediaTab">
+                <div class="media-uploader">
+                    <h4>Upload Media</h4>
+                    <div class="upload-zone" id="uploadZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop files here or click to select</p>
+                        <input type="file" id="fileInput" multiple accept="image/*,video/*">
+                    </div>
+                    <div id="uploadedFiles"></div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settingsTab">
+                <div class="settings-editor">
+                    <h4>Site Settings</h4>
+                    <div id="siteSettingsList">
+                        <!-- Site settings -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Website Preview -->
+    <div class="website-preview">
+        <div class="preview-header">
+            <div class="preview-controls">
+                <button id="desktopView" class="view-btn active">
+                    <i class="fas fa-desktop"></i> Desktop
+                </button>
+                <button id="tabletView" class="view-btn">
+                    <i class="fas fa-tablet-alt"></i> Tablet
+                </button>
+                <button id="mobileView" class="view-btn">
+                    <i class="fas fa-mobile-alt"></i> Mobile
+                </button>
+            </div>
+            <div class="preview-url">
+                <input type="text" id="previewUrl" value="/" readonly>
+                <button id="refreshPreview" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-refresh"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="preview-frame-container">
+            <iframe id="previewFrame" src="{{ url_for('index') }}" frameborder="0"></iframe>
+            
+            <!-- Edit Overlays -->
+            <div class="edit-overlays" id="editOverlays">
+                <!-- Dynamically populated edit buttons -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Version History Modal -->
+    <div class="modal fade" id="versionHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Version History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="version-list" id="versionList">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Edit Modal -->
+    <div class="modal fade" id="quickEditModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Quick Edit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editKey">Setting Key</label>
+                        <input type="text" id="editKey" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="editValue">Content</label>
+                        <textarea id="editValue" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveQuickEdit">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.live-editor-container {
+    display: flex;
+    height: 100vh;
+    background: #f8f9fa;
+}
+
+.admin-control-panel {
+    width: 350px;
+    background: white;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+}
+
+.control-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background: #007ACC;
+    color: white;
+}
+
+.control-header h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+}
+
+.control-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.control-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+}
+
+.edit-panel {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.panel-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.tab-btn.active {
+    background: white;
+    border-bottom: 2px solid #007ACC;
+    color: #007ACC;
+}
+
+.tab-content {
+    display: none;
+    padding: 1rem;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.editor-section {
+    margin-bottom: 2rem;
+}
+
+.editor-section h4 {
+    margin-bottom: 1rem;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.content-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.content-item:hover {
+    background: #e9ecef;
+    border-color: #007ACC;
+}
+
+.content-item-key {
+    font-weight: 600;
+    color: #007ACC;
+    font-size: 0.9rem;
+}
+
+.content-item-value {
+    margin-top: 0.25rem;
+    color: #6c757d;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.website-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    padding: 1rem;
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.view-btn.active {
+    background: #007ACC;
+    color: white;
+    border-color: #007ACC;
+}
+
+.preview-url {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preview-url input {
+    width: 200px;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.preview-frame-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+#previewFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    transition: all 0.3s;
+}
+
+.preview-frame-container.tablet-view #previewFrame {
+    width: 768px;
+    height: 1024px;
+    transform: scale(0.8);
+    transform-origin: 0 0;
+}
+
+.preview-frame-container.mobile-view #previewFrame {
+    width: 375px;
+    height: 667px;
+    transform: scale(0.9);
+    transform-origin: 0 0;
+}
+
+.edit-overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.edit-overlay {
+    position: absolute;
+    border: 2px dashed #007ACC;
+    background: rgba(0, 122, 204, 0.1);
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.edit-overlay:hover {
+    background: rgba(0, 122, 204, 0.2);
+}
+
+.edit-overlay-btn {
+    position: absolute;
+    top: -30px;
+    right: 0;
+    background: #007ACC;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.upload-zone {
+    border: 2px dashed #007ACC;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+}
+
+.upload-zone:hover {
+    background: rgba(0, 122, 204, 0.05);
+}
+
+.upload-zone i {
+    font-size: 2rem;
+    color: #007ACC;
+    margin-bottom: 0.5rem;
+}
+
+.upload-zone input[type="file"] {
+    display: none;
+}
+
+.version-item {
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background: white;
+}
+
+.version-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.version-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.version-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.status-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    z-index: 1000;
+    transition: all 0.3s;
+}
+
+.status-indicator.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-indicator.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-indicator.loading {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+@media (max-width: 768px) {
+    .live-editor-container {
+        flex-direction: column;
+    }
+    
+    .admin-control-panel {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .control-actions {
+        gap: 0.25rem;
+    }
+    
+    .control-actions .btn {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.5rem;
+    }
+}
+</style>
+
+<script>
+class LiveEditor {
+    constructor() {
+        this.editMode = true;
+        this.unsavedChanges = {};
+        this.contentData = {};
+        this.currentVersion = null;
+        this.websocket = null;
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.loadContent();
+        this.setupWebSocket();
+        this.setupTabNavigation();
+    }
+    
+    setupEventListeners() {
+        // Toggle edit mode
+        document.getElementById('toggleEditMode').addEventListener('click', () => {
+            this.toggleEditMode();
+        });
+        
+        // Save all changes
+        document.getElementById('saveAll').addEventListener('click', () => {
+            this.saveAllChanges();
+        });
+        
+        // Preview mode
+        document.getElementById('previewMode').addEventListener('click', () => {
+            this.togglePreviewMode();
+        });
+        
+        // Version history
+        document.getElementById('versionHistory').addEventListener('click', () => {
+            this.showVersionHistory();
+        });
+        
+        // View controls
+        document.getElementById('desktopView').addEventListener('click', () => {
+            this.setPreviewMode('desktop');
+        });
+        
+        document.getElementById('tabletView').addEventListener('click', () => {
+            this.setPreviewMode('tablet');
+        });
+        
+        document.getElementById('mobileView').addEventListener('click', () => {
+            this.setPreviewMode('mobile');
+        });
+        
+        // Refresh preview
+        document.getElementById('refreshPreview').addEventListener('click', () => {
+            this.refreshPreview();
+        });
+        
+        // File upload
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            this.handleFileUpload(e.target.files);
+        });
+        
+        // Drag and drop
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.background = 'rgba(0, 122, 204, 0.1)';
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.background = '';
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.background = '';
+            this.handleFileUpload(e.dataTransfer.files);
+        });
+        
+        uploadZone.addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+        
+        // Quick edit
+        document.getElementById('saveQuickEdit').addEventListener('click', () => {
+            this.saveQuickEdit();
+        });
+    }
+    
+    setupTabNavigation() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                this.switchTab(tabId);
+            });
+        });
+    }
+    
+    switchTab(tabId) {
+        // Update buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabId}Tab`).classList.add('active');
+    }
+    
+    async loadContent() {
+        try {
+            this.showStatus('Loading content...', 'loading');
+            
+            const response = await fetch('/admin/api/content/get');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.contentData = data.content;
+                this.renderContentEditor();
+                this.setupEditOverlays();
+                this.showStatus('Content loaded successfully', 'success');
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            this.showStatus(`Error loading content: ${error.message}`, 'error');
+        }
+    }
+    
+    renderContentEditor() {
+        const textContentList = document.getElementById('textContentList');
+        const mediaContentList = document.getElementById('mediaContentList');
+        const siteSettingsList = document.getElementById('siteSettingsList');
+        
+        // Clear existing content
+        textContentList.innerHTML = '';
+        mediaContentList.innerHTML = '';
+        siteSettingsList.innerHTML = '';
+        
+        // Group content by type
+        const textContent = this.contentData.filter(item => 
+            item.category === 'content' || item.category === 'text'
+        );
+        const mediaContent = this.contentData.filter(item => 
+            item.category === 'media' || item.category === 'images'
+        );
+        const settingsContent = this.contentData.filter(item => 
+            item.category === 'settings' || item.category === 'general'
+        );
+        
+        // Render text content
+        textContent.forEach(item => {
+            const element = this.createContentItem(item);
+            textContentList.appendChild(element);
+        });
+        
+        // Render media content
+        mediaContent.forEach(item => {
+            const element = this.createContentItem(item);
+            mediaContentList.appendChild(element);
+        });
+        
+        // Render settings
+        settingsContent.forEach(item => {
+            const element = this.createContentItem(item);
+            siteSettingsList.appendChild(element);
+        });
+    }
+    
+    createContentItem(item) {
+        const div = document.createElement('div');
+        div.className = 'content-item';
+        div.innerHTML = `
+            <div class="content-item-key">${item.key}</div>
+            <div class="content-item-value">${item.value || 'Empty'}</div>
+        `;
+        
+        div.addEventListener('click', () => {
+            this.openQuickEdit(item);
+        });
+        
+        return div;
+    }
+    
+    openQuickEdit(item) {
+        document.getElementById('editKey').value = item.key;
+        document.getElementById('editValue').value = item.value || '';
+        
+        const modal = new bootstrap.Modal(document.getElementById('quickEditModal'));
+        modal.show();
+    }
+    
+    async saveQuickEdit() {
+        const key = document.getElementById('editKey').value;
+        const value = document.getElementById('editValue').value;
+        
+        try {
+            this.showStatus('Saving changes...', 'loading');
+            
+            const response = await fetch('/admin/api/content/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    updates: [{
+                        key: key,
+                        value: value
+                    }]
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showStatus('Changes saved successfully', 'success');
+                this.loadContent(); // Reload content
+                this.refreshPreview(); // Refresh preview
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('quickEditModal'));
+                modal.hide();
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            this.showStatus(`Error saving changes: ${error.message}`, 'error');
+        }
+    }
+    
+    toggleEditMode() {
+        this.editMode = !this.editMode;
+        document.getElementById('editModeStatus').textContent = this.editMode ? 'ON' : 'OFF';
+        
+        if (this.editMode) {
+            this.setupEditOverlays();
+        } else {
+            this.clearEditOverlays();
+        }
+    }
+    
+    setupEditOverlays() {
+        if (!this.editMode) return;
+        
+        const overlaysContainer = document.getElementById('editOverlays');
+        overlaysContainer.innerHTML = '';
+        
+        // This would be populated based on the iframe content
+        // For now, we'll simulate some edit areas
+        this.createEditOverlay('hero-section', 'Hero Section', 50, 100, 800, 400);
+        this.createEditOverlay('about-section', 'About Section', 50, 550, 800, 300);
+        this.createEditOverlay('pricing-section', 'Pricing Section', 50, 900, 800, 400);
+    }
+    
+    createEditOverlay(id, title, x, y, width, height) {
+        const overlay = document.createElement('div');
+        overlay.className = 'edit-overlay';
+        overlay.style.left = x + 'px';
+        overlay.style.top = y + 'px';
+        overlay.style.width = width + 'px';
+        overlay.style.height = height + 'px';
+        
+        const button = document.createElement('button');
+        button.className = 'edit-overlay-btn';
+        button.textContent = `Edit ${title}`;
+        button.addEventListener('click', () => {
+            this.editSection(id);
+        });
+        
+        overlay.appendChild(button);
+        document.getElementById('editOverlays').appendChild(overlay);
+    }
+    
+    editSection(sectionId) {
+        // Find related content items
+        const relatedItems = this.contentData.filter(item => 
+            item.key.includes(sectionId) || item.key.includes(sectionId.replace('-', '_'))
+        );
+        
+        if (relatedItems.length > 0) {
+            this.openQuickEdit(relatedItems[0]);
+        }
+    }
+    
+    clearEditOverlays() {
+        document.getElementById('editOverlays').innerHTML = '';
+    }
+    
+    setPreviewMode(mode) {
+        const container = document.querySelector('.preview-frame-container');
+        const buttons = document.querySelectorAll('.view-btn');
+        
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        container.className = 'preview-frame-container';
+        
+        if (mode === 'tablet') {
+            container.classList.add('tablet-view');
+            document.getElementById('tabletView').classList.add('active');
+        } else if (mode === 'mobile') {
+            container.classList.add('mobile-view');
+            document.getElementById('mobileView').classList.add('active');
+        } else {
+            document.getElementById('desktopView').classList.add('active');
+        }
+    }
+    
+    refreshPreview() {
+        const iframe = document.getElementById('previewFrame');
+        iframe.src = iframe.src; // Force reload
+    }
+    
+    async saveAllChanges() {
+        if (Object.keys(this.unsavedChanges).length === 0) {
+            this.showStatus('No changes to save', 'success');
+            return;
+        }
+        
+        try {
+            this.showStatus('Saving all changes...', 'loading');
+            
+            const updates = Object.entries(this.unsavedChanges).map(([key, value]) => ({
+                key: key,
+                value: value
+            }));
+            
+            const response = await fetch('/admin/api/content/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ updates })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.unsavedChanges = {};
+                this.showStatus('All changes saved successfully', 'success');
+                this.refreshPreview();
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            this.showStatus(`Error saving changes: ${error.message}`, 'error');
+        }
+    }
+    
+    async showVersionHistory() {
+        try {
+            const response = await fetch('/admin/api/content/versions');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.renderVersionHistory(data.versions);
+                const modal = new bootstrap.Modal(document.getElementById('versionHistoryModal'));
+                modal.show();
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            this.showStatus(`Error loading version history: ${error.message}`, 'error');
+        }
+    }
+    
+    renderVersionHistory(versions) {
+        const versionList = document.getElementById('versionList');
+        versionList.innerHTML = '';
+        
+        versions.reverse().forEach(version => {
+            const versionItem = document.createElement('div');
+            versionItem.className = 'version-item';
+            versionItem.innerHTML = `
+                <div class="version-header">
+                    <strong>${version.action}</strong>
+                    <div class="version-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="liveEditor.rollbackToVersion('${version.id}')">
+                            Rollback
+                        </button>
+                    </div>
+                </div>
+                <div class="version-meta">
+                    By ${version.admin_username} on ${new Date(version.timestamp).toLocaleString()}
+                </div>
+            `;
+            versionList.appendChild(versionItem);
+        });
+    }
+    
+    async rollbackToVersion(versionId) {
+        if (!confirm('Are you sure you want to rollback to this version? This will overwrite current changes.')) {
+            return;
+        }
+        
+        try {
+            this.showStatus('Rolling back...', 'loading');
+            
+            const response = await fetch('/admin/api/content/rollback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ version_id: versionId })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showStatus('Rollback completed successfully', 'success');
+                this.loadContent();
+                this.refreshPreview();
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('versionHistoryModal'));
+                modal.hide();
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            this.showStatus(`Error during rollback: ${error.message}`, 'error');
+        }
+    }
+    
+    async handleFileUpload(files) {
+        for (const file of files) {
+            try {
+                this.showStatus(`Uploading ${file.name}...`, 'loading');
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch('/admin/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.showStatus(`${file.name} uploaded successfully`, 'success');
+                    this.addUploadedFile(data);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                this.showStatus(`Error uploading ${file.name}: ${error.message}`, 'error');
+            }
+        }
+    }
+    
+    addUploadedFile(fileData) {
+        const uploadedFiles = document.getElementById('uploadedFiles');
+        const fileItem = document.createElement('div');
+        fileItem.className = 'uploaded-file-item';
+        fileItem.innerHTML = `
+            <div class="file-info">
+                <strong>${fileData.filename}</strong>
+                <span class="file-url">${fileData.url}</span>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" onclick="liveEditor.copyToClipboard('${fileData.url}')">
+                Copy URL
+            </button>
+        `;
+        uploadedFiles.appendChild(fileItem);
+    }
+    
+    copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            this.showStatus('URL copied to clipboard', 'success');
+        });
+    }
+    
+    setupWebSocket() {
+        // WebSocket setup for real-time sync would go here
+        // This would enable instant updates across multiple admin sessions
+    }
+    
+    togglePreviewMode() {
+        // Toggle between edit and preview modes
+        this.toggleEditMode();
+    }
+    
+    showStatus(message, type) {
+        // Remove existing status
+        const existing = document.querySelector('.status-indicator');
+        if (existing) {
+            existing.remove();
+        }
+        
+        const status = document.createElement('div');
+        status.className = `status-indicator ${type}`;
+        status.textContent = message;
+        document.body.appendChild(status);
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            status.remove();
+        }, 3000);
+    }
+}
+
+// Initialize the live editor when the page loads
+let liveEditor;
+document.addEventListener('DOMContentLoaded', () => {
+    liveEditor = new LiveEditor();
+});
+</script>
+{% endblock %}
