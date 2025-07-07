@@ -9,18 +9,20 @@ class RealTimeSync {
         this.isAdmin = false;
         this.connected = false;
         this.retryCount = 0;
-        this.maxRetries = 5;
-        this.retryDelay = 2000;
+        this.maxRetries = 3;
+        this.retryDelay = 5000;
         
         this.init();
     }
     
     init() {
-        // Initialize SocketIO connection
+        // Initialize SocketIO connection with more stable settings
         this.socket = io({
-            transports: ['websocket', 'polling'],
-            upgrade: true,
-            rememberUpgrade: true
+            transports: ['polling', 'websocket'],
+            upgrade: false,
+            rememberUpgrade: false,
+            timeout: 20000,
+            forceNew: true
         });
         
         this.setupEventListeners();
@@ -372,12 +374,12 @@ class RealTimeSync {
     }
     
     startHeartbeat() {
-        // Send periodic heartbeat to maintain connection
+        // Send periodic heartbeat to maintain connection (less frequent)
         setInterval(() => {
             if (this.connected) {
                 this.socket.emit('heartbeat', { timestamp: Date.now() });
             }
-        }, 30000); // Every 30 seconds
+        }, 120000); // Every 2 minutes instead of 30 seconds
     }
     
     // Public API methods

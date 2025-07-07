@@ -4,7 +4,7 @@ Uses WebSocket connections for live sync between admin and public site
 """
 
 import json
-import asyncio
+import time
 from flask import request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_login import current_user
@@ -27,8 +27,10 @@ class RealTimeSync:
             app, 
             cors_allowed_origins="*",
             async_mode='threading',
-            logger=True,
-            engineio_logger=True
+            logger=False,
+            engineio_logger=False,
+            ping_timeout=120,
+            ping_interval=60
         )
         
         # Register event handlers
@@ -44,11 +46,11 @@ class RealTimeSync:
             """Handle client connection"""
             session_id = request.sid
             self.active_connections[session_id] = {
-                'connected_at': asyncio.get_event_loop().time(),
+                'connected_at': time.time(),
                 'user_type': 'guest'
             }
             
-            logger.info(f"Client connected: {session_id}")
+            # Reduced logging for stability
             emit('connection_established', {'session_id': session_id})
         
         @self.socketio.on('disconnect')
@@ -62,8 +64,6 @@ class RealTimeSync:
                 
                 if user_type == 'admin':
                     self.admin_sessions.discard(session_id)
-                
-                logger.info(f"Client disconnected: {session_id} ({user_type})")
         
         @self.socketio.on('admin_join')
         def handle_admin_join(data):
@@ -104,7 +104,7 @@ class RealTimeSync:
                         processed_updates.append({
                             'key': update['key'],
                             'value': update['value'],
-                            'timestamp': asyncio.get_event_loop().time(),
+                            'timestamp': time.time(),
                             'admin_id': current_user.id
                         })
                 
@@ -140,7 +140,7 @@ class RealTimeSync:
                 
                 emit('content_sync_response', {
                     'content': content_data,
-                    'timestamp': asyncio.get_event_loop().time()
+                    'timestamp': time.time()
                 })
                 
             except Exception as e:
@@ -157,10 +157,13 @@ class RealTimeSync:
             # Broadcast refresh signal to all clients
             self.socketio.emit('refresh_preview', {
                 'source': 'admin',
-                'timestamp': asyncio.get_event_loop().time()
+                'timestamp': time.time()
             })
-            
-            logger.info(f"Preview refresh requested by {current_user.username}")
+        @self.socketio.on('heartbeat')
+        def handle_heartbeat(data):
+            """Handle client heartbeat for connection maintenance"""
+            # Simple heartbeat acknowledgment - no processing needed
+            pass
     
     def broadcast_content_change(self, updates, admin_user):
         """Broadcast content changes to all connected clients"""
@@ -172,7 +175,7 @@ class RealTimeSync:
                 'updates': updates,
                 'source': 'server',
                 'admin_username': admin_user.username if admin_user else 'System',
-                'timestamp': asyncio.get_event_loop().time()
+                'timestamp': time.time()
             })
             
             logger.info(f"Broadcast content change: {len(updates)} updates")
@@ -189,7 +192,7 @@ class RealTimeSync:
             self.socketio.emit('admin_notification', {
                 'message': message,
                 'data': data or {},
-                'timestamp': asyncio.get_event_loop().time()
+                'timestamp': time.time()
             }, room='admin_room')
             
         except Exception as e:

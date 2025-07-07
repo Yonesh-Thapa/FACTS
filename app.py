@@ -2603,13 +2603,13 @@ with app.app_context():
         db.session.commit()
         app.logger.info('Initial admin user created')
 
-# Initialize real-time sync with SocketIO
-from realtime_sync import init_realtime_sync
-socketio = init_realtime_sync(app)
+# Initialize simple real-time sync (polling-based, more stable)
+from simple_realtime import init_simple_realtime
+simple_realtime = init_simple_realtime(app)
 
 # Register the admin portal blueprint
 from admin_portal import admin_portal
 app.register_blueprint(admin_portal)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
