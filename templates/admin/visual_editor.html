@@ -53,19 +53,45 @@
     <div id="editToolbar" class="card shadow mb-4" style="display: none;">
         <div class="card-body">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <h5 class="mb-0 text-success">
                         <i class="fas fa-mouse-pointer me-2"></i>Edit Mode Active
                     </h5>
                     <small class="text-muted">Click on any highlighted element to edit it. Changes save automatically.</small>
                 </div>
-                <div class="col-md-4 text-end">
+                <div class="col-md-6 text-end">
+                    <div class="btn-group me-2">
+                        <button id="undoEdit" class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="fas fa-undo me-1"></i>Undo
+                        </button>
+                        <button id="redoEdit" class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="fas fa-redo me-1"></i>Redo
+                        </button>
+                    </div>
                     <button id="saveAllChanges" class="btn btn-success me-2" style="display: none;">
-                        <i class="fas fa-save me-2"></i>Save Changes
+                        <i class="fas fa-save me-2"></i>Save Changes (<span id="changeCount">0</span>)
                     </button>
                     <button id="cancelEditing" class="btn btn-secondary">
-                        <i class="fas fa-times me-2"></i>Cancel
+                        <i class="fas fa-times me-2"></i>Exit Edit Mode
                     </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="edit-status" id="editStatus">
+                        <span class="badge bg-info me-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Ready to edit
+                        </span>
+                        <span id="pendingChanges" class="badge bg-warning me-2" style="display: none;">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="pendingCount">0</span> pending changes
+                        </span>
+                        <span id="saveStatus" class="badge bg-success" style="display: none;">
+                            <i class="fas fa-check me-1"></i>
+                            All changes saved
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -495,48 +521,330 @@ document.addEventListener('DOMContentLoaded', function() {
     const editModeToggle = document.getElementById('editModeToggle');
     const editToolbar = document.getElementById('editToolbar');
     const saveAllChanges = document.getElementById('saveAllChanges');
+    const cancelEditing = document.getElementById('cancelEditing');
+    const undoEdit = document.getElementById('undoEdit');
+    const redoEdit = document.getElementById('redoEdit');
+    const changeCount = document.getElementById('changeCount');
+    const pendingChanges = document.getElementById('pendingChanges');
+    const pendingCount = document.getElementById('pendingCount');
+    const saveStatus = document.getElementById('saveStatus');
     const realWebsiteContent = document.getElementById('realWebsiteContent');
     const editModal = new bootstrap.Modal(document.getElementById('editModal'));
     
+    // Enhanced state management
     let editMode = false;
-    let pendingChanges = {};
+    let changes = {};
+    let changeHistory = [];
+    let currentHistoryIndex = -1;
+    let autoSaveTimer = null;
+    let lastSaveTime = Date.now();
     
     // Initialize real-time sync connection
-    if (window.realtimeSync) {
+    if (window.realtimeSync || window.simpleRealtime) {
         console.log('Real-time sync available for visual editor');
     }
     
-    // Toggle Edit Mode
-    editModeToggle.addEventListener('click', function() {
-        editMode = !editMode;
-        toggleEditMode(editMode);
-    });
+    // Enhanced event listeners
+    editModeToggle.addEventListener('click', () => toggleEditMode(!editMode));
+    cancelEditing.addEventListener('click', () => toggleEditMode(false));
+    saveAllChanges.addEventListener('click', saveAllPendingChanges);
+    undoEdit.addEventListener('click', undoLastChange);
+    redoEdit.addEventListener('click', redoLastChange);
     
     function toggleEditMode(enabled) {
+        editMode = enabled;
+        
         if (enabled) {
             editModeToggle.innerHTML = '<i class="fas fa-times me-2"></i>Exit Edit Mode';
             editModeToggle.classList.remove('btn-primary');
             editModeToggle.classList.add('btn-danger');
             editToolbar.style.display = 'block';
-            saveAllChanges.style.display = 'inline-block';
             addEditOverlays();
+            updateEditStatus('Edit mode enabled - click elements to edit');
         } else {
             editModeToggle.innerHTML = '<i class="fas fa-edit me-2"></i>Enable Edit Mode';
             editModeToggle.classList.remove('btn-danger');
             editModeToggle.classList.add('btn-primary');
             editToolbar.style.display = 'none';
-            saveAllChanges.style.display = 'none';
             removeEditOverlays();
+            updateEditStatus('Edit mode disabled');
         }
+        
+        updateUI();
     }
     
     function addEditOverlays() {
-        // Add overlays to all editable elements
         const editableElements = realWebsiteContent.querySelectorAll('[data-content-key]');
         
         editableElements.forEach(element => {
-            if (!element.classList.contains('edit-overlay-added')) {
-                element.classList.add('edit-overlay-added');
+            element.classList.add('editable-element');
+            element.style.cursor = 'pointer';
+            element.style.transition = 'all 0.2s ease';
+            
+            // Add click handler for editing
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openEditModal(element);
+            });
+            
+            // Add hover effect
+            element.addEventListener('mouseenter', function() {
+                this.style.outline = '2px dashed #007ACC';
+                this.style.backgroundColor = 'rgba(0, 122, 204, 0.05)';
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                this.style.outline = '';
+                this.style.backgroundColor = '';
+            });
+        });
+    }
+    
+    function removeEditOverlays() {
+        const editableElements = realWebsiteContent.querySelectorAll('.editable-element');
+        
+        editableElements.forEach(element => {
+            element.classList.remove('editable-element');
+            element.style.cursor = '';
+            element.style.outline = '';
+            element.style.backgroundColor = '';
+            
+            // Remove event listeners by cloning element
+            const newElement = element.cloneNode(true);
+            element.parentNode.replaceChild(newElement, element);
+        });
+    }
+    
+    function openEditModal(element) {
+        const contentKey = element.getAttribute('data-content-key');
+        const contentType = element.getAttribute('data-content-type') || 'text';
+        const currentValue = getElementValue(element, contentType);
+        
+        // Populate modal
+        document.getElementById('editContentKey').value = contentKey;
+        document.getElementById('editContentType').value = contentType;
+        
+        if (contentType === 'text') {
+            document.getElementById('editTextValue').value = currentValue;
+            document.getElementById('textEditor').style.display = 'block';
+            document.getElementById('imageEditor').style.display = 'none';
+        } else if (contentType === 'image') {
+            document.getElementById('editImageValue').value = currentValue;
+            document.getElementById('imageEditor').style.display = 'block';
+            document.getElementById('textEditor').style.display = 'none';
+        }
+        
+        // Show modal
+        editModal.show();
+    }
+    
+    function getElementValue(element, contentType) {
+        if (contentType === 'image') {
+            return element.src || element.getAttribute('src') || '';
+        } else {
+            return element.textContent || element.innerHTML || '';
+        }
+    }
+    
+    function setElementValue(element, value, contentType) {
+        if (contentType === 'image') {
+            element.src = value;
+            element.setAttribute('src', value);
+        } else {
+            element.textContent = value;
+        }
+    }
+    
+    function recordChange(key, oldValue, newValue, contentType) {
+        // Record change for undo/redo
+        const change = {
+            key: key,
+            oldValue: oldValue,
+            newValue: newValue,
+            contentType: contentType,
+            timestamp: Date.now()
+        };
+        
+        // Remove any redo history when new change is made
+        changeHistory = changeHistory.slice(0, currentHistoryIndex + 1);
+        changeHistory.push(change);
+        currentHistoryIndex = changeHistory.length - 1;
+        
+        // Add to pending changes
+        changes[key] = {
+            value: newValue,
+            contentType: contentType,
+            timestamp: Date.now()
+        };
+        
+        updateUI();
+        scheduleAutoSave();
+    }
+    
+    function undoLastChange() {
+        if (currentHistoryIndex >= 0) {
+            const change = changeHistory[currentHistoryIndex];
+            applyChange(change.key, change.oldValue, change.contentType);
+            currentHistoryIndex--;
+            
+            // Remove from pending changes or update with old value
+            if (currentHistoryIndex < 0) {
+                delete changes[change.key];
+            } else {
+                const prevChange = changeHistory[currentHistoryIndex];
+                if (prevChange.key === change.key) {
+                    changes[change.key] = {
+                        value: prevChange.newValue,
+                        contentType: prevChange.contentType,
+                        timestamp: Date.now()
+                    };
+                }
+            }
+            
+            updateUI();
+        }
+    }
+    
+    function redoLastChange() {
+        if (currentHistoryIndex < changeHistory.length - 1) {
+            currentHistoryIndex++;
+            const change = changeHistory[currentHistoryIndex];
+            applyChange(change.key, change.newValue, change.contentType);
+            
+            // Add back to pending changes
+            changes[change.key] = {
+                value: change.newValue,
+                contentType: change.contentType,
+                timestamp: Date.now()
+            };
+            
+            updateUI();
+        }
+    }
+    
+    function applyChange(key, value, contentType) {
+        const elements = realWebsiteContent.querySelectorAll(`[data-content-key="${key}"]`);
+        elements.forEach(element => {
+            setElementValue(element, value, contentType);
+        });
+    }
+    
+    function updateUI() {
+        const changeCountValue = Object.keys(changes).length;
+        changeCount.textContent = changeCountValue;
+        pendingCount.textContent = changeCountValue;
+        
+        // Update buttons
+        saveAllChanges.style.display = changeCountValue > 0 ? 'inline-block' : 'none';
+        pendingChanges.style.display = changeCountValue > 0 ? 'inline-block' : 'none';
+        saveStatus.style.display = changeCountValue === 0 ? 'inline-block' : 'none';
+        
+        undoEdit.disabled = currentHistoryIndex < 0;
+        redoEdit.disabled = currentHistoryIndex >= changeHistory.length - 1;
+    }
+    
+    function updateEditStatus(message) {
+        const statusBadge = document.querySelector('#editStatus .badge.bg-info');
+        if (statusBadge) {
+            statusBadge.innerHTML = `<i class="fas fa-info-circle me-1"></i>${message}`;
+        }
+    }
+    
+    function scheduleAutoSave() {
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+        }
+        
+        // Auto-save after 3 seconds of inactivity
+        autoSaveTimer = setTimeout(() => {
+            if (Object.keys(changes).length > 0) {
+                saveAllPendingChanges();
+            }
+        }, 3000);
+    }
+    
+    function saveAllPendingChanges() {
+        if (Object.keys(changes).length === 0) {
+            return;
+        }
+        
+        updateEditStatus('Saving changes...');
+        
+        const updates = Object.keys(changes).map(key => ({
+            key: key,
+            value: changes[key].value,
+            category: 'content',
+            contentType: changes[key].contentType
+        }));
+        
+        fetch('/admin/api/content/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ updates: updates })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                changes = {};
+                lastSaveTime = Date.now();
+                updateUI();
+                updateEditStatus('All changes saved successfully');
+                
+                // Broadcast changes if real-time sync is available
+                if (window.simpleRealtime && window.simpleRealtime.broadcastContentUpdate) {
+                    window.simpleRealtime.broadcastContentUpdate(updates);
+                }
+                
+                // Hide save status after 3 seconds
+                setTimeout(() => {
+                    if (Object.keys(changes).length === 0) {
+                        updateEditStatus('Ready to edit');
+                    }
+                }, 3000);
+            } else {
+                updateEditStatus('Error saving changes');
+                console.error('Save failed:', data.error);
+            }
+        })
+        .catch(error => {
+            updateEditStatus('Error saving changes');
+            console.error('Save error:', error);
+        });
+    }
+    
+    // Modal save handler
+    document.getElementById('saveEdit').addEventListener('click', function() {
+        const contentKey = document.getElementById('editContentKey').value;
+        const contentType = document.getElementById('editContentType').value;
+        let newValue;
+        
+        if (contentType === 'text') {
+            newValue = document.getElementById('editTextValue').value;
+        } else if (contentType === 'image') {
+            newValue = document.getElementById('editImageValue').value;
+        }
+        
+        // Get current value for undo
+        const elements = realWebsiteContent.querySelectorAll(`[data-content-key="${contentKey}"]`);
+        const oldValue = elements.length > 0 ? getElementValue(elements[0], contentType) : '';
+        
+        // Apply change immediately
+        applyChange(contentKey, newValue, contentType);
+        
+        // Record for undo/redo and saving
+        recordChange(contentKey, oldValue, newValue, contentType);
+        
+        // Close modal
+        editModal.hide();
+        
+        updateEditStatus(`Updated ${contentKey}`);
+    });
+    
+    // Initialize UI
+    updateUI();
                 element.style.position = 'relative';
                 element.style.cursor = 'pointer';
                 element.style.border = '2px dashed transparent';

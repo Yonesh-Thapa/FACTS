@@ -10,6 +10,8 @@ class SimpleRealTimeSync {
         this.lastUpdate = Date.now() / 1000;
         this.pollFrequency = 30000; // Poll every 30 seconds
         this.isAdmin = false;
+        this.onContentUpdate = null; // Callback for content updates
+        this.broadcastQueue = [];
         
         this.init();
     }
@@ -185,6 +187,20 @@ class SimpleRealTimeSync {
     
     // Public API methods
     broadcastContentUpdate(updates) {
+        console.log('Broadcasting content updates:', updates);
+        
+        // Apply updates immediately to current page if not admin
+        if (!this.isAdmin) {
+            updates.forEach(update => {
+                this.applyContentUpdate(update);
+            });
+        }
+        
+        // Notify callbacks immediately
+        if (this.onContentUpdate) {
+            this.onContentUpdate(updates);
+        }
+        
         // For admin use - trigger immediate poll after content update
         if (this.isAdmin) {
             setTimeout(() => this.pollForUpdates(), 1000);

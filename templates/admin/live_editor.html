@@ -498,6 +498,444 @@ class LiveEditor {
     
     init() {
         this.setupEventListeners();
+        this.loadContentData();
+        this.setupRealtimeSync();
+        this.updateStatus('Live editor initialized', 'success');
+    }
+    
+    setupRealtimeSync() {
+        // Use the existing simple realtime sync
+        if (window.simpleRealtime) {
+            console.log('Live editor connected to real-time sync');
+            
+            // Listen for content updates
+            window.simpleRealtime.onContentUpdate = (updates) => {
+                this.handleRealtimeUpdate(updates);
+            };
+        }
+    }
+    
+    handleRealtimeUpdate(updates) {
+        // Apply updates to the preview iframe
+        const iframe = document.getElementById('previewFrame');
+        if (iframe && iframe.contentDocument) {
+            updates.forEach(update => {
+                const elements = iframe.contentDocument.querySelectorAll(`[data-content-key="${update.key}"]`);
+                elements.forEach(element => {
+                    if (update.contentType === 'image') {
+                        element.src = update.value;
+                    } else {
+                        element.textContent = update.value;
+                    }
+                });
+            });
+        }
+        
+        // Update content panel
+        this.refreshContentPanel();
+    }
+    
+    loadContentData() {
+        this.updateStatus('Loading content data...', 'loading');
+        
+        fetch('/admin/api/content')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.contentData = data.content || {};
+                    this.populateContentPanel();
+                    this.updateStatus('Content loaded successfully', 'success');
+                } else {
+                    this.updateStatus('Failed to load content', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading content:', error);
+                this.updateStatus('Error loading content', 'error');
+            });
+    }
+    
+    populateContentPanel() {
+        const textContentList = document.getElementById('textContentList');
+        const mediaContentList = document.getElementById('mediaContentList');
+        
+        if (!textContentList || !mediaContentList) return;
+        
+        // Clear existing content
+        textContentList.innerHTML = '';
+        mediaContentList.innerHTML = '';
+        
+        // Group content by type
+        const textContent = [];
+        const mediaContent = [];
+        
+        Object.entries(this.contentData).forEach(([key, item]) => {
+            if (key.includes('image') || key.includes('video') || key.includes('media')) {
+                mediaContent.push({ key, ...item });
+            } else {
+                textContent.push({ key, ...item });
+            }
+        });
+        
+        // Populate text content
+        textContent.forEach(item => {
+            const contentItem = this.createContentItem(item);
+            textContentList.appendChild(contentItem);
+        });
+        
+        // Populate media content
+        mediaContent.forEach(item => {
+            const contentItem = this.createContentItem(item);
+            mediaContentList.appendChild(contentItem);
+        });
+    }
+    
+    createContentItem(item) {
+        const div = document.createElement('div');
+        div.className = 'content-item';
+        div.innerHTML = `
+            <div class="content-item-key">${this.formatKey(item.key)}</div>
+            <div class="content-item-value">${this.truncateValue(item.value)}</div>
+        `;
+        
+        div.addEventListener('click', () => {
+            this.openQuickEdit(item.key, item.value);
+        });
+        
+        return div;
+    }
+    
+    formatKey(key) {
+        return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    truncateValue(value) {
+        if (!value) return 'Empty';
+        return value.length > 50 ? value.substring(0, 50) + '...' : value;
+    }
+    
+    openQuickEdit(key, value) {
+        const editKey = document.getElementById('editKey');
+        const editValue = document.getElementById('editValue');
+        
+        if (editKey && editValue) {
+            editKey.value = key;
+            editValue.value = value || '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('quickEditModal'));
+            modal.show();
+        }
+    }
+    
+    saveQuickEdit() {
+        const key = document.getElementById('editKey').value;
+        const value = document.getElementById('editValue').value;
+        
+        if (!key) return;
+        
+        this.updateStatus('Saving changes...', 'loading');
+        
+        const updates = [{
+            key: key,
+            value: value,
+            category: 'content'
+        }];
+        
+        fetch('/admin/api/content/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ updates: updates })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.updateStatus('Changes saved successfully', 'success');
+                this.contentData[key] = { value: value };
+                this.refreshPreview();
+                this.populateContentPanel();
+                
+                // Broadcast update
+                if (window.simpleRealtime && window.simpleRealtime.broadcastContentUpdate) {
+                    window.simpleRealtime.broadcastContentUpdate(updates);
+                }
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('quickEditModal')).hide();
+            } else {
+                this.updateStatus('Failed to save changes', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving:', error);
+            this.updateStatus('Error saving changes', 'error');
+        });
+    }
+    
+    refreshPreview() {
+        const iframe = document.getElementById('previewFrame');
+        if (iframe) {
+            iframe.src = iframe.src;
+        }
+    }
+    
+    refreshContentPanel() {
+        this.loadContentData();
+    }
+    
+    updateStatus(message, type) {
+        // Remove existing status indicators
+        const existing = document.querySelector('.status-indicator');
+        if (existing) {
+            existing.remove();
+        }
+        
+        // Create new status indicator
+        const statusDiv = document.createElement('div');
+        statusDiv.className = `status-indicator ${type}`;
+        statusDiv.textContent = message;
+        document.body.appendChild(statusDiv);
+        
+        // Auto-remove after 3 seconds for success/error
+        if (type === 'success' || type === 'error') {
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.remove();
+                }
+            }, 3000);
+        }
+    }
+    
+    setupEventListeners() {
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tabName = e.target.dataset.tab;
+                this.switchTab(tabName);
+            });
+        });
+        
+        // Control buttons
+        document.getElementById('toggleEditMode')?.addEventListener('click', () => {
+            this.toggleEditMode();
+        });
+        
+        document.getElementById('saveAll')?.addEventListener('click', () => {
+            this.saveAllChanges();
+        });
+        
+        document.getElementById('previewMode')?.addEventListener('click', () => {
+            this.togglePreviewMode();
+        });
+        
+        document.getElementById('versionHistory')?.addEventListener('click', () => {
+            this.showVersionHistory();
+        });
+        
+        document.getElementById('refreshPreview')?.addEventListener('click', () => {
+            this.refreshPreview();
+        });
+        
+        // Quick edit modal
+        document.getElementById('saveQuickEdit')?.addEventListener('click', () => {
+            this.saveQuickEdit();
+        });
+        
+        // View mode buttons
+        document.getElementById('desktopView')?.addEventListener('click', () => {
+            this.setPreviewMode('desktop');
+        });
+        
+        document.getElementById('tabletView')?.addEventListener('click', () => {
+            this.setPreviewMode('tablet');
+        });
+        
+        document.getElementById('mobileView')?.addEventListener('click', () => {
+            this.setPreviewMode('mobile');
+        });
+    }
+    
+    switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        
+        // Update tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+    }
+    
+    toggleEditMode() {
+        this.editMode = !this.editMode;
+        const btn = document.getElementById('toggleEditMode');
+        const status = document.getElementById('editModeStatus');
+        
+        if (this.editMode) {
+            btn.innerHTML = '<i class="fas fa-edit"></i> Edit Mode: <span id="editModeStatus">ON</span>';
+            status.textContent = 'ON';
+            this.updateStatus('Edit mode enabled', 'success');
+        } else {
+            btn.innerHTML = '<i class="fas fa-edit"></i> Edit Mode: <span id="editModeStatus">OFF</span>';
+            status.textContent = 'OFF';
+            this.updateStatus('Edit mode disabled', 'success');
+        }
+    }
+    
+    setPreviewMode(mode) {
+        const iframe = document.getElementById('previewFrame');
+        if (!iframe) return;
+        
+        // Remove existing mode classes
+        iframe.classList.remove('desktop-view', 'tablet-view', 'mobile-view');
+        
+        // Add new mode class
+        iframe.classList.add(`${mode}-view`);
+        
+        // Update active button
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(`${mode}View`).classList.add('active');
+        
+        this.updateStatus(`Switched to ${mode} view`, 'success');
+    }
+    
+    showVersionHistory() {
+        this.updateStatus('Loading version history...', 'loading');
+        
+        fetch('/admin/api/content/versions')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.populateVersionHistory(data.versions);
+                    const modal = new bootstrap.Modal(document.getElementById('versionHistoryModal'));
+                    modal.show();
+                    this.updateStatus('Version history loaded', 'success');
+                } else {
+                    this.updateStatus('Failed to load version history', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading versions:', error);
+                this.updateStatus('Error loading version history', 'error');
+            });
+    }
+    
+    populateVersionHistory(versions) {
+        const versionList = document.getElementById('versionList');
+        if (!versionList) return;
+        
+        versionList.innerHTML = '';
+        
+        versions.forEach(version => {
+            const versionItem = document.createElement('div');
+            versionItem.className = 'version-item';
+            versionItem.innerHTML = `
+                <div class="version-header">
+                    <div>
+                        <strong>Version ${version.id}</strong>
+                        <div class="version-meta">
+                            ${version.admin_username} • ${new Date(version.created_at).toLocaleString()}
+                        </div>
+                    </div>
+                    <div class="version-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="liveEditor.previewVersion('${version.id}')">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="liveEditor.rollbackToVersion('${version.id}')">
+                            <i class="fas fa-undo"></i> Rollback
+                        </button>
+                    </div>
+                </div>
+                <div class="version-description">${version.action || 'Content update'}</div>
+            `;
+            versionList.appendChild(versionItem);
+        });
+    }
+    
+    rollbackToVersion(versionId) {
+        if (!confirm('Are you sure you want to rollback to this version? This will overwrite current content.')) {
+            return;
+        }
+        
+        this.updateStatus('Rolling back to version...', 'loading');
+        
+        fetch('/admin/api/content/rollback', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ version_id: versionId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.updateStatus('Rollback successful', 'success');
+                this.loadContentData();
+                this.refreshPreview();
+                bootstrap.Modal.getInstance(document.getElementById('versionHistoryModal')).hide();
+            } else {
+                this.updateStatus('Rollback failed', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error rolling back:', error);
+            this.updateStatus('Error during rollback', 'error');
+        });
+    }
+    
+    saveAllChanges() {
+        if (Object.keys(this.unsavedChanges).length === 0) {
+            this.updateStatus('No changes to save', 'success');
+            return;
+        }
+        
+        this.updateStatus('Saving all changes...', 'loading');
+        
+        const updates = Object.entries(this.unsavedChanges).map(([key, value]) => ({
+            key: key,
+            value: value,
+            category: 'content'
+        }));
+        
+        fetch('/admin/api/content/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ updates: updates })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.updateStatus('All changes saved successfully', 'success');
+                this.unsavedChanges = {};
+                this.refreshPreview();
+                this.populateContentPanel();
+                
+                // Broadcast update
+                if (window.simpleRealtime && window.simpleRealtime.broadcastContentUpdate) {
+                    window.simpleRealtime.broadcastContentUpdate(updates);
+                }
+            } else {
+                this.updateStatus('Failed to save changes', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving:', error);
+            this.updateStatus('Error saving changes', 'error');
+        });
+    }
+}
+
+// Initialize the live editor when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    window.liveEditor = new LiveEditor();
         this.loadContent();
         this.setupWebSocket();
         this.setupTabNavigation();

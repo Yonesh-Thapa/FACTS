@@ -117,10 +117,49 @@ def live_editor():
     """Main live editor interface"""
     return render_template('admin/live_editor.html')
 
-@admin_portal.route('/api/content/get')
-@login_required
+@admin_portal.route('/api/content')
+@login_required  
 def get_content():
     """Get all site content for editing"""
+    try:
+        settings = SiteSetting.query.all()
+        content_flat = {}
+        content_grouped = {}
+        
+        for setting in settings:
+            setting_data = {
+                'key': setting.key,
+                'value': setting.value,
+                'category': setting.category,
+                'description': setting.description,
+                'updated_at': setting.updated_at.isoformat() if setting.updated_at else None
+            }
+            
+            # Flat structure for easy access
+            content_flat[setting.key] = setting_data
+            
+            # Grouped by category
+            if setting.category not in content_grouped:
+                content_grouped[setting.category] = []
+            content_grouped[setting.category].append(setting_data)
+        
+        return jsonify({
+            'success': True,
+            'content': content_flat,
+            'content_grouped': content_grouped
+        })
+    
+    except Exception as e:
+        logger.error(f"Error getting content: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@admin_portal.route('/api/content/get')
+@login_required
+def get_content_legacy():
+    """Legacy route for backward compatibility"""
     try:
         settings = SiteSetting.query.all()
         content = []
