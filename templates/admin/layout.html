@@ -404,31 +404,7 @@
                     <i class="fas fa-calendar-check" aria-hidden="true"></i> Info Session Bookings
                 </a>
             </li>
-            <li>
-                <a href="{{ url_for('admin_visual_editor') }}" {% if request.path == url_for('admin_visual_editor') %}class="active"{% endif %}>
-                    <i class="fas fa-paint-brush" aria-hidden="true"></i> Visual Editor
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('admin_portal.visual_editor') }}" {% if request.path == url_for('admin_portal.visual_editor') %}class="active"{% endif %}>
-                    <i class="fas fa-magic" aria-hidden="true"></i> Enhanced Visual Editor
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('admin_portal.live_editor') }}" {% if request.path == url_for('admin_portal.live_editor') %}class="active"{% endif %}>
-                    <i class="fas fa-edit" aria-hidden="true"></i> Live Editor
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('admin_page_content') }}" {% if request.path == url_for('admin_page_content') %}class="active"{% endif %}>
-                    <i class="fas fa-file-alt" aria-hidden="true"></i> Page Content
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('admin_settings') }}" {% if request.path == url_for('admin_settings') %}class="active"{% endif %}>
-                    <i class="fas fa-cog" aria-hidden="true"></i> Site Settings
-                </a>
-            </li>
+
             <li>
                 <a href="{{ url_for('admin_classes') }}" {% if request.path == url_for('admin_classes') or request.path.startswith('/admin/classes/') %}class="active"{% endif %}>
                     <i class="fas fa-calendar-alt" aria-hidden="true"></i> Class Sessions

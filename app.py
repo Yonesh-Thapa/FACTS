@@ -1601,104 +1601,7 @@ def admin_send_zoom_link():
         'message': 'Booking not found'
     })
 
-# Visual Website Editor
-@app.route('/admin/visual-editor')
-@login_required
-def admin_visual_editor():
-    """Visual website editor interface"""
-    return render_template('admin/visual_editor_new.html')
 
-@app.route('/admin/visual-editor/save', methods=['POST'])
-@login_required
-def admin_visual_editor_save():
-    """Save changes from visual editor"""
-    from models import SiteSetting
-    
-    try:
-        changes = request.get_json()
-        
-        for key, value in changes.items():
-            setting = SiteSetting.query.filter_by(key=key).first()
-            if setting:
-                setting.value = value
-                setting.updated_by = current_user.id
-                setting.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        return jsonify({'success': True, 'message': 'Changes saved successfully'})
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
-
-# Page Content Management
-@app.route('/admin/page-content', methods=['GET', 'POST'])
-@login_required
-def admin_page_content():
-    """Admin route to manage page-specific content"""
-    from models import SiteSetting
-    
-    if request.method == 'POST':
-        # Handle form submission to update settings
-        for key, value in request.form.items():
-            if key.startswith('setting_'):
-                setting_key = key.replace('setting_', '')
-                setting = SiteSetting.query.filter_by(key=setting_key).first()
-                
-                if setting:
-                    setting.value = value
-                    setting.updated_by = current_user.id
-                    setting.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        flash('Page content updated successfully', 'success')
-        return redirect(url_for('admin_page_content'))
-    
-    # Get page-specific settings
-    page_categories = ['home_page', 'about_page', 'program_page', 'pricing_page']
-    settings = SiteSetting.query.filter(SiteSetting.category.in_(page_categories)).order_by(SiteSetting.category, SiteSetting.key).all()
-    
-    # Group settings by category
-    settings_by_category = {}
-    for setting in settings:
-        if setting.category not in settings_by_category:
-            settings_by_category[setting.category] = []
-        settings_by_category[setting.category].append(setting)
-    
-    return render_template('admin/page_content.html', settings_by_category=settings_by_category)
-
-# Site Settings Management
-@app.route('/admin/settings', methods=['GET', 'POST'])
-@login_required
-def admin_settings():
-    """Admin route to manage site-wide settings"""
-    from models import SiteSetting
-    
-    if request.method == 'POST':
-        # Handle form submission to update settings
-        for key, value in request.form.items():
-            if key.startswith('setting_'):
-                setting_key = key.replace('setting_', '')
-                setting = SiteSetting.query.filter_by(key=setting_key).first()
-                
-                if setting:
-                    setting.value = value
-                    setting.updated_by = current_user.id
-                    setting.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        flash('Settings updated successfully', 'success')
-        return redirect(url_for('admin_settings'))
-    
-    # Get all settings organized by category
-    settings = SiteSetting.query.order_by(SiteSetting.category, SiteSetting.key).all()
-    
-    # Group settings by category
-    settings_by_category = {}
-    for setting in settings:
-        if setting.category not in settings_by_category:
-            settings_by_category[setting.category] = []
-        settings_by_category[setting.category].append(setting)
     
     return render_template('admin/settings.html', settings_by_category=settings_by_category)
 
@@ -2604,12 +2507,10 @@ with app.app_context():
         app.logger.info('Initial admin user created')
 
 # Initialize simple real-time sync (polling-based, more stable)
-from simple_realtime import init_simple_realtime
-simple_realtime = init_simple_realtime(app)
+# Real-time sync functionality removed for simplified interface
 
 # Register the admin portal blueprint
-from admin_portal import admin_portal
-app.register_blueprint(admin_portal)
+# Removed admin portal blueprint for simplified interface
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
