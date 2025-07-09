@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Restart Flask app to apply JS date fix",
+			"command": "pkill -f flask || taskkill /IM python.exe /F || true && flask run",
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}
