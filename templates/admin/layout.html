@@ -410,6 +410,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_portal.visual_editor') }}" {% if request.path == url_for('admin_portal.visual_editor') %}class="active"{% endif %}>
+                    <i class="fas fa-magic" aria-hidden="true"></i> Enhanced Visual Editor
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_portal.live_editor') }}" {% if request.path == url_for('admin_portal.live_editor') %}class="active"{% endif %}>
                     <i class="fas fa-edit" aria-hidden="true"></i> Live Editor
                 </a>

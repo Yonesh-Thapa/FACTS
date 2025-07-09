@@ -1606,7 +1606,7 @@ def admin_send_zoom_link():
 @login_required
 def admin_visual_editor():
     """Visual website editor interface"""
-    return render_template('admin/visual_editor.html')
+    return render_template('admin/visual_editor_new.html')
 
 @app.route('/admin/visual-editor/save', methods=['POST'])
 @login_required

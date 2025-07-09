@@ -117,6 +117,12 @@ def live_editor():
     """Main live editor interface"""
     return render_template('admin/live_editor.html')
 
+@admin_portal.route('/visual-editor')
+@login_required
+def visual_editor():
+    """Enhanced visual editor interface"""
+    return render_template('admin/visual_editor_new.html')
+
 @admin_portal.route('/api/content')
 @login_required  
 def get_content():

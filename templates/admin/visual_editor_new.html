@@ -1,0 +1,603 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Visual Website Editor - F.A.C.T.S Admin{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style>
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 800px;
+            border: 2px solid #e3e6f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+        
+        .edit-overlays {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .edit-overlay {
+            position: absolute;
+            border: 2px dashed #007ACC;
+            background: rgba(0, 122, 204, 0.1);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-overlay:hover {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.15);
+        }
+        
+        .edit-overlay::after {
+            content: attr(data-edit-label);
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #007ACC;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .edit-overlay:hover::after {
+            opacity: 1;
+        }
+        
+        .page-nav-btn.active {
+            background-color: #007ACC;
+            color: white;
+            border-color: #007ACC;
+        }
+        
+        .edit-mode-active .preview-frame {
+            pointer-events: none;
+        }
+        
+        .edit-mode-active .edit-overlays {
+            pointer-events: auto;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .edit-toolbar {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .edit-toolbar.active {
+            display: block;
+        }
+        
+        .change-counter {
+            background: #ffc107;
+            color: #212529;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .save-status {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .save-status.saving {
+            color: #ffc107;
+        }
+        
+        .save-status.saved {
+            color: #28a745;
+        }
+        
+        .save-status.error {
+            color: #dc3545;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Visual Website Editor</h1>
+            <small class="text-muted">Navigate and edit your live website content directly</small>
+        </div>
+        <div>
+            <button id="editModeToggle" class="btn btn-primary me-2">
+                <i class="fas fa-edit me-2"></i>Enable Edit Mode
+            </button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Real-time Status -->
+    <div class="alert alert-info mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h6 class="mb-1">
+                    <span class="status-indicator">
+                        <div class="status-dot"></div>
+                        Live Content Editor
+                    </span>
+                </h6>
+                <p class="mb-0 small">
+                    Navigate between pages and enable edit mode to modify content. All changes save automatically and appear instantly on your live website.
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="badge bg-success">
+                    <i class="fas fa-sync-alt me-1"></i>Real-Time Sync Active
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Mode Toolbar -->
+    <div id="editToolbar" class="edit-toolbar">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="mb-0">
+                    <i class="fas fa-mouse-pointer me-2"></i>Edit Mode Active
+                </h5>
+                <small>Click on highlighted elements to edit them</small>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group me-2">
+                    <button id="undoEdit" class="btn btn-outline-light btn-sm" disabled>
+                        <i class="fas fa-undo me-1"></i>Undo
+                    </button>
+                    <button id="redoEdit" class="btn btn-outline-light btn-sm" disabled>
+                        <i class="fas fa-redo me-1"></i>Redo
+                    </button>
+                </div>
+                <button id="saveAllChanges" class="btn btn-warning me-2" style="display: none;">
+                    <i class="fas fa-save me-2"></i>Save <span class="change-counter" id="changeCount">0</span>
+                </button>
+                <button id="cancelEditing" class="btn btn-outline-light">
+                    <i class="fas fa-times me-2"></i>Exit Edit Mode
+                </button>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12">
+                <div class="save-status" id="saveStatus">
+                    <i class="fas fa-info-circle me-1"></i>Ready to edit
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">
+                        <i class="fas fa-globe me-2"></i>Website Navigation
+                    </h5>
+                </div>
+                <div class="col-md-6">
+                    <div class="btn-group w-100">
+                        <button class="btn btn-sm btn-outline-primary page-nav-btn active" data-page="/">
+                            <i class="fas fa-home me-1"></i>Home
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary page-nav-btn" data-page="/about">
+                            <i class="fas fa-info-circle me-1"></i>About
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary page-nav-btn" data-page="/program">
+                            <i class="fas fa-graduation-cap me-1"></i>Program
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary page-nav-btn" data-page="/pricing">
+                            <i class="fas fa-dollar-sign me-1"></i>Pricing
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary page-nav-btn" data-page="/contact">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="preview-container">
+                <iframe id="previewFrame" 
+                        class="preview-frame"
+                        src="/" 
+                        frameborder="0">
+                </iframe>
+                <div id="editOverlays" class="edit-overlays"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Content Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="mb-3">
+                        <label for="editKey" class="form-label">Content Key</label>
+                        <input type="text" class="form-control" id="editKey" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editType" class="form-label">Content Type</label>
+                        <select class="form-select" id="editType">
+                            <option value="text">Text</option>
+                            <option value="html">HTML</option>
+                            <option value="url">URL</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editValue" class="form-label">Content Value</label>
+                        <textarea class="form-control" id="editValue" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="editDescription" placeholder="Brief description of this content">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveEdit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize elements
+    const editModeToggle = document.getElementById('editModeToggle');
+    const editToolbar = document.getElementById('editToolbar');
+    const cancelEditing = document.getElementById('cancelEditing');
+    const previewFrame = document.getElementById('previewFrame');
+    const editOverlays = document.getElementById('editOverlays');
+    const pageNavButtons = document.querySelectorAll('.page-nav-btn');
+    const saveAllChanges = document.getElementById('saveAllChanges');
+    const changeCount = document.getElementById('changeCount');
+    const saveStatus = document.getElementById('saveStatus');
+    const undoEdit = document.getElementById('undoEdit');
+    const redoEdit = document.getElementById('redoEdit');
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    
+    // State management
+    let editMode = false;
+    let currentPage = '/';
+    let changes = {};
+    let changeHistory = [];
+    let historyIndex = -1;
+    let autoSaveTimer = null;
+    
+    // Initialize
+    init();
+    
+    function init() {
+        // Set up event listeners
+        editModeToggle.addEventListener('click', toggleEditMode);
+        cancelEditing.addEventListener('click', () => toggleEditMode(false));
+        saveAllChanges.addEventListener('click', saveAllPendingChanges);
+        
+        // Page navigation
+        pageNavButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                navigateToPage(this.dataset.page);
+            });
+        });
+        
+        // Wait for iframe to load before setting up edit overlays
+        previewFrame.addEventListener('load', function() {
+            if (editMode) {
+                setTimeout(setupEditOverlays, 500);
+            }
+        });
+        
+        // Save edit modal
+        document.getElementById('saveEdit').addEventListener('click', saveEditFromModal);
+        
+        console.log('Visual editor initialized');
+    }
+    
+    function toggleEditMode(enable = null) {
+        if (enable === null) {
+            editMode = !editMode;
+        } else {
+            editMode = enable;
+        }
+        
+        if (editMode) {
+            editModeToggle.innerHTML = '<i class="fas fa-eye me-2"></i>View Mode';
+            editModeToggle.classList.remove('btn-primary');
+            editModeToggle.classList.add('btn-success');
+            editToolbar.classList.add('active');
+            document.body.classList.add('edit-mode-active');
+            setupEditOverlays();
+            updateSaveStatus('Edit mode enabled - click elements to edit');
+        } else {
+            editModeToggle.innerHTML = '<i class="fas fa-edit me-2"></i>Enable Edit Mode';
+            editModeToggle.classList.remove('btn-success');
+            editModeToggle.classList.add('btn-primary');
+            editToolbar.classList.remove('active');
+            document.body.classList.remove('edit-mode-active');
+            clearEditOverlays();
+            updateSaveStatus('Edit mode disabled');
+        }
+    }
+    
+    function navigateToPage(page) {
+        currentPage = page;
+        previewFrame.src = page;
+        
+        // Update active nav button
+        pageNavButtons.forEach(btn => {
+            if (btn.dataset.page === page) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        // Clear overlays while loading
+        clearEditOverlays();
+        
+        console.log('Navigating to:', page);
+    }
+    
+    function setupEditOverlays() {
+        try {
+            const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            const editableElements = frameDoc.querySelectorAll('[data-content-key]');
+            
+            console.log('Found editable elements:', editableElements.length);
+            
+            clearEditOverlays();
+            
+            editableElements.forEach(element => {
+                const rect = element.getBoundingClientRect();
+                const overlay = createEditOverlay(element, rect);
+                editOverlays.appendChild(overlay);
+            });
+            
+            updateSaveStatus(`Ready to edit - ${editableElements.length} editable elements found`);
+        } catch (error) {
+            console.error('Error setting up edit overlays:', error);
+            updateSaveStatus('Error setting up edit overlays - try refreshing', 'error');
+        }
+    }
+    
+    function createEditOverlay(element, rect) {
+        const overlay = document.createElement('div');
+        overlay.className = 'edit-overlay';
+        overlay.style.left = rect.left + 'px';
+        overlay.style.top = rect.top + 'px';
+        overlay.style.width = rect.width + 'px';
+        overlay.style.height = rect.height + 'px';
+        overlay.dataset.editLabel = element.dataset.contentKey || 'Edit';
+        
+        overlay.addEventListener('click', function() {
+            openEditModal(element);
+        });
+        
+        return overlay;
+    }
+    
+    function clearEditOverlays() {
+        editOverlays.innerHTML = '';
+    }
+    
+    function openEditModal(element) {
+        const key = element.dataset.contentKey;
+        const type = element.dataset.contentType || 'text';
+        const value = element.textContent || element.value || element.src || '';
+        
+        document.getElementById('editKey').value = key;
+        document.getElementById('editType').value = type;
+        document.getElementById('editValue').value = value;
+        document.getElementById('editDescription').value = `Edit ${key.replace(/_/g, ' ')}`;
+        
+        editModal.show();
+    }
+    
+    function saveEditFromModal() {
+        const key = document.getElementById('editKey').value;
+        const type = document.getElementById('editType').value;
+        const value = document.getElementById('editValue').value;
+        const description = document.getElementById('editDescription').value;
+        
+        // Store change
+        changes[key] = {
+            key: key,
+            value: value,
+            type: type,
+            description: description,
+            timestamp: Date.now()
+        };
+        
+        // Update UI
+        updateChangeCounter();
+        scheduleAutoSave();
+        
+        // Apply change immediately to iframe
+        applyChangeToFrame(key, value, type);
+        
+        editModal.hide();
+        
+        updateSaveStatus(`Changed: ${key}`, 'saving');
+    }
+    
+    function applyChangeToFrame(key, value, type) {
+        try {
+            const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            const elements = frameDoc.querySelectorAll(`[data-content-key="${key}"]`);
+            
+            elements.forEach(element => {
+                if (element.tagName === 'IMG') {
+                    element.src = value;
+                } else if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                    element.value = value;
+                } else {
+                    if (type === 'html') {
+                        element.innerHTML = value;
+                    } else {
+                        element.textContent = value;
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error applying change to frame:', error);
+        }
+    }
+    
+    function updateChangeCounter() {
+        const count = Object.keys(changes).length;
+        changeCount.textContent = count;
+        
+        if (count > 0) {
+            saveAllChanges.style.display = 'inline-block';
+        } else {
+            saveAllChanges.style.display = 'none';
+        }
+    }
+    
+    function scheduleAutoSave() {
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+        }
+        
+        autoSaveTimer = setTimeout(() => {
+            saveAllPendingChanges();
+        }, 3000); // Auto-save after 3 seconds
+    }
+    
+    function saveAllPendingChanges() {
+        if (Object.keys(changes).length === 0) {
+            return;
+        }
+        
+        updateSaveStatus('Saving changes...', 'saving');
+        
+        // Prepare data for API
+        const updates = Object.values(changes).map(change => ({
+            key: change.key,
+            value: change.value,
+            category: 'Content',
+            description: change.description
+        }));
+        
+        // Send to API
+        fetch('/admin/live-editor/update-content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ updates: updates })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear changes
+                changes = {};
+                updateChangeCounter();
+                
+                // Update history
+                addToHistory(updates);
+                
+                updateSaveStatus(`Saved ${updates.length} changes successfully`, 'saved');
+                
+                // Broadcast updates
+                if (window.simpleRealtime) {
+                    window.simpleRealtime.broadcastContentUpdate(updates);
+                }
+            } else {
+                updateSaveStatus('Error saving changes: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Save error:', error);
+            updateSaveStatus('Error saving changes', 'error');
+        });
+    }
+    
+    function addToHistory(updates) {
+        changeHistory.push({
+            updates: updates,
+            timestamp: Date.now()
+        });
+        historyIndex = changeHistory.length - 1;
+        
+        updateHistoryButtons();
+    }
+    
+    function updateHistoryButtons() {
+        undoEdit.disabled = historyIndex < 0;
+        redoEdit.disabled = historyIndex >= changeHistory.length - 1;
+    }
+    
+    function updateSaveStatus(message, type = 'info') {
+        saveStatus.textContent = message;
+        saveStatus.className = `save-status ${type}`;
+        
+        // Show icon based on type
+        let icon = 'fas fa-info-circle';
+        if (type === 'saving') icon = 'fas fa-spinner fa-spin';
+        if (type === 'saved') icon = 'fas fa-check-circle';
+        if (type === 'error') icon = 'fas fa-exclamation-circle';
+        
+        saveStatus.innerHTML = `<i class="${icon} me-1"></i>${message}`;
+    }
+    
+    console.log('Visual editor script loaded');
+});
+</script>
+{% endblock %}
