@@ -11,12 +11,13 @@
                 <h1 class="hero-title">{{ site_settings.home_hero_title or 'Launch Your Accounting Career with F.A.C.T.S' }}</h1>
                 <h2 class="hero-subtitle">{{ site_settings.home_hero_subtitle or 'Job-Ready Online Training for Aspiring Accountants Across Australia' }}</h2>
                 <div class="early-bird-banner mb-3">
-                    <p>{{ site_settings.home_early_bird_banner or '🎉 Save $150 if you enroll by May 30 – Only 10 seats per session!' }}</p>
+                    <p>{{ get_dynamic_text(site_settings.home_early_bird_banner_template or '🎉 Save ${savings} if you enroll by {deadline} – Only {spots} seats per session!') }}</p>
                 </div>
                 <div class="countdown-timer mb-3">
-                    <p>⏳ Early Bird Offer Ends In: <span id="countdown-timer"></span></p>
+                    <p class="countdown-label">⏳ Early Bird Offer Ends In:</p>
+                    <div id="countdown-timer" class="countdown-display"></div>
                 </div>
-                <p class="session-info">Next Session Starts {{ site_settings.next_session_start_date.strftime('%B %d, %Y') if site_settings.next_session_start_date else 'June 5, 2025' }} – {{ site_settings.session_days or 'Wed & Thu' }}, {{ site_settings.session_time or '7:00-9:00 PM AEST' }}</p>
+                <p class="session-info">Next Session Starts {{ computed.session_start_formatted }} – {{ site_settings.session_days or 'Wed & Thu' }}, {{ site_settings.session_time or '7:00-9:00 PM AEST' }}</p>
                 <p class="class-size-note"><i class="fas fa-users"></i> Only {{ site_settings.max_class_size or '10' }} students per session for personalized attention.</p>
                 <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg hero-cta">Apply Now – Secure Your Spot</a>
             </div>
@@ -37,139 +38,33 @@
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <h2 class="section-title text-center mb-4">{{ site_settings.mentor_section_title or 'Meet Your Mentor' }}</h2>
                 <div class="section-divider mx-auto mb-4"></div>
-                <div class="video-container">
-                    <div id="mentor-video-player" class="custom-video-player" tabindex="0" role="application" aria-label="Video player for mentor introduction">
-                        <div class="video-wrapper">
-                            <!-- Poster image overlay - always visible initially -->
-                            <div class="poster-container" role="button" tabindex="0" aria-label="Play mentor introduction video">
-                                {% if site_settings.mentor_image %}
-                                <img src="{{ url_for('static', filename='images/' + site_settings.mentor_image) }}" 
-                                     alt="Meet your mentor - {{ site_settings.mentor_name or 'F.A.C.T.S Instructor' }}" 
-                                     class="video-poster"
-                                     onerror="this.src='{{ url_for('static', filename='images/tutor.jpg') }}'; this.onerror=null;">
-                                {% else %}
-                                <img src="{{ url_for('static', filename='images/tutor.jpg') }}" 
-                                     alt="Meet your F.A.C.T.S Instructor" 
-                                     class="video-poster">
-                                {% endif %}
-                                
-                                <div class="play-icon-large" aria-hidden="true">
-                                    <i class="fas fa-play"></i>
-                                </div>
-                                
-                                <!-- Loading indicator for when video is loading -->
-                                <div class="video-loading" style="display: none;" aria-label="Video loading">
-                                    <div class="spinner-border text-light" role="status">
-                                        <span class="visually-hidden">Loading video...</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Video element with comprehensive fallbacks -->
-                            <video id="mentor-video" 
-                                   class="mentor-video"
-                                   preload="metadata"
-                                   playsinline 
-                                   webkit-playsinline 
-                                   x5-playsinline
-                                   x5-video-player-type="h5"
-                                   x5-video-player-fullscreen="true"
-                                   autoplay 
-                                   muted 
-                                   loop
-                                   controlslist="nodownload nofullscreen noremoteplayback"
-                                   disablepictureinpicture
-                                   aria-label="Mentor introduction video"
-                                   {% if site_settings.mentor_image %}
-                                   poster="{{ url_for('static', filename='images/' + site_settings.mentor_image) }}"
-                                   {% else %}
-                                   poster="{{ url_for('static', filename='images/tutor.jpg') }}"
-                                   {% endif %}>
-                                
-                                <!-- Primary video source with dynamic backend path -->
-                                {% if site_settings.mentor_video_file %}
-                                <source src="{{ url_for('static', filename='videos/' + site_settings.mentor_video_file) }}?v={{ range(1000, 9999) | random }}" type="video/mp4">
-                                {% endif %}
-                                
-                                <!-- Fallback video sources -->
-                                <source src="{{ url_for('static', filename='videos/intro_video.mp4') }}?v={{ range(1000, 9999) | random }}" type="video/mp4">
-                                <source src="{{ url_for('static', filename='videos/mentor_intro.mp4') }}?v={{ range(1000, 9999) | random }}" type="video/mp4">
-                                
-                                <!-- WebM fallback for better compression on supported browsers -->
-                                {% if site_settings.mentor_video_webm %}
-                                <source src="{{ url_for('static', filename='videos/' + site_settings.mentor_video_webm) }}?v={{ range(1000, 9999) | random }}" type="video/webm">
-                                {% endif %}
-                                
-                                <!-- Captions track -->
-                                {% if site_settings.mentor_captions_file %}
-                                <track kind="subtitles" 
-                                       label="English" 
-                                       srclang="en" 
-                                       src="{{ url_for('static', filename='videos/captions/' + site_settings.mentor_captions_file) }}"
-                                       default>
-                                {% else %}
-                                <track kind="subtitles" 
-                                       label="English" 
-                                       srclang="en" 
-                                       src="{{ url_for('static', filename='videos/captions/mentor.vtt') }}">
-                                {% endif %}
-                                
-                                <!-- Fallback content for unsupported browsers -->
-                                <div class="video-fallback">
-                                    <h4>Video Not Supported</h4>
-                                    <p>Your browser doesn't support HTML5 video. Please <a href="https://browsehappy.com/" target="_blank" rel="noopener">update your browser</a> for the best experience.</p>
-                                    {% if site_settings.mentor_image %}
-                                    <img src="{{ url_for('static', filename='images/' + site_settings.mentor_image) }}" 
-                                         alt="Meet your mentor" 
-                                         class="img-fluid mt-3"
-                                         onerror="this.style.display='none';">
-                                    {% endif %}
-                                </div>
-                            </video>
-                            
-                            <!-- Custom video controls with full accessibility -->
-                            <div class="video-controls" role="toolbar" aria-label="Video controls">
-                                <button class="control-btn play-pause" 
-                                        type="button"
-                                        aria-label="Play video"
-                                        title="Play/Pause (Space or K)">
-                                    <i class="fas fa-play" aria-hidden="true"></i>
-                                </button>
-                                
-                                <button class="control-btn mute-unmute" 
-                                        type="button"
-                                        aria-label="Unmute video"
-                                        title="Mute/Unmute (M)">
-                                    <i class="fas fa-volume-mute" aria-hidden="true"></i>
-                                </button>
-                                
-                                <button class="control-btn captions" 
-                                        type="button"
-                                        aria-label="Toggle captions"
-                                        title="Toggle Captions (C)">
-                                    <i class="fas fa-closed-captioning" aria-hidden="true"></i>
-                                </button>
-                                
-                                <button class="control-btn fullscreen" 
-                                        type="button"
-                                        aria-label="Enter fullscreen"
-                                        title="Fullscreen (F)">
-                                    <i class="fas fa-expand" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Error message container -->
-                            <div class="video-error" style="display: none;" role="alert">
-                                <div class="error-content">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <h5>Video Unavailable</h5>
-                                    <p>We're having trouble loading the video. Please refresh the page or try again later.</p>
-                                    <button class="btn btn-sm btn-outline-light retry-btn" type="button">
-                                        <i class="fas fa-redo"></i> Retry
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                <div class="responsive-video-container">
+                    <video id="mentor-video" 
+                           class="responsive-video"
+                           autoplay 
+                           muted 
+                           loop
+                           playsinline
+                           webkit-playsinline
+                           x5-playsinline
+                           preload="auto"
+                           controls
+                           controlsList="nodownload"
+                           {% if site_settings.mentor_image %}
+                           poster="{{ url_for('static', filename='images/' + site_settings.mentor_image) }}"
+                           {% else %}
+                           poster="{{ url_for('static', filename='images/tutor.jpg') }}"
+                           {% endif %}>
+                        <source src="{{ url_for('static', filename='videos/introVideo.mov') }}" type="video/mp4">
+                        <source src="{{ url_for('static', filename='videos/introVideo.mov') }}" type="video/quicktime">
+                        <p>Your browser doesn't support HTML5 video. <a href="{{ url_for('static', filename='videos/introVideo.mov') }}">Download the video</a> instead.</p>
+                    </video>
+                    <!-- Fallback play button for devices that block autoplay -->
+                    <div id="video-play-overlay" class="video-play-overlay" style="display: none;">
+                        <button class="play-button-large" onclick="playVideo()">
+                            <i class="fas fa-play"></i>
+                            <span>Click to Play</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -320,16 +215,14 @@
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
                 <div class="early-bird-card">
-                    <div class="ribbon ribbon-top-right"><span>Save A$150</span></div>
+                    <div class="ribbon ribbon-top-right"><span>Save {{ site_settings.currency or 'A' }}${{ computed.savings_amount or '550' }}</span></div>
                     <h2 class="section-title">Limited Time Early Bird Offer</h2>
                     <div class="section-divider"></div>
-                    <p class="lead mb-4">Enroll before May 30, 2025 and save A$150 on your program fee.</p>
+                    <p class="lead mb-4">Enroll before {{ computed.early_bird_deadline_display }} and save {{ site_settings.currency or 'A' }}${{ computed.savings_amount or '550' }} on your program fee.</p>
                     
                     <div class="countdown-container mb-4">
-                        <h4>Offer Ends In:</h4>
-                        <div id="homepage-offer-timer" class="countdown-timer" aria-live="polite" aria-label="Countdown to end of Early Bird offer">
-                            Loading countdown...
-                        </div>
+                        <p class="countdown-label">⏳ Early Bird Offer Ends In:</p>
+                        <div id="homepage-offer-timer" class="countdown-display"></div>
                         <p class="mt-2"><a href="{{ url_for('pricing') }}" class="text-primary">View detailed pricing information</a></p>
                     </div>
                     
@@ -338,15 +231,15 @@
                             <div class="col-md-6 mb-3 mb-md-0">
                                 <div class="price-card price-regular">
                                     <h5>Regular Price</h5>
-                                    <div class="price">$1,650 <span>AUD</span></div>
-                                    <div class="price-period">After May 30</div>
+                                    <div class="price">{{ site_settings.regular_price|format_currency }} <span>{{ site_settings.currency or 'AUD' }}</span></div>
+                                    <div class="price-period">After {{ computed.early_bird_deadline_display }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="price-card price-special highlighted">
                                     <h5>Early Bird Price</h5>
-                                    <div class="price">$1,500 <span>AUD</span></div>
-                                    <div class="price-period">Until May 30</div>
+                                    <div class="price">{{ site_settings.early_bird_price|format_currency }} <span>{{ site_settings.currency or 'AUD' }}</span></div>
+                                    <div class="price-period">Until {{ computed.early_bird_deadline_display }}</div>
                                 </div>
                             </div>
                         </div>
@@ -366,7 +259,7 @@
         <div class="row">
             <div class="col-12 text-center">
                 <h2>Ready to Launch Your Accounting Career?</h2>
-                <p>Next Session Starts June 5, 2025 – Wed & Thu, 7:00-9:00 PM AEST</p>
+                <p>Next Session Starts {{ computed.session_start_formatted }} – {{ site_settings.session_days or 'Wed & Thu' }}, {{ site_settings.session_time or '7:00-9:00 PM AEST' }}</p>
                 <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg mt-3">Apply Now – Start Your Journey</a>
             </div>
         </div>
@@ -377,13 +270,12 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set the deadline date for all countdown timers
-    const deadline = new Date('May 30, 2025 23:59:59').getTime();
-    
+    // Set the deadline date for all countdown timers (ISO 8601 format from Flask)
+    // Always use ISO 8601 with 'T' for best browser compatibility
+    const deadline = new Date('{{ computed.early_bird_deadline_js }}').getTime();
     // Find all countdown timers on the page
     const heroCountdown = document.getElementById('countdown-timer');
     const offerSectionCountdown = document.getElementById('homepage-offer-timer');
-    
     // Cache for previous values to avoid unnecessary DOM updates
     const previousValues = {};
     
@@ -393,7 +285,6 @@ document.addEventListener('DOMContentLoaded', function() {
         heroCountdown.setAttribute('aria-atomic', 'true');
         heroCountdown.setAttribute('role', 'timer');
     }
-    
     if (offerSectionCountdown) {
         offerSectionCountdown.setAttribute('aria-live', 'off');
         offerSectionCountdown.setAttribute('aria-atomic', 'true');
@@ -404,42 +295,67 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateCountdowns() {
         const now = new Date().getTime();
         const timeRemaining = deadline - now;
-        
-        // Check if countdown is finished
-        if (timeRemaining < 0) {
-            const expiredText = 'Offer has expired';
-            
-            // Only update if content has changed
-            if (heroCountdown && heroCountdown.textContent !== expiredText) {
-                heroCountdown.textContent = expiredText;
-            }
-            
-            if (offerSectionCountdown && offerSectionCountdown.textContent !== expiredText) {
-                offerSectionCountdown.textContent = expiredText;
-            }
-            return;
-        }
-        
+
         // Calculate time components
         const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-        
+
+        // ...no debug print...
+
+        // Check if countdown is finished
+        if (timeRemaining < 0) {
+            const expiredText = '<div class="countdown-expired">Offer has expired</div>';
+
+            // Only update if content has changed
+            if (heroCountdown && heroCountdown.innerHTML !== expiredText) {
+                heroCountdown.innerHTML = expiredText;
+                previousValues['hero'] = 'expired';
+            }
+
+            if (offerSectionCountdown && offerSectionCountdown.innerHTML !== expiredText) {
+                offerSectionCountdown.innerHTML = expiredText;
+                previousValues['offer'] = 'expired';
+            }
+            return;
+        }
+
         // Create cache key
         const cacheKey = `${days}:${hours}:${minutes}:${seconds}`;
-        
-        // Format time display
-        const displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-        
+
+        // Format time display with individual boxes
+        const formatCountdown = (days, hours, minutes, seconds) => {
+            return `
+                <div class="countdown-box">
+                    <span class="countdown-number">${days}</span>
+                    <span class="countdown-label">days</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number">${hours}</span>
+                    <span class="countdown-label">hours</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number">${minutes}</span>
+                    <span class="countdown-label">mins</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number">${seconds}</span>
+                    <span class="countdown-label">secs</span>
+                </div>
+            `;
+        };
+
+        const displayText = formatCountdown(days, hours, minutes, seconds);
+
         // Only update DOM if values changed
         if (heroCountdown && previousValues['hero'] !== cacheKey) {
-            heroCountdown.textContent = displayText;
+            heroCountdown.innerHTML = displayText;
             previousValues['hero'] = cacheKey;
         }
-        
+
         if (offerSectionCountdown && previousValues['offer'] !== cacheKey) {
-            offerSectionCountdown.textContent = displayText;
+            offerSectionCountdown.innerHTML = displayText;
             previousValues['offer'] = cacheKey;
         }
     }

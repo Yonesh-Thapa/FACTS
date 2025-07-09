@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Autoplay Test - F.A.C.T.S</title>
+    <link rel="stylesheet" href="static/css/video-responsive.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .status {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            background: #ffe6e6;
+            border-left-color: #dc3545;
+        }
+        .success {
+            background: #e6f7e6;
+            border-left-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Video Autoplay Test</h1>
+        <div id="test-status"></div>
+        
+        <h2>Test Video</h2>
+        <div class="video-container">
+            <div id="mentor-video-player" class="custom-video-player">
+                <div class="video-wrapper">
+                    <div class="poster-container">
+                        <img src="static/images/tutor.jpg" alt="Video Poster" class="video-poster">
+                        <div class="play-icon-large">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    
+                    <video id="mentor-video" 
+                           class="mentor-video"
+                           preload="metadata"
+                           playsinline 
+                           webkit-playsinline 
+                           x5-playsinline
+                           autoplay 
+                           muted 
+                           loop>
+                        <source src="static/videos/intro_video.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+        
+        <div id="device-info" class="status"></div>
+        <div id="video-info" class="status"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script src="static/js/videoPlayer.js"></script>
+    <script>
+        // Additional diagnostics
+        setTimeout(() => {
+            const statusDiv = document.getElementById('test-status');
+            const deviceDiv = document.getElementById('device-info');
+            const videoDiv = document.getElementById('video-info');
+            const video = document.getElementById('mentor-video');
+            
+            // Device info
+            const userAgent = navigator.userAgent;
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+            const isAndroid = /Android/.test(userAgent);
+            
+            deviceDiv.innerHTML = `
+                <h3>Device Information</h3>
+                <p><strong>User Agent:</strong> ${userAgent}</p>
+                <p><strong>Is Mobile:</strong> ${isMobile}</p>
+                <p><strong>Is iOS:</strong> ${isIOS}</p>
+                <p><strong>Is Android:</strong> ${isAndroid}</p>
+                <p><strong>Screen Size:</strong> ${window.screen.width}x${window.screen.height}</p>
+                <p><strong>Viewport:</strong> ${window.innerWidth}x${window.innerHeight}</p>
+            `;
+            
+            // Video info
+            if (video) {
+                const playing = !video.paused && !video.ended && video.currentTime > 0;
+                videoDiv.className = 'status ' + (playing ? 'success' : 'error');
+                videoDiv.innerHTML = `
+                    <h3>Video Status</h3>
+                    <p><strong>Playing:</strong> ${playing}</p>
+                    <p><strong>Paused:</strong> ${video.paused}</p>
+                    <p><strong>Muted:</strong> ${video.muted}</p>
+                    <p><strong>Current Time:</strong> ${video.currentTime}</p>
+                    <p><strong>Duration:</strong> ${video.duration || 'Loading...'}</p>
+                    <p><strong>Ready State:</strong> ${video.readyState}</p>
+                    <p><strong>Network State:</strong> ${video.networkState}</p>
+                    <p><strong>Video Source:</strong> ${video.currentSrc || 'None'}</p>
+                `;
+                
+                statusDiv.className = 'status ' + (playing ? 'success' : 'error');
+                statusDiv.innerHTML = playing 
+                    ? '<h3>✅ Video Autoplay Working!</h3><p>The video is playing automatically as expected.</p>'
+                    : '<h3>❌ Video Not Auto-Playing</h3><p>The video is not playing automatically. This may be normal on mobile devices that require user interaction.</p>';
+            } else {
+                videoDiv.className = 'status error';
+                videoDiv.innerHTML = '<h3>Video Element Not Found</h3>';
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<h3>❌ Video Element Missing</h3>';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

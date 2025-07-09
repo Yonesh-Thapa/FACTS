@@ -1,0 +1,192 @@
+/**
+ * Clean Responsive Video Player for F.A.C.T.S
+ * Simple, reliable autoplay video with native controls
+ */
+
+/* Video Container - Responsive */
+.responsive-video-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: #000;
+}
+
+/* Video Element */
+.responsive-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Custom video controls styling */
+.responsive-video::-webkit-media-controls-panel {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.responsive-video::-webkit-media-controls-play-button,
+.responsive-video::-webkit-media-controls-volume-slider,
+.responsive-video::-webkit-media-controls-mute-button,
+.responsive-video::-webkit-media-controls-fullscreen-button {
+    color: #fff;
+    filter: brightness(1.2);
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .responsive-video-container {
+        padding-top: 60%; /* Slightly taller on mobile */
+        margin-bottom: 15px;
+        border-radius: 6px;
+    }
+}
+
+@media (max-width: 576px) {
+    .responsive-video-container {
+        padding-top: 65%; /* Even taller on small mobile */
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+}
+
+/* Tablet landscape */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    .responsive-video-container {
+        padding-top: 50%; /* Wider on tablet landscape */
+    }
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+    .responsive-video-container {
+        padding-top: 52%; /* Slightly wider on large screens */
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .responsive-video-container {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* Focus states for accessibility */
+.responsive-video:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Loading state */
+.responsive-video-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.responsive-video-container.loading::before {
+    opacity: 1;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Remove loading animation when video starts playing */
+.responsive-video[data-playing="true"] + .responsive-video-container::before {
+    opacity: 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .responsive-video-container {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .responsive-video-container::before {
+        animation: none;
+    }
+}
+
+/* Fallback play button overlay for blocked autoplay */
+.video-play-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 8px;
+}
+
+.play-button-large {
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    color: #007bff;
+    font-size: 24px;
+}
+
+.play-button-large:hover {
+    transform: scale(1.1);
+    background: white;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+.play-button-large span {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.play-button-large i {
+    margin-left: 3px; /* Optical alignment */
+}
+
+@media (max-width: 768px) {
+    .play-button-large {
+        width: 60px;
+        height: 60px;
+        font-size: 18px;
+    }
+    
+    .play-button-large span {
+        font-size: 10px;
+    }
+}

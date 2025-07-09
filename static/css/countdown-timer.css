@@ -1,0 +1,128 @@
+/* Countdown Timer Styling */
+.countdown-timer {
+    margin-bottom: 1.5rem;
+}
+
+.countdown-label {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.countdown-display {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.countdown-box {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 8px;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    min-width: 60px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.countdown-box:hover {
+    transform: translateY(-2px);
+}
+
+.countdown-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.countdown-box .countdown-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+    margin-bottom: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .countdown-display {
+        justify-content: center;
+    }
+    
+    .countdown-box {
+        min-width: 50px;
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .countdown-number {
+        font-size: 1.25rem;
+    }
+    
+    .countdown-box .countdown-label {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .countdown-box {
+        min-width: 45px;
+        padding: 0.4rem 0.3rem;
+        gap: 0.3rem;
+    }
+    
+    .countdown-number {
+        font-size: 1.1rem;
+    }
+    
+    .countdown-box .countdown-label {
+        font-size: 0.6rem;
+    }
+}
+
+/* Animation for countdown boxes */
+@keyframes pulse {
+    0% { box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); }
+    50% { box-shadow: 0 4px 20px rgba(0, 123, 255, 0.5); }
+    100% { box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); }
+}
+
+.countdown-box:nth-child(4) {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Early bird banner styling */
+.early-bird-banner {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.early-bird-banner p {
+    margin: 0;
+    color: #856404;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Expired state */
+.countdown-expired {
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
+    padding: 1rem;
+    background: #f8d7da;
+    border: 2px solid #dc3545;
+    border-radius: 8px;
+}

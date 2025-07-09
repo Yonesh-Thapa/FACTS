@@ -3,6 +3,10 @@ import logging
 from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, make_response, g, send_from_directory
 from slugify import slugify
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -122,18 +126,69 @@ def load_user(user_id):
 # Global template function to load site settings
 @app.context_processor
 def inject_site_settings():
-    """Inject site settings into all templates"""
+    """Inject site settings and computed values into all templates"""
     from models import SiteSetting
+    from datetime import datetime
     
     try:
         settings_query = SiteSetting.query.all()
         settings = {}
         for setting in settings_query:
             settings[setting.key] = setting.parsed_value
-        return {'site_settings': settings}
-    except Exception:
+            
+        # Add computed values for templates
+        computed = {}
+        
+        # Pricing computations
+        regular_price = settings.get('regular_price', 2200)
+        early_bird_price = settings.get('early_bird_price', 1650)
+        computed['savings_amount'] = regular_price - early_bird_price
+        computed['savings_percentage'] = round((computed['savings_amount'] / regular_price) * 100)
+        
+        # Date computations
+        if settings.get('early_bird_deadline'):
+            try:
+                deadline = settings['early_bird_deadline']
+                if isinstance(deadline, str):
+                    # Handle different datetime formats
+                    if 'T' in deadline:
+                        # ISO format: 2025-07-31T23:59:59
+                        deadline = datetime.fromisoformat(deadline)
+                    else:
+                        # Standard format: 2025-07-31 23:59:59
+                        deadline = datetime.strptime(deadline, '%Y-%m-%d %H:%M:%S')
+                # Use ISO 8601 format for JS (always local time, with explicit 'T')
+                computed['early_bird_deadline_js'] = deadline.strftime('%Y-%m-%dT%H:%M:%S')
+                computed['early_bird_deadline_display'] = deadline.strftime('%B %d')
+                computed['is_early_bird_active'] = deadline > datetime.now()
+                # No debug log in production for JS date
+            except Exception as e:
+                app.logger.warning(f"Error parsing early_bird_deadline '{deadline}': {e}")
+                computed['early_bird_deadline_js'] = '2025-07-31T23:59:59'
+                computed['early_bird_deadline_display'] = 'July 31'
+                computed['is_early_bird_active'] = True
+        
+        # Session info computations
+        if settings.get('next_session_start_date'):
+            try:
+                start_date = settings['next_session_start_date']
+                if isinstance(start_date, str):
+                    from datetime import datetime
+                    start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                computed['session_start_formatted'] = start_date.strftime('%B %d, %Y')
+            except:
+                computed['session_start_formatted'] = 'August 6, 2025'
+        
+        # Dynamic text generation
+        computed['early_bird_banner'] = get_dynamic_text(
+            settings.get('home_early_bird_banner_template', '🎉 Save ${savings} if you enroll by {deadline} – Only {spots} seats per session!'),
+            **settings
+        )
+        
+        return {'site_settings': settings, 'computed': computed}
+    except Exception as e:
         # Return empty dict if database not ready or error occurs
-        return {'site_settings': {}}
+        return {'site_settings': {}, 'computed': {}}
 
 # Custom Jinja2 filters
 @app.template_filter('nl2br')
@@ -142,6 +197,97 @@ def nl2br_filter(text):
         return ""
     return text.replace('\n', '<br>')
 
+@app.template_filter('format_currency')
+def format_currency_filter(amount, currency='AUD'):
+    """Format a number as currency"""
+    if not amount:
+        return "$0"
+    try:
+        # Handle both string and numeric inputs
+        if isinstance(amount, str):
+            amount = float(amount)
+        return f"${amount:,.0f}"
+    except (ValueError, TypeError):
+        return "$0"
+
+@app.template_filter('format_date')
+def format_date_filter(date_obj, format_str='%B %d, %Y'):
+    """Format a date object"""
+    if not date_obj:
+        return ""
+    try:
+        if isinstance(date_obj, str):
+            # Try to parse string date
+            from datetime import datetime
+            date_obj = datetime.strptime(date_obj, '%Y-%m-%d').date()
+        return date_obj.strftime(format_str)
+    except (ValueError, AttributeError):
+        return str(date_obj)
+
+@app.template_filter('format_datetime')
+def format_datetime_filter(datetime_obj, format_str='%B %d, %Y at %I:%M %p'):
+    """Format a datetime object"""
+    if not datetime_obj:
+        return ""
+    try:
+        if isinstance(datetime_obj, str):
+            # Try to parse string datetime
+            from datetime import datetime
+            datetime_obj = datetime.strptime(datetime_obj, '%Y-%m-%d %H:%M:%S')
+        return datetime_obj.strftime(format_str)
+    except (ValueError, AttributeError):
+        return str(datetime_obj)
+
+def get_dynamic_text(template_text, **kwargs):
+    """Replace placeholders in template text with dynamic values"""
+    if not template_text:
+        return ""
+    
+    # Get site settings for context
+    from models import SiteSetting
+    try:
+        settings_query = SiteSetting.query.all()
+        settings = {}
+        for setting in settings_query:
+            settings[setting.key] = setting.parsed_value
+            
+        # Create context with both settings and passed kwargs
+        context = {**settings, **kwargs}
+        
+        # Replace common placeholders
+        replacements = {
+            '{savings}': str(context.get('early_bird_savings', '550')),
+            '{deadline}': 'July 31' if context.get('early_bird_deadline') else 'July 31',
+            '{spots}': str(context.get('max_class_size', '10')),
+            '{regular_price}': str(context.get('regular_price', '2200')),
+            '{early_bird_price}': str(context.get('early_bird_price', '1650')),
+            '{currency}': str(context.get('currency', 'AUD')),
+        }
+        
+        # Format deadline properly if it exists
+        if context.get('early_bird_deadline'):
+            try:
+                if isinstance(context['early_bird_deadline'], str):
+                    from datetime import datetime
+                    deadline_obj = datetime.strptime(context['early_bird_deadline'], '%Y-%m-%d %H:%M:%S')
+                else:
+                    deadline_obj = context['early_bird_deadline']
+                replacements['{deadline}'] = deadline_obj.strftime('%B %d')
+            except:
+                pass
+        
+        # Apply replacements
+        result = template_text
+        for placeholder, value in replacements.items():
+            result = result.replace(placeholder, value)
+            
+        return result
+        
+    except Exception:
+        return template_text
+
+# Make the function available in templates
+app.jinja_env.globals.update(get_dynamic_text=get_dynamic_text)
 # Define cache duration for static pages
 STATIC_PAGE_CACHE = 3600  # 1 hour in seconds
 
@@ -155,6 +301,16 @@ def index():
     # Set cache control headers
     response.headers['Cache-Control'] = f'public, max-age={STATIC_PAGE_CACHE}'
     return response
+
+@app.route('/test-video')
+def test_video():
+    """Test page for video autoplay functionality"""
+    return send_from_directory('.', 'test_video.html')
+
+@app.route('/clean-video-test')
+def clean_video_test():
+    """Test page for clean video implementation"""
+    return send_from_directory('.', 'clean_video_test.html')
 
 @app.route('/about')
 def about():
@@ -1361,7 +1517,7 @@ def admin_edit_blog_post(post_id):
             if post.title != request.form.get('title'):
                 post.slug = slugify(post.title)
             
-            db.session.commit()
+            db.session.commit();
             
             flash('Blog post updated successfully', 'success')
             return redirect(url_for('admin_blog'))
@@ -1736,6 +1892,8 @@ def admin_upload_media():
     if not setting_key:
         return jsonify({'success': False, 'message': 'Setting key not provided'})
     
+
+    
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         
@@ -1971,7 +2129,16 @@ def admin_analytics():
     chart_pageviews = []
     
     for day in reversed(daily_visitors):  # Reverse to show oldest to newest
-        chart_labels.append(day.date.strftime('%b %d'))
+        # day.date is a date string from func.date(), need to parse it
+        try:
+            if isinstance(day.date, str):
+                date_obj = datetime.strptime(day.date, '%Y-%m-%d').date()
+            else:
+                date_obj = day.date
+            chart_labels.append(date_obj.strftime('%b %d'))
+        except (ValueError, AttributeError):
+            # Fallback to string representation if parsing fails
+            chart_labels.append(str(day.date))
         chart_visitors.append(day.visitors)
         chart_pageviews.append(day.pageviews)
     
@@ -2338,7 +2505,7 @@ def chat():
         return jsonify({
             'success': False,
             'error': 'No message provided.'
-        }), 400
+        }, 400)
         
     # Log the request (without the full message for privacy)
     app.logger.info(f"Chatbot request received from {request.remote_addr}")
@@ -2489,28 +2656,96 @@ def send_auto_reminders():
             "error": str(e)
         }), 500
 
-# Create initial admin user if it doesn't exist
-with app.app_context():
-    db.create_all()
-    
-    from models import Admin
-    
-    # Check if any admin users exist
-    if Admin.query.count() == 0:
-        admin = Admin(
-            username='darshan',
-            email='fatrainingservice@gmail.com'
+# Admin Settings Management
+@app.route('/admin/settings')
+@login_required
+def admin_settings():
+    """Admin route to manage site settings"""
+    from models import SiteSetting
+     # Get all settings organized by category
+    all_settings = SiteSetting.query.all()
+    pricing_settings = SiteSetting.query.filter(SiteSetting.key.like('%price%')).all()
+    date_settings = SiteSetting.query.filter(
+        db.or_(
+            SiteSetting.key.like('%date%'),
+            SiteSetting.key.like('%deadline%'),
+            SiteSetting.key.like('%session%')
         )
-        admin.set_password('Kathmandu1')
-        db.session.add(admin)
+    ).all()
+    content_settings = SiteSetting.query.filter(
+        db.or_(
+            SiteSetting.key.like('%title%'),
+            SiteSetting.key.like('%desc%'),
+            SiteSetting.key.like('%banner%'),
+            SiteSetting.key.like('%feature%'),
+            SiteSetting.key.like('%highlight%')
+        )
+    ).all()
+    general_settings = SiteSetting.query.filter(
+        ~db.or_(
+            SiteSetting.key.like('%price%'),
+            SiteSetting.key.like('%date%'),
+            SiteSetting.key.like('%deadline%'),
+            SiteSetting.key.like('%session%'),
+            SiteSetting.key.like('%title%'),
+            SiteSetting.key.like('%desc%'),
+            SiteSetting.key.like('%banner%'),
+            SiteSetting.key.like('%feature%'),
+            SiteSetting.key.like('%highlight%')
+        )
+    ).all()
+
+    response = make_response(render_template(
+        'admin/settings.html',
+        all_settings=all_settings,
+        pricing_settings=pricing_settings,
+        date_settings=date_settings,
+        content_settings=content_settings,
+        general_settings=general_settings
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
+@app.route('/admin/settings/update', methods=['POST'])
+@login_required
+def admin_update_settings():
+    """Update site settings"""
+    from models import SiteSetting
+    
+    try:
+        # Get all form data
+        for key, value in request.form.items():
+            if key.startswith('setting_'):
+                setting_key = key[8:]  # Remove 'setting_' prefix
+                setting = SiteSetting.query.filter_by(key=setting_key).first()
+                
+                if setting:
+                    setting.value = value
+                    db.session.add(setting)
+        
         db.session.commit()
-        app.logger.info('Initial admin user created')
+        flash('Settings updated successfully!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error updating settings: {str(e)}")
+        flash(f'Error updating settings: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin_settings'))
 
-# Initialize simple real-time sync (polling-based, more stable)
-# Real-time sync functionality removed for simplified interface
-
-# Register the admin portal blueprint
-# Removed admin portal blueprint for simplified interface
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+@app.route('/admin/settings/reset', methods=['POST'])
+@login_required
+def admin_reset_settings():
+    """Reset all settings to defaults"""
+    try:
+        # Run the initialization script programmatically
+        from init_site_settings import initialize_site_settings
+        initialize_site_settings(reset=True)
+        
+        flash('Settings reset to defaults successfully!', 'success')
+        
+    except Exception as e:
+        app.logger.error(f"Error resetting settings: {str(e)}")
+        flash(f'Error resetting settings: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin_settings'))

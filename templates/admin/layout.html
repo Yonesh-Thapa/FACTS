@@ -431,6 +431,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin_settings') }}" {% if request.path == url_for('admin_settings') %}class="active"{% endif %}>
+                    <i class="fas fa-cog" aria-hidden="true"></i> Settings
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin_logout') }}">
                     <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
                 </a>

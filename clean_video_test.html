@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Video Test - F.A.C.T.S</title>
+    <link rel="stylesheet" href="static/css/clean-video.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .status {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .success { background: #e8f5e8; border-left-color: #4caf50; }
+        .error { background: #ffebee; border-left-color: #f44336; }
+        .info { background: #fff3e0; border-left-color: #ff9800; }
+        h1 { color: #333; margin-bottom: 30px; }
+        h2 { color: #555; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎥 Clean Video Player Test</h1>
+        
+        <div id="test-status" class="status info">
+            <strong>Testing video autoplay and responsiveness...</strong>
+        </div>
+        
+        <h2>📹 Video Player</h2>
+        <div class="responsive-video-container">
+            <video id="mentor-video" 
+                   class="responsive-video"
+                   autoplay 
+                   muted 
+                   loop
+                   playsinline
+                   controls
+                   poster="static/images/tutor.jpg">
+                <source src="static/videos/introVideo.mov" type="video/mp4">
+                <source src="static/videos/introVideo.mov" type="video/quicktime">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        
+        <div id="device-info" class="status"></div>
+        <div id="video-status" class="status"></div>
+        <div id="controls-test" class="status"></div>
+    </div>
+
+    <script src="static/js/clean-video.js"></script>
+    <script>
+        // Comprehensive video testing
+        setTimeout(() => {
+            const video = document.getElementById('mentor-video');
+            const deviceInfo = document.getElementById('device-info');
+            const videoStatus = document.getElementById('video-status');
+            const controlsTest = document.getElementById('controls-test');
+            const testStatus = document.getElementById('test-status');
+            
+            // Device detection
+            const userAgent = navigator.userAgent;
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+            const isAndroid = /Android/.test(userAgent);
+            const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+            
+            deviceInfo.innerHTML = `
+                <h3>📱 Device Information</h3>
+                <p><strong>Browser:</strong> ${navigator.userAgent}</p>
+                <p><strong>Mobile Device:</strong> ${isMobile ? 'Yes' : 'No'}</p>
+                <p><strong>iOS:</strong> ${isIOS ? 'Yes' : 'No'}</p>
+                <p><strong>Android:</strong> ${isAndroid ? 'Yes' : 'No'}</p>
+                <p><strong>Safari:</strong> ${isSafari ? 'Yes' : 'No'}</p>
+                <p><strong>Screen:</strong> ${window.screen.width}×${window.screen.height}</p>
+                <p><strong>Viewport:</strong> ${window.innerWidth}×${window.innerHeight}</p>
+            `;
+            
+            // Video status
+            if (video) {
+                const isPlaying = !video.paused && !video.ended && video.currentTime > 0;
+                
+                videoStatus.className = 'status ' + (isPlaying ? 'success' : 'error');
+                videoStatus.innerHTML = `
+                    <h3>🎬 Video Status</h3>
+                    <p><strong>Playing:</strong> ${isPlaying ? '✅ Yes' : '❌ No'}</p>
+                    <p><strong>Paused:</strong> ${video.paused ? 'Yes' : 'No'}</p>
+                    <p><strong>Muted:</strong> ${video.muted ? 'Yes' : 'No'}</p>
+                    <p><strong>Current Time:</strong> ${video.currentTime.toFixed(2)}s</p>
+                    <p><strong>Duration:</strong> ${video.duration ? video.duration.toFixed(2) + 's' : 'Loading...'}</p>
+                    <p><strong>Ready State:</strong> ${video.readyState}/4</p>
+                    <p><strong>Network State:</strong> ${video.networkState}/3</p>
+                    <p><strong>Video Source:</strong> ${video.currentSrc ? '✅ Loaded' : '❌ None'}</p>
+                    <p><strong>Video Dimensions:</strong> ${video.videoWidth}×${video.videoHeight}</p>
+                `;
+                
+                // Controls test
+                controlsTest.className = 'status info';
+                controlsTest.innerHTML = `
+                    <h3>🎛️ Controls Test</h3>
+                    <p><strong>Native Controls:</strong> ${video.controls ? '✅ Enabled' : '❌ Disabled'}</p>
+                    <p><strong>Playsinline:</strong> ${video.hasAttribute('playsinline') ? '✅ Set' : '❌ Not set'}</p>
+                    <p><strong>Autoplay:</strong> ${video.hasAttribute('autoplay') ? '✅ Set' : '❌ Not set'}</p>
+                    <p><strong>Loop:</strong> ${video.hasAttribute('loop') ? '✅ Set' : '❌ Not set'}</p>
+                    <p><strong>Poster:</strong> ${video.poster ? '✅ Set' : '❌ Not set'}</p>
+                    <button onclick="testPlay()" style="margin: 5px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">▶️ Test Play</button>
+                    <button onclick="testPause()" style="margin: 5px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">⏸️ Test Pause</button>
+                    <button onclick="testMute()" style="margin: 5px; padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">🔇 Toggle Mute</button>
+                `;
+                
+                // Overall status
+                testStatus.className = 'status ' + (isPlaying ? 'success' : 'error');
+                testStatus.innerHTML = isPlaying 
+                    ? '<strong>✅ SUCCESS:</strong> Video is autoplaying and responsive!'
+                    : '<strong>⚠️ NOTICE:</strong> Video not autoplaying (this is normal on many mobile devices - click play to test).';
+                    
+            } else {
+                videoStatus.className = 'status error';
+                videoStatus.innerHTML = '<h3>❌ Video Element Not Found</h3>';
+                testStatus.className = 'status error';
+                testStatus.innerHTML = '<strong>❌ ERROR:</strong> Video element not found!';
+            }
+        }, 2000);
+        
+        // Test functions
+        function testPlay() {
+            const video = document.getElementById('mentor-video');
+            video.play().catch(e => alert('Play failed: ' + e.message));
+        }
+        
+        function testPause() {
+            const video = document.getElementById('mentor-video');
+            video.pause();
+        }
+        
+        function testMute() {
+            const video = document.getElementById('mentor-video');
+            video.muted = !video.muted;
+        }
+        
+        // Update status every 2 seconds
+        setInterval(() => {
+            const video = document.getElementById('mentor-video');
+            if (video) {
+                const isPlaying = !video.paused && !video.ended && video.currentTime > 0;
+                const timeDisplay = document.querySelector('#video-status p strong:contains("Current Time:")');
+                if (timeDisplay && timeDisplay.parentElement) {
+                    timeDisplay.parentElement.innerHTML = `<strong>Current Time:</strong> ${video.currentTime.toFixed(2)}s`;
+                }
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -57,14 +57,14 @@
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
                 <div class="early-bird-card">
-                    <div class="ribbon ribbon-top-right"><span>Save $150</span></div>
+                    <div class="ribbon ribbon-top-right"><span>Save {{ site_settings.currency or 'A' }}${{ computed.savings_amount or '550' }}</span></div>
                     <h2 class="section-title">Limited Time Early Bird Offer</h2>
                     <div class="section-divider"></div>
-                    <p class="lead mb-4">Enroll before May 30, 2025 and save A$150 on your program fee.</p>
+                    <p class="lead mb-4">Enroll before {{ computed.early_bird_deadline_display }} and save {{ site_settings.currency or 'A' }}${{ computed.savings_amount or '550' }} on your program fee.</p>
                     
                     <div class="countdown-container mb-4">
                         <h4>Offer Ends In:</h4>
-                        <div id="pricing-countdown-timer" class="countdown-timer">
+                        <div id="pricing-countdown-timer" class="countdown-display">
                             Loading countdown...
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                         <div class="col-md-6 mb-4 mb-md-0">
                             <div class="pricing-option">
                                 <h3>Standard Enrollment</h3>
-                                <div class="price">$1,650 <span>AUD</span></div>
+                                <div class="price">{{ site_settings.regular_price|format_currency }} <span>{{ site_settings.currency or 'AUD' }}</span></div>
                                 <ul class="pricing-features">
                                     <li><i class="fas fa-check-circle"></i> Full 8-week program access</li>
                                     <li><i class="fas fa-check-circle"></i> 16 live sessions (2 per week)</li>
@@ -98,10 +98,10 @@
                         </div>
                         <div class="col-md-6">
                             <div class="pricing-option featured">
-                                <div class="pricing-badge">Save $150</div>
+                                <div class="pricing-badge">Save {{ site_settings.currency or 'A' }}${{ computed.savings_amount or '550' }}</div>
                                 <h3>Early Bird Special</h3>
-                                <div class="price">$1,500 <span>AUD</span></div>
-                                <p class="pricing-deadline">If enrolled before May 30, 2025</p>
+                                <div class="price">{{ site_settings.early_bird_price|format_currency }} <span>{{ site_settings.currency or 'AUD' }}</span></div>
+                                <p class="pricing-deadline">If enrolled before {{ computed.early_bird_deadline_display }}</p>
                                 <ul class="pricing-features">
                                     <li><i class="fas fa-check-circle"></i> Everything in Standard Enrollment</li>
                                     <li><i class="fas fa-check-circle"></i> Personal career mentoring</li>
@@ -109,7 +109,7 @@
                                     <li><i class="fas fa-check-circle"></i> Priority email & phone support</li>
                                     <li><i class="fas fa-check-circle"></i> Post-program support (2 weeks)</li>
                                 </ul>
-                                <a href="{{ url_for('contact') }}" class="btn btn-primary mt-3">Apply Now – Save $150</a>
+                                <a href="{{ url_for('contact') }}" class="btn btn-primary mt-3">Apply Now – Save {{ site_settings.currency or 'A' }}${{ computed.savings_amount or '550' }}</a>
                             </div>
                         </div>
                     </div>
@@ -240,63 +240,83 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Direct countdown timer for this page
-    const countdownElement = document.getElementById('pricing-countdown-timer');
-    if (countdownElement) {
-        // Set the deadline date
-        const deadline = new Date('May 30, 2025 23:59:59').getTime();
+    // Set the deadline date for all countdown timers
+    const deadline = new Date('{{ computed.early_bird_deadline_js }}').getTime();
+    
+    // Find countdown timer on this page
+    const pricingCountdown = document.getElementById('pricing-countdown-timer');
+    
+    // Cache for previous values to avoid unnecessary DOM updates
+    const previousValues = {};
+    
+    // Set ARIA attributes once, not on every update
+    if (pricingCountdown) {
+        pricingCountdown.setAttribute('aria-live', 'off');
+        pricingCountdown.setAttribute('aria-atomic', 'true');
+        pricingCountdown.setAttribute('role', 'timer');
+    }
+    
+    // Update function for all timers
+    function updateCountdowns() {
+        const now = new Date().getTime();
+        const timeRemaining = deadline - now;
         
-        // Set up cache to track previous values
-        let previousValue = '';
-        
-        // Set ARIA attributes once (not on every update)
-        countdownElement.setAttribute('aria-live', 'off');
-        countdownElement.setAttribute('aria-atomic', 'true');
-        countdownElement.setAttribute('role', 'timer');
-        
-        // Update immediately
-        updateTimer();
-        
-        // Then update every second
-        setInterval(updateTimer, 1000);
-        
-        function updateTimer() {
-            const now = new Date().getTime();
-            const timeRemaining = deadline - now;
+        // Check if countdown is finished
+        if (timeRemaining < 0) {
+            const expiredText = '<div class="countdown-expired">Offer has expired</div>';
             
-            // Handle expired offer
-            if (timeRemaining < 0) {
-                const expiredText = 'Offer has expired';
-                // Only update if content has changed
-                if (countdownElement.textContent !== expiredText) {
-                    countdownElement.textContent = expiredText;
-                    countdownElement.setAttribute('aria-label', 'The Early Bird offer has expired');
-                }
-                return;
+            // Only update if content has changed
+            if (pricingCountdown && pricingCountdown.innerHTML !== expiredText) {
+                pricingCountdown.innerHTML = expiredText;
             }
-            
-            // Calculate days, hours, minutes, and seconds
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-            
-            // Format the time display
-            const displayText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-            
-            // Only update DOM if the content has changed
-            if (previousValue !== displayText) {
-                countdownElement.textContent = displayText;
-                previousValue = displayText;
-                
-                // Update ARIA label occasionally to reduce screen reader noise
-                if (seconds % 15 === 0) {
-                    const ariaText = `${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds remaining until the Early Bird offer ends`;
-                    countdownElement.setAttribute('aria-label', ariaText);
-                }
-            }
+            return;
+        }
+        
+        // Calculate time components
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+        
+        // Create cache key
+        const cacheKey = `${days}:${hours}:${minutes}:${seconds}`;
+        
+        // Format time display with individual boxes
+        const formatCountdown = (days, hours, minutes, seconds) => {
+            return `
+                <div class="countdown-box">
+                    <span class="countdown-number">${days}</span>
+                    <span class="countdown-label">days</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number">${hours}</span>
+                    <span class="countdown-label">hours</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number">${minutes}</span>
+                    <span class="countdown-label">mins</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number">${seconds}</span>
+                    <span class="countdown-label">secs</span>
+                </div>
+            `;
+        };
+        
+        const displayText = formatCountdown(days, hours, minutes, seconds);
+        
+        // Only update DOM if values changed
+        if (pricingCountdown && previousValues['pricing'] !== cacheKey) {
+            pricingCountdown.innerHTML = displayText;
+            previousValues['pricing'] = cacheKey;
         }
     }
+    
+    // Update immediately
+    updateCountdowns();
+    
+    // Then update every second
+    setInterval(updateCountdowns, 1000);
 });
 </script>
 {% endblock %}

@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}Page Not Found - F.A.C.T.S{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-page">
+                <h1 class="display-1 text-primary">404</h1>
+                <h2 class="mb-4">Page Not Found</h2>
+                <p class="lead mb-4">
+                    Sorry, the page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
+                </p>
+                
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='images/404-illustration.svg') }}" 
+                         alt="Page not found" 
+                         class="img-fluid mb-3" 
+                         style="max-width: 300px;"
+                         onerror="this.style.display='none'">
+                </div>
+                
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i>Go Home
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-envelope me-2"></i>Contact Us
+                    </a>
+                </div>
+                
+                <div class="mt-5">
+                    <h5>What can you do?</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Check the URL for typos</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Use our navigation menu</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Contact us if you think this is an error</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page {
+    padding: 2rem 0;
+}
+
+.error-page h1 {
+    font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.error-page .btn {
+    min-width: 150px;
+}
+
+@media (max-width: 768px) {
+    .error-page h1 {
+        font-size: 4rem;
+    }
+    
+    .error-page h2 {
+        font-size: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

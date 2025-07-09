@@ -1,30 +1,43 @@
-/* AI Study Assistant Chatbot Styles */
+/* Enhanced AI Study Assistant Chatbot Styles */
 
-.chatbot-container {
+.chatbot-widget {
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 1000;
-    width: 350px;
-    max-width: 90vw;
-    height: 450px;
-    max-height: 70vh;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    transform: translateY(100%);
-    opacity: 0;
-    pointer-events: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.chatbot-container.active {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: all;
+.chatbot-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007ACC, #005a9f);
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 122, 204, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+}
+
+.chatbot-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 122, 204, 0.4);
+}
+
+.chatbot-toggle svg,
+.chatbot-toggle i {
+    color: white;
+    font-size: 24px;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 4px 20px rgba(0, 122, 204, 0.3); }
+    50% { box-shadow: 0 4px 20px rgba(0, 122, 204, 0.6); }
+    100% { box-shadow: 0 4px 20px rgba(0, 122, 204, 0.3); }
 }
 
 .chatbot-header {

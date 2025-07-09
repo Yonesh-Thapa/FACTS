@@ -1,0 +1,413 @@
+/**
+ * Universal Video Autoplay & Responsive Solution for F.A.C.T.S
+ * Ensures autoplay works on desktop, mobile, tablets, and smart devices
+ * Dynamically adjusts to any screen size
+ */
+
+/* Enhanced Video Container - Responsive & Cross-Platform */
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    background-color: #000;
+    margin-bottom: 24px;
+    transition: box-shadow 0.3s ease;
+}
+
+.video-container:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Video Element - Fully Responsive */
+.mentor-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    border-radius: 12px;
+    z-index: 1;
+    background-color: #000;
+}
+
+/* Custom Video Player Wrapper */
+.custom-video-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Enhanced Poster Container */
+.poster-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.poster-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+}
+
+.video-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.8);
+    transition: filter 0.3s ease;
+}
+
+.poster-container:hover .video-poster {
+    filter: brightness(1);
+}
+
+/* Enhanced Play Button */
+.play-icon-large {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #007bff;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    z-index: 4;
+}
+
+.play-icon-large:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+.play-icon-large i {
+    margin-left: 4px; /* Optical alignment for play icon */
+}
+
+/* Loading State */
+.video-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    color: white;
+}
+
+/* Video Controls */
+.video-controls {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.video-container:hover .video-controls,
+.video-controls:focus-within {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.control-btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Video Error Overlay */
+.video-error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    z-index: 10;
+    border-radius: 12px;
+}
+
+.error-content {
+    padding: 24px;
+}
+
+.error-content i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #ffc107;
+}
+
+.error-content h4 {
+    margin-bottom: 12px;
+    color: white;
+}
+
+.error-content p {
+    margin-bottom: 16px;
+    opacity: 0.8;
+}
+
+/* Responsive Design for Different Screen Sizes */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    .video-container {
+        max-width: 800px;
+        margin: 0 auto 32px;
+    }
+    
+    .play-icon-large {
+        width: 100px;
+        height: 100px;
+        font-size: 36px;
+    }
+}
+
+/* Desktop (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .video-container {
+        max-width: 700px;
+        margin: 0 auto 28px;
+    }
+    
+    .play-icon-large {
+        width: 90px;
+        height: 90px;
+        font-size: 32px;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .video-container {
+        margin-bottom: 24px;
+        border-radius: 10px;
+    }
+    
+    .play-icon-large {
+        width: 80px;
+        height: 80px;
+        font-size: 28px;
+    }
+    
+    .video-controls {
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        padding: 10px 14px;
+    }
+}
+
+/* Mobile (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+    .video-container {
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+    
+    .play-icon-large {
+        width: 70px;
+        height: 70px;
+        font-size: 24px;
+    }
+    
+    .video-controls {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .control-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile (320px - 479px) */
+@media (max-width: 479px) {
+    .video-container {
+        margin-bottom: 16px;
+        border-radius: 6px;
+        padding-top: 75%; /* More square aspect ratio for very small screens */
+    }
+    
+    .play-icon-large {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+    }
+    
+    .video-controls {
+        bottom: 8px;
+        left: 8px;
+        right: 8px;
+        padding: 6px 10px;
+        gap: 6px;
+    }
+    
+    .control-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}
+
+/* Ultra-wide screens (1600px+) */
+@media (min-width: 1600px) {
+    .video-container {
+        max-width: 1000px;
+    }
+    
+    .play-icon-large {
+        width: 120px;
+        height: 120px;
+        font-size: 42px;
+    }
+}
+
+/* Portrait orientation adjustments */
+@media (orientation: portrait) and (max-width: 768px) {
+    .video-container {
+        padding-top: 75%; /* Slightly more square for portrait mobile */
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (orientation: landscape) and (max-height: 500px) {
+    .video-container {
+        padding-top: 45%; /* Wider aspect ratio for landscape mobile */
+    }
+    
+    .play-icon-large {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+    }
+    
+    .video-controls {
+        bottom: 6px;
+        left: 6px;
+        right: 6px;
+        padding: 4px 8px;
+    }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .video-poster {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .video-container {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .play-icon-large {
+        background: rgba(255, 255, 255, 0.95);
+        color: #1a1a1a;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .video-container,
+    .poster-container,
+    .play-icon-large,
+    .video-controls,
+    .control-btn {
+        transition: none;
+    }
+    
+    .poster-container.hidden {
+        transform: none;
+    }
+    
+    .play-icon-large:hover {
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Print styles */
+@media print {
+    .video-container {
+        display: none;
+    }
+}

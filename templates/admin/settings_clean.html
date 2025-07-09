@@ -1,0 +1,249 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Site Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Site Settings</h1>
+        
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>Dynamic Settings:</strong> Changes made here will automatically update across all pages.
+            Use placeholders like <code>{savings}</code>, <code>{deadline}</code>, <code>{spots}</code> in text fields.
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if all_settings %}
+    <form method="POST" action="{{ url_for('admin_update_settings') }}">
+        
+        <!-- Pricing Settings Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-dollar-sign me-2"></i>
+                    Pricing Settings
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for setting in pricing_settings %}
+                    <div class="col-md-6 mb-3">
+                        <label for="setting_{{ setting.key }}" class="form-label">
+                            <strong>{{ setting.key.replace('_', ' ')|title }}</strong>
+                            {% if setting.description %}
+                            <small class="text-muted d-block">{{ setting.description }}</small>
+                            {% endif %}
+                        </label>
+                        {% if setting.value_type == 'number' %}
+                        <input type="number" 
+                               class="form-control" 
+                               id="setting_{{ setting.key }}" 
+                               name="setting_{{ setting.key }}" 
+                               value="{{ setting.value or '' }}"
+                               step="0.01">
+                        {% else %}
+                        <input type="text" 
+                               class="form-control" 
+                               id="setting_{{ setting.key }}" 
+                               name="setting_{{ setting.key }}" 
+                               value="{{ setting.value or '' }}">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Date & Session Settings Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar me-2"></i>
+                    Date & Session Settings
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for setting in date_settings %}
+                    <div class="col-md-6 mb-3">
+                        <label for="setting_{{ setting.key }}" class="form-label">
+                            <strong>{{ setting.key.replace('_', ' ')|title }}</strong>
+                            {% if setting.description %}
+                            <small class="text-muted d-block">{{ setting.description }}</small>
+                            {% endif %}
+                        </label>
+                        {% if setting.value_type == 'date' %}
+                        <input type="date" 
+                               class="form-control" 
+                               id="setting_{{ setting.key }}" 
+                               name="setting_{{ setting.key }}" 
+                               value="{{ setting.value or '' }}">
+                        {% elif setting.value_type == 'datetime' %}
+                        <input type="datetime-local" 
+                               class="form-control" 
+                               id="setting_{{ setting.key }}" 
+                               name="setting_{{ setting.key }}" 
+                               value="{{ setting.value.replace(' ', 'T') if setting.value else '' }}">
+                        {% elif setting.value_type == 'text' %}
+                        <textarea class="form-control" 
+                                  id="setting_{{ setting.key }}" 
+                                  name="setting_{{ setting.key }}" 
+                                  rows="2">{{ setting.value or '' }}</textarea>
+                        {% else %}
+                        <input type="text" 
+                               class="form-control" 
+                               id="setting_{{ setting.key }}" 
+                               name="setting_{{ setting.key }}" 
+                               value="{{ setting.value or '' }}">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Settings Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-edit me-2"></i>
+                    Content Settings
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for setting in content_settings %}
+                    <div class="col-md-6 mb-3">
+                        <label for="setting_{{ setting.key }}" class="form-label">
+                            <strong>{{ setting.key.replace('_', ' ')|title }}</strong>
+                            {% if setting.description %}
+                            <small class="text-muted d-block">{{ setting.description }}</small>
+                            {% endif %}
+                        </label>
+                        {% if setting.value_type == 'text' %}
+                        <textarea class="form-control" 
+                                  id="setting_{{ setting.key }}" 
+                                  name="setting_{{ setting.key }}" 
+                                  rows="3">{{ setting.value or '' }}</textarea>
+                        {% else %}
+                        <input type="text" 
+                               class="form-control" 
+                               id="setting_{{ setting.key }}" 
+                               name="setting_{{ setting.key }}" 
+                               value="{{ setting.value or '' }}">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- General Settings Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-cog me-2"></i>
+                    General Settings
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for setting in general_settings %}
+                    <div class="col-md-6 mb-3">
+                        <label for="setting_{{ setting.key }}" class="form-label">
+                            <strong>{{ setting.key.replace('_', ' ')|title }}</strong>
+                            {% if setting.description %}
+                            <small class="text-muted d-block">{{ setting.description }}</small>
+                            {% endif %}
+                        </label>
+                        {% if setting.value_type == 'boolean' %}
+                        <select class="form-select" 
+                                id="setting_{{ setting.key }}" 
+                                name="setting_{{ setting.key }}">
+                            <option value="true" {% if setting.parsed_value %}selected{% endif %}>Yes</option>
+                            <option value="false" {% if not setting.parsed_value %}selected{% endif %}>No</option>
+                        </select>
+                        {% elif setting.value_type == 'text' %}
+                        <textarea class="form-control" 
+                                  id="setting_{{ setting.key }}" 
+                                  name="setting_{{ setting.key }}" 
+                                  rows="3">{{ setting.value or '' }}</textarea>
+                        {% else %}
+                        <input type="text" 
+                               class="form-control" 
+                               id="setting_{{ setting.key }}" 
+                               name="setting_{{ setting.key }}" 
+                               value="{{ setting.value or '' }}">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Save Button -->
+        <div class="card shadow">
+            <div class="card-body text-center">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Save All Settings
+                </button>
+                <a href="{{ url_for('admin_reset_settings') }}" class="btn btn-warning btn-lg ms-3" 
+                   onclick="return confirm('This will reset all settings to defaults. Are you sure?')">
+                    <i class="fas fa-undo"></i> Reset to Defaults
+                </a>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <div class="card shadow mb-4">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-cog fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Settings Found</h5>
+            <p class="text-muted mb-4">Click "Seed Defaults" to create initial settings for your website.</p>
+            <form method="POST" action="{{ url_for('admin_seed_settings') }}" style="display: inline;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-seedling me-2"></i>Seed Default Settings
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add auto-save functionality
+    const form = document.querySelector('form');
+    if (form) {
+        const inputs = form.querySelectorAll('input, textarea, select');
+        
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Show unsaved changes indicator
+                const submitBtn = document.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.classList.contains('btn-warning')) {
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.add('btn-warning');
+                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Save Changes';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

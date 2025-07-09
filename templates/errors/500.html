@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}Server Error - F.A.C.T.S{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-page">
+                <h1 class="display-1 text-danger">500</h1>
+                <h2 class="mb-4">Internal Server Error</h2>
+                <p class="lead mb-4">
+                    Something went wrong on our end. We're working to fix this issue as quickly as possible.
+                </p>
+                
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Our technical team has been notified and is investigating the problem.
+                </div>
+                
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i>Go Home
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Go Back
+                    </button>
+                </div>
+                
+                <div class="mt-5">
+                    <h5>What happened?</h5>
+                    <p class="text-muted">
+                        A temporary technical issue prevented us from processing your request. 
+                        This usually resolves itself quickly. Please try again in a few minutes.
+                    </p>
+                </div>
+                
+                {% if config.DEBUG %}
+                <div class="mt-4 text-start">
+                    <details class="bg-light p-3 rounded">
+                        <summary class="text-danger fw-bold">Debug Information (Development Only)</summary>
+                        <pre class="mt-2 text-dark small">{{ error }}</pre>
+                    </details>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page {
+    padding: 2rem 0;
+}
+
+.error-page h1 {
+    font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .error-page h1 {
+        font-size: 4rem;
+    }
+}
+</style>
+{% endblock %}

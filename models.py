@@ -36,7 +36,12 @@ class SiteSetting(db.Model):
                 return None
         elif self.value_type == 'datetime':
             try:
-                return datetime.strptime(self.value, '%Y-%m-%d %H:%M:%S')
+                # Handle ISO format first (2025-07-31T23:59:59)
+                if 'T' in self.value:
+                    return datetime.fromisoformat(self.value)
+                else:
+                    # Handle standard format (2025-07-31 23:59:59)
+                    return datetime.strptime(self.value, '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 return None
         elif self.value_type == 'number':

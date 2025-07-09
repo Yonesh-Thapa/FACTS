@@ -16,7 +16,24 @@ class MentorVideoPlayer {
         this.maxRetries = 3;
         this.userHasInteracted = false;
         
+        // Enhanced device detection for better autoplay
+        this.deviceInfo = this.detectDevice();
+        
         this.init();
+    }
+    
+    detectDevice() {
+        const userAgent = navigator.userAgent;
+        return {
+            isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent),
+            isIOS: /iPad|iPhone|iPod/.test(userAgent),
+            isAndroid: /Android/.test(userAgent),
+            isSafari: /^((?!chrome|android).)*safari/i.test(userAgent),
+            isChrome: /Chrome/.test(userAgent),
+            isFirefox: /Firefox/.test(userAgent),
+            isEdge: /Edge/.test(userAgent),
+            supportsIntersectionObserver: 'IntersectionObserver' in window
+        };
     }
     
     init() {
@@ -41,6 +58,7 @@ class MentorVideoPlayer {
             this.setupControls();
             this.setupEventListeners();
             this.setupInteractionListeners();
+            this.setupIntersectionObserver();
             this.attemptAutoplay();
         } catch (error) {
             console.error('Error setting up video player:', error);
@@ -164,25 +182,90 @@ class MentorVideoPlayer {
         });
     }
     
+    setupIntersectionObserver() {
+        if (!this.deviceInfo.supportsIntersectionObserver || !this.videoElement) return;
+        
+        const options = {
+            root: null,
+            rootMargin: '50px',
+            threshold: 0.25
+        };
+        
+        this.intersectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Video is in viewport, attempt autoplay if not already playing
+                    if (!this.isPlaying && this.videoElement.paused) {
+                        setTimeout(() => this.attemptAutoplay(), 100);
+                    }
+                } else {
+                    // Video is out of viewport, pause to save bandwidth
+                    if (this.isPlaying && !this.videoElement.paused) {
+                        this.videoElement.pause();
+                    }
+                }
+            });
+        }, options);
+        
+        this.intersectionObserver.observe(this.videoElement);
+    }
+    
     async attemptAutoplay() {
         if (this.isPlaying || !this.videoElement) return;
         
         try {
-            // Ensure video is muted for autoplay
+            // Enhanced autoplay logic for all devices
             this.videoElement.muted = true;
             this.videoElement.volume = 0;
+            this.videoElement.defaultMuted = true;
             
-            console.log('Attempting video autoplay...');
+            // Set additional mobile-friendly attributes
+            this.videoElement.setAttribute('playsinline', '');
+            this.videoElement.setAttribute('webkit-playsinline', '');
+            this.videoElement.setAttribute('x5-playsinline', '');
+            this.videoElement.setAttribute('x5-video-player-type', 'h5');
             
-            const playPromise = this.videoElement.play();
+            console.log('Attempting enhanced video autoplay...');
             
-            if (playPromise !== undefined) {
-                await playPromise;
-                console.log('Video autoplay successful');
-                this.onAutoplaySuccess();
+            // Multiple autoplay strategies
+            const strategies = [
+                // Strategy 1: Direct play
+                () => this.videoElement.play(),
+                
+                // Strategy 2: Load then play
+                () => {
+                    this.videoElement.load();
+                    return new Promise(resolve => {
+                        this.videoElement.addEventListener('loadeddata', () => {
+                            resolve(this.videoElement.play());
+                        }, { once: true });
+                    });
+                },
+                
+                // Strategy 3: Short delay then play
+                () => new Promise(resolve => {
+                    setTimeout(() => resolve(this.videoElement.play()), 100);
+                })
+            ];
+            
+            for (let i = 0; i < strategies.length; i++) {
+                try {
+                    const playPromise = await strategies[i]();
+                    if (playPromise !== undefined) {
+                        await playPromise;
+                    }
+                    console.log(`Video autoplay successful with strategy ${i + 1}`);
+                    this.onAutoplaySuccess();
+                    return;
+                } catch (strategyError) {
+                    console.log(`Autoplay strategy ${i + 1} failed:`, strategyError.message);
+                    if (i === strategies.length - 1) {
+                        throw strategyError;
+                    }
+                }
             }
         } catch (error) {
-            console.log('Autoplay failed (normal on mobile):', error.message);
+            console.log('All autoplay strategies failed (normal on mobile):', error.message);
             this.onAutoplayFailed();
         }
     }
@@ -368,7 +451,37 @@ let mentorVideoPlayer;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         mentorVideoPlayer = new MentorVideoPlayer();
+        setupGlobalVideoHandlers();
     });
 } else {
     mentorVideoPlayer = new MentorVideoPlayer();
+    setupGlobalVideoHandlers();
+}
+
+// Setup global video event handlers
+function setupGlobalVideoHandlers() {
+    // Handle page visibility changes for better autoplay
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && mentorVideoPlayer) {
+            // Page became visible, retry autoplay if video is paused
+            setTimeout(() => {
+                if (mentorVideoPlayer.videoElement && 
+                    mentorVideoPlayer.videoElement.paused && 
+                    !mentorVideoPlayer.isPlaying) {
+                    mentorVideoPlayer.attemptAutoplay();
+                }
+            }, 300);
+        }
+    });
+    
+    // Additional retry mechanism for challenging cases
+    setTimeout(() => {
+        if (mentorVideoPlayer && 
+            mentorVideoPlayer.videoElement && 
+            mentorVideoPlayer.videoElement.paused && 
+            mentorVideoPlayer.videoElement.currentTime === 0) {
+            console.log('Video still not playing, final retry attempt');
+            mentorVideoPlayer.attemptAutoplay();
+        }
+    }, 2000);
 }
